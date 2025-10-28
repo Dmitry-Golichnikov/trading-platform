@@ -38,8 +38,9 @@ dependencies = [
     "catboost>=1.2.0",
     "torch>=2.0.0",
     "pytorch-lightning>=2.0.0",
-    "ta-lib>=0.4.26",
-    "pandas-ta==0.4.71b0",
+    "TA-Lib",
+    "pandas-ta @ https://github.com/Data-Analisis/Technical-Analysis-Indicators---Pandas/archive/refs/heads/master.zip",
+    "TA-Lib",
     "pydantic>=2.0.0",
     "jsonschema>=4.17.0",
     "pyyaml>=6.0",
@@ -52,10 +53,6 @@ dependencies = [
     "loguru>=0.7.0",
     "tqdm>=4.65.0",
     "click>=8.1.0",
-]
-
-[project.optional-dependencies]
-dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
     "pytest-benchmark>=4.0.0",

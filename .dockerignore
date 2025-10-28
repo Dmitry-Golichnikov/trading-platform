@@ -1,6 +1,7 @@
 # Git
 .git
 .gitignore
+.gitattributes
 
 # Python
 __pycache__/
@@ -11,53 +12,59 @@ __pycache__/
 *.egg-info/
 dist/
 build/
-
-# Virtual environments
-env/
-venv/
 .venv/
+venv/
+env/
 
 # IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
+.DS_Store
 
-# Artifacts - we'll mount these as volumes
+# Artifacts
 artifacts/
+*.log
+*.pkl
+*.pth
+*.pt
+*.onnx
+*.parquet
+*.csv
+*.db
+htmlcov/
 
 # Testing
 .pytest_cache/
 .coverage
-htmlcov/
+.hypothesis/
 .mypy_cache/
 
 # Documentation
 docs/
-
-# Plan files
-plan/
-
-# Environment files
-.env
-.env.local
-
-# OS
-.DS_Store
-Thumbs.db
+*.md
+!README.md
 
 # Jupyter
 .ipynb_checkpoints/
 *.ipynb
 
-# Logs
-*.log
+# Environment
+.env
+.env.local
+.env.example
 
-# Large files
-*.parquet
-*.csv
-*.pkl
-*.pth
-*.pt
-*.onnx
-*.db
+# CI/CD
+.github/
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Development
+scripts/
+tests/
+infra/
+plan/

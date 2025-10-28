@@ -126,16 +126,47 @@ python -m src.interfaces.cli backtest run --config configs/backtests/strategy1.y
 
 ### Docker
 
+Проект предоставляет готовые Docker конфигурации для работы на CPU и GPU.
+
+#### CPU режим (ноутбук)
+
 ```bash
-# Сборка образа
-docker build -t trading-platform .
+# Создайте .env файл
+cp .env.example .env
 
-# Запуск на CPU
-docker-compose -f docker-compose.cpu.yml up
-
-# Запуск на GPU
-docker-compose -f docker-compose.gpu.yml up
+# Сборка и запуск контейнера
+docker compose -f docker-compose.cpu.yml up -d trading-platform-cpu
 ```
+
+```bash
+# Остановить контейнер
+docker compose -f docker-compose.cpu.yml down
+```
+
+#### GPU режим (стационарный ПК)
+
+**Требования**: NVIDIA GPU, CUDA 11.8+, NVIDIA Container Toolkit / Docker Desktop GPU support
+
+```bash
+# Сборка и запуск контейнера (используется официальный pytorch/pytorch)
+docker compose -f docker-compose.gpu.yml up -d trading-platform-gpu
+```
+
+```bash
+# Остановить контейнер
+docker compose -f docker-compose.gpu.yml down
+```
+
+> ℹ️ Если внутри контейнера нужны инструменты разработки (pytest, black, Jupyter и т.д.), установите dev-зависимости вручную: `docker compose -f docker-compose.<cpu|gpu>.yml exec <service> pip install -r requirements-dev.txt`.
+
+#### Доступ к сервисам в Development режиме
+
+- **Контейнер**: подключение через `docker compose ... exec <service> bash`
+- **MLflow / Jupyter**: устанавливаются вручную при необходимости (`pip install -r requirements-dev.txt`, запуск из shell)
+
+> ℹ️ **Windows**: используйте Docker Desktop с WSL2, убедитесь что проект находится в расшариваемом каталоге (`C:\Users\<user>\`), и запускайте команды через PowerShell/WSL2. Для GPU включите поддержку GPU в Docker Desktop и обновите драйвер NVIDIA (522+).
+
+📚 **Подробное руководство**: [docs/Docker_Guide.md](docs/Docker_Guide.md)
 
 ## Разработка
 
@@ -174,10 +205,20 @@ mypy src/
 
 ## Документация
 
+### Общее
 - [Техническое задание](technical_spec.md)
 - [План реализации](plan/README.md)
 - [Быстрый старт](plan/QUICK_START.md)
+
+### Инфраструктура
+- [Docker руководство](docs/Docker_Guide.md) - Полное руководство по использованию Docker
 - [Системная документация](docs/system/)
+
+### Компоненты
+- [Данные](docs/artifacts/Datasets_and_Feature_Store.md)
+- [Модели](docs/models/)
+- [Индикаторы](docs/indicators/)
+- [Метрики](docs/metrics/)
 
 ## Roadmap
 

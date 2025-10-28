@@ -1,0 +1,85 @@
+services:
+  trading-platform-gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: gpu-production
+    container_name: trading-platform-gpu
+    image: trading-platform:gpu
+
+    # NVIDIA GPU support
+    runtime: nvidia
+
+    # Переменные окружения
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - LOG_FORMAT=${LOG_FORMAT:-json}
+      - GPU_ENABLED=true
+      - GPU_DEVICE_ID=${GPU_DEVICE_ID:-0}
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
+      - N_JOBS=${N_JOBS:--1}
+      - MLFLOW_TRACKING_URI=file:///app/artifacts/mlruns
+      - DATA_DIR=/app/artifacts/data
+      - MODELS_DIR=/app/artifacts/models
+      - LOGS_DIR=/app/artifacts/logs
+      - TINKOFF_API_SANDBOX=${TINKOFF_API_SANDBOX:-true}
+      # PyTorch настройки
+      - TORCH_CUDA_ARCH_LIST=7.0;7.5;8.0;8.6;8.9;9.0
+      - PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+
+    # Загрузка переменных из .env файла
+    env_file:
+      - .env
+
+    # Volume mounts
+    volumes:
+      - ./artifacts:/app/artifacts
+      - ./configs:/app/configs:ro
+      - ./logs:/app/logs
+
+    # GPU device mapping
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['${GPU_DEVICE_ID:-0}']
+              capabilities: [gpu, compute, utility]
+        limits:
+          cpus: '12'
+          memory: 16G
+
+    # Restart policy
+    restart: unless-stopped
+
+    command: ["sleep", "infinity"]
+
+    # Healthcheck с проверкой GPU
+    healthcheck:
+      test: ["CMD", "python", "-c", "import src; import torch; assert torch.cuda.is_available(); print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+    # Networking
+    networks:
+      - trading-network
+
+    # Логирование
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Security options
+    security_opt:
+      - seccomp:unconfined
+
+    # IPC mode для shared memory (важно для PyTorch DataLoader)
+    ipc: host
+
+networks:
+  trading-network:
+    driver: bridge

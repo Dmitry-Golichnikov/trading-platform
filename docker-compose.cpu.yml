@@ -1,0 +1,60 @@
+services:
+  trading-platform-cpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: trading-platform-cpu
+    image: trading-platform:cpu
+
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - LOG_FORMAT=${LOG_FORMAT:-json}
+      - GPU_ENABLED=false
+      - N_JOBS=${N_JOBS:--1}
+      - MLFLOW_TRACKING_URI=file:///app/artifacts/mlruns
+      - DATA_DIR=/app/artifacts/data
+      - MODELS_DIR=/app/artifacts/models
+      - LOGS_DIR=/app/artifacts/logs
+      - TINKOFF_API_SANDBOX=${TINKOFF_API_SANDBOX:-true}
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./artifacts:/app/artifacts
+      - ./configs:/app/configs:ro
+      - ./logs:/app/logs
+
+    deploy:
+      resources:
+        limits:
+          cpus: '12'
+          memory: 16G
+        reservations:
+          cpus: '2'
+          memory: 4G
+
+    restart: unless-stopped
+
+    command: ["sleep", "infinity"]
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import src; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    networks:
+      - trading-network
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  trading-network:
+    driver: bridge
