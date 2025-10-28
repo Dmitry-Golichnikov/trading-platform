@@ -36,11 +36,6 @@ dependencies = [
     "lightgbm>=4.0.0",
     "xgboost>=2.0.0",
     "catboost>=1.2.0",
-    "torch>=2.0.0",
-    "pytorch-lightning>=2.0.0",
-    "TA-Lib",
-    "pandas-ta @ https://github.com/Data-Analisis/Technical-Analysis-Indicators---Pandas/archive/refs/heads/master.zip",
-    "TA-Lib",
     "pydantic>=2.0.0",
     "jsonschema>=4.17.0",
     "pyyaml>=6.0",
@@ -82,6 +77,22 @@ dependencies = [
     "types-pytz>=2025.2.0.20250809",
     "jupyter>=1.0.0",
     "ipykernel>=6.25.0",
+]
+
+[project.optional-dependencies]
+cpu = [
+    "torch>=2.0.0",
+    "pytorch-lightning>=2.0.0",
+]
+gpu = [
+    "torch>=2.0.0",
+    "pytorch-lightning>=2.0.0",
+    "torchvision>=0.15.0",
+    "torchaudio>=2.0.0",
+]
+tech-analysis = [
+    "TA-Lib",
+    "pandas-ta @ https://github.com/Data-Analisis/Technical-Analysis-Indicators---Pandas/archive/refs/heads/master.zip",
 ]
 
 [project.urls]

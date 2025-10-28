@@ -192,12 +192,11 @@ docker compose -f docker-compose.gpu.yml exec trading-platform-gpu python -c "im
 docker compose -f docker-compose.gpu.yml down
 ```
 
-> ⚠️ Для интерактивной разработки внутри контейнера (Jupyter, тесты, MLflow) установите dev-зависимости вручную: `docker compose -f docker-compose.<cpu|gpu>.yml exec <service> pip install -r requirements-dev.txt`.
-
 ### Обновление зависимостей
 
-- **Torch не устанавливается через requirements.txt** — он уже присутствует в базовом образе PyTorch.
-- При обновлении PyTorch достаточно изменить тег образа в `Dockerfile` и пересобрать контейнеры.
+- CPU образ собирает зависимости из `requirements/base.txt`. Для PyTorch и связанных пакетов используйте `requirements/cpu.txt`.
+- GPU образ ставит зависимости из `requirements/gpu.txt`; базовый образ уже содержит CUDA-runtime.
+- Обновляя версии, корректируйте соответствующий файл и пересобирайте контейнеры.
 
 Доступ к сервисам:
 - Jupyter Lab: http://localhost:8888

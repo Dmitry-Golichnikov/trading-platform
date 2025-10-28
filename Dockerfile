@@ -45,8 +45,10 @@ WORKDIR /app
 # ============================================================================
 FROM base AS dependencies
 
+ARG CPU_REQUIREMENTS=cpu
+
 # Копирование файлов зависимостей
-COPY requirements.txt ./
+COPY requirements/${CPU_REQUIREMENTS}.txt ./requirements.txt
 
 # Установка Python зависимостей
 RUN pip install --upgrade pip setuptools wheel && \
@@ -143,7 +145,7 @@ RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
 FROM gpu-base AS gpu-production
 
 # Копирование файлов зависимостей
-COPY requirements.txt ./
+COPY requirements/gpu.txt ./requirements.txt
 
 # Установка Python зависимостей (с GPU поддержкой для PyTorch)
 RUN pip install --upgrade pip setuptools wheel && \

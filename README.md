@@ -157,7 +157,6 @@ docker compose -f docker-compose.gpu.yml up -d trading-platform-gpu
 docker compose -f docker-compose.gpu.yml down
 ```
 
-> ℹ️ Если внутри контейнера нужны инструменты разработки (pytest, black, Jupyter и т.д.), установите dev-зависимости вручную: `docker compose -f docker-compose.<cpu|gpu>.yml exec <service> pip install -r requirements-dev.txt`.
 
 #### Доступ к сервисам в Development режиме
 
