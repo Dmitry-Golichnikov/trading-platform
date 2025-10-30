@@ -34,7 +34,12 @@ git clone https://github.com/your-username/trading-platform.git
 cd trading-platform
 ```
 
-### 2. Создание виртуального окружения
+### 2. Выбор метода установки
+
+#### Вариант A — pip (только CPU)
+
+- Подходит, если не требуется поддержка GPU.
+- Создайте виртуальное окружение и активируйте его:
 
 ```bash
 # Windows
@@ -46,22 +51,37 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-### 3. Установка зависимостей
+- Установите зависимости:
 
 ```bash
-# Основные зависимости
-pip install -r requirements.txt
-
-# Зависимости для разработки
-pip install -r requirements-dev.txt
+pip install -r requirements/base.txt
+pip install -r requirements/cpu.txt
 ```
 
-**Примечание**: TA-Lib требует предварительной установки C библиотеки:
-- **Windows**: Скачайте wheel файл с [Unofficial Windows Binaries](https://www.lfd.uci.edu/~gohlke/pythonlibs/#ta-lib)
-- **Linux**: `sudo apt-get install ta-lib`
-- **macOS**: `brew install ta-lib`
+> TA-Lib требует системную библиотеку: Windows — wheel с [Unofficial Windows Binaries](https://www.lfd.uci.edu/~gohlke/pythonlibs/#ta-lib), Linux — `sudo apt-get install ta-lib`, macOS — `brew install ta-lib`.
 
-### 4. Настройка окружения
+#### Вариант B — Conda (CPU и GPU)
+
+- Убедитесь, что выполнено `conda init` для вашей оболочки (например, `conda init powershell`).
+- Создайте окружение под нужную конфигурацию:
+
+```bash
+# CPU
+conda env create -f requirements/conda-cpu.yml
+conda activate trading-platform-cpu
+
+# GPU
+conda env create -f requirements/conda-gpu.yml
+conda activate trading-platform-gpu
+```
+
+#### Вариант C — Docker (CPU и GPU)
+
+- Для CPU: `docker compose -f docker-compose.cpu.yml up -d trading-platform-cpu`
+- Для GPU: `docker compose -f docker-compose.gpu.yml up -d trading-platform-gpu` (нужен NVIDIA Container Toolkit)
+- Для разработки доступны сервисы `trading-platform-dev` и `trading-platform-gpu-dev`.
+
+### 3. Настройка окружения
 
 ```bash
 # Скопируйте шаблон конфигурации
@@ -71,7 +91,7 @@ cp .env.example .env
 # Например, TINKOFF_API_TOKEN для работы с Tinkoff API
 ```
 
-### 5. Проверка установки
+### 4. Проверка установки
 
 ```bash
 # Запустите тесты

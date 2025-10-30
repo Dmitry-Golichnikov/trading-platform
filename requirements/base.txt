@@ -1,5 +1,5 @@
 # Core
-numpy>=1.24.0
+numpy>=1.24.0,<2.0.0
 pandas>=2.0.0
 pyarrow>=11.0.0  # для Parquet
 
@@ -75,3 +75,7 @@ types-pytz>=2025.2.0.20250809
 # Jupyter
 jupyter>=1.0.0
 ipykernel>=6.25.0
+
+# Technical analysis
+pandas-ta @ https://github.com/Data-Analisis/Technical-Analysis-Indicators---Pandas/archive/refs/heads/master.zip
+TA-Lib

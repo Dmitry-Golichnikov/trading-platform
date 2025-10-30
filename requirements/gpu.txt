@@ -1,7 +1,6 @@
 # GPU профиль зависимостей
 -r base.txt
 
-torch>=2.0.0
-pytorch-lightning>=2.0.0
-torchvision>=0.15.0
-torchaudio>=2.0.0
+# PyTorch устанавливается через conda
+# Команда для установки (выполните перед pip install -r requirements/gpu.txt):
+#   conda install pytorch torchvision torchaudio -c pytorch -c nvidia

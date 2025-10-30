@@ -1,9 +1,5 @@
 # CPU профиль зависимостей
 -r base.txt
 
-# Technical analysis
-pandas-ta @ https://github.com/Data-Analisis/Technical-Analysis-Indicators---Pandas/archive/refs/heads/master.zip
-TA-Lib
-
 torch>=2.0.0
 pytorch-lightning>=2.0.0
