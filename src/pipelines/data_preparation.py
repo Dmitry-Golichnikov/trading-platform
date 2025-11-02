@@ -127,10 +127,13 @@ class DataPreparationPipeline:
     async def _process_ticker(self, ticker: str) -> PipelineResult:
         """Обработать данные для одного тикера."""
         self._warning_buffer.setdefault(ticker, [])
-        expected_years = self._determine_expected_years(ticker)
-        existing_years = self._list_existing_years(ticker, self.base_timeframe)
+        (
+            expected_years,
+            existing_years,
+            missing_years_initial,
+        ) = self._detect_missing_years(ticker)
 
-        years_to_process = self._plan_years(expected_years, existing_years)
+        years_to_process = self._plan_years(set(missing_years_initial), existing_years)
         total_years = len(years_to_process)
 
         logger.info(
@@ -188,57 +191,27 @@ class DataPreparationPipeline:
 
         combined = pd.concat(frames, ignore_index=True)
 
-        combined = self._postprocess_dataframe(combined, ticker)
+        metadata_records = self._persist_timeframes(ticker, combined)
 
-        self._run_validations(combined, self.base_timeframe, ticker)
+        _, _, missing_years_set = self._detect_missing_years(ticker)
+        missing_years = sorted(missing_years_set)
 
-        metadata_records: list[DatasetMetadata] = []
-
-        # Сохранить базовый таймфрейм
-        base_metadata = self._save_dataset(
-            data=combined,
-            ticker=ticker,
-            timeframe=self.base_timeframe,
-        )
-        metadata_records.append(base_metadata)
-
-        # Ресэмплинг в остальные таймфреймы
-        target_timeframes = [
-            tf for tf in self.target_timeframes if tf != self.base_timeframe
-        ]
-        resampled_map = self.resampler.resample_multiple_timeframes(
-            combined,
-            source_tf=self.base_timeframe,
-            target_tfs=target_timeframes,
-        )
-
-        for timeframe, dataset in resampled_map.items():
-            if timeframe == self.base_timeframe:
-                continue
-            if dataset.empty:
-                logger.warning(
-                    "Ticker %s timeframe %s produced empty dataset", ticker, timeframe
-                )
-                continue
-
-            dataset = self._postprocess_dataframe(dataset, ticker)
-            self._run_validations(
-                dataset, timeframe, ticker, context=f"{ticker}:{timeframe}"
-            )
-            metadata = self._save_dataset(
-                data=dataset,
-                ticker=ticker,
-                timeframe=timeframe,
-            )
-            metadata_records.append(metadata)
-
-        missing_years = sorted(
-            expected_years - self._list_existing_years(ticker, self.base_timeframe)
-        )
+        if missing_years and self.config.backfill_missing:
+            backfill_metadata = await self._backfill_missing(ticker, missing_years)
+            if backfill_metadata:
+                metadata_records.extend(backfill_metadata)
+                _, _, missing_years_set = self._detect_missing_years(ticker)
+                missing_years = sorted(missing_years_set)
         if missing_years and not self.config.backfill_missing:
             logger.warning(
                 "Ticker %s still has missing years after processing "
                 "(backfill disabled): %s",
+                ticker,
+                missing_years,
+            )
+        elif missing_years:
+            logger.warning(
+                "Ticker %s still has missing years after backfill attempt: %s",
                 ticker,
                 missing_years,
             )
@@ -292,6 +265,59 @@ class DataPreparationPipeline:
             )
             return df
 
+    def _persist_timeframes(
+        self, ticker: str, base_data: pd.DataFrame
+    ) -> list[DatasetMetadata]:
+        """Сохранить данные базового и производных таймфреймов."""
+        standardized_base = self._postprocess_dataframe(base_data, ticker)
+
+        metadata_records: list[DatasetMetadata] = []
+
+        if self.config.validate_data:
+            self._run_validations(standardized_base, self.base_timeframe, ticker)
+
+        base_metadata = self._save_dataset(
+            data=standardized_base,
+            ticker=ticker,
+            timeframe=self.base_timeframe,
+        )
+        metadata_records.append(base_metadata)
+
+        target_timeframes = [
+            tf for tf in self.target_timeframes if tf != self.base_timeframe
+        ]
+        resampled_map = self.resampler.resample_multiple_timeframes(
+            standardized_base,
+            source_tf=self.base_timeframe,
+            target_tfs=target_timeframes,
+        )
+
+        for timeframe, dataset in resampled_map.items():
+            if timeframe == self.base_timeframe:
+                continue
+            if dataset.empty:
+                logger.warning(
+                    "Ticker %s timeframe %s produced empty dataset", ticker, timeframe
+                )
+                continue
+
+            standardized_dataset = self._postprocess_dataframe(dataset, ticker)
+            if self.config.validate_data:
+                self._run_validations(
+                    standardized_dataset,
+                    timeframe,
+                    ticker,
+                    context=f"{ticker}:{timeframe}",
+                )
+            metadata = self._save_dataset(
+                data=standardized_dataset,
+                ticker=ticker,
+                timeframe=timeframe,
+            )
+            metadata_records.append(metadata)
+
+        return metadata_records
+
     def _postprocess_dataframe(self, df: pd.DataFrame, ticker: str) -> pd.DataFrame:
         """Привести DataFrame к стандартизованной форме."""
         if "timestamp" not in df.columns:
@@ -320,6 +346,8 @@ class DataPreparationPipeline:
         context: str | None = None,
     ) -> list[str]:
         """Запустить все валидаторы для датасета."""
+        if not self.config.validate_data:
+            return []
         context_info = f"[{context}]" if context else ""
         schema_result = self.schema_validator.validate_all(data)
         integrity_result = self.integrity_validator.validate_all(data, timeframe)
@@ -441,19 +469,58 @@ class DataPreparationPipeline:
                 continue
         return years
 
-    def _plan_years(self, expected: set[int], existing: set[int]) -> list[int]:
-        """Определить список годов для загрузки."""
-        missing = set(expected) - set(existing)
+    def _detect_missing_years(self, ticker: str) -> tuple[set[int], set[int], set[int]]:
+        """Определить ожидаемые, существующие и отсутствующие годы."""
+        expected = self._determine_expected_years(ticker)
+        existing = self._list_existing_years(ticker, self.base_timeframe)
+        missing = expected - existing
+        return expected, existing, missing
 
-        current_year = self.config.to_date.year
-        if self.config.update_latest_year:
-            missing.add(current_year)
+    def _plan_years(self, missing: set[int], _existing: set[int]) -> list[int]:
+        """Определить список годов для загрузки."""
+        planned = set(missing)
+        planned = self._refresh_latest_year(planned)
 
         if not self.config.backfill_missing:
-            # Если backfill отключен, загружаем только текущий год (для обновления)
-            return sorted({year for year in missing if year == current_year})
+            latest_year = self.config.to_date.year
+            planned = {year for year in planned if year == latest_year}
 
-        return sorted(missing)
+        return sorted(planned)
+
+    def _refresh_latest_year(self, planned: set[int]) -> set[int]:
+        """Добавить текущий год для обновления, если требуется."""
+        if not self.config.update_latest_year:
+            return planned
+        current_year = self.config.to_date.year
+        planned.add(current_year)
+        return planned
+
+    async def _backfill_missing(
+        self, ticker: str, missing_years: Sequence[int]
+    ) -> list[DatasetMetadata]:
+        """Докачать отсутствующие годы и сохранить результаты."""
+        if not missing_years:
+            return []
+
+        logger.info("Backfilling missing years for %s: %s", ticker, missing_years)
+
+        frames: list[pd.DataFrame] = []
+        for year in missing_years:
+            df = await self._load_year_data(ticker, year)
+            if df.empty:
+                warning = (
+                    f"Backfill skipped for {ticker} {year}: data unavailable or empty"
+                )
+                logger.warning(warning)
+                self._warning_buffer[ticker].append(warning)
+                continue
+            frames.append(df)
+
+        if not frames:
+            return []
+
+        combined = pd.concat(frames, ignore_index=True)
+        return self._persist_timeframes(ticker, combined)
 
     def _detect_base_timeframe(self) -> str:
         """Определить исходный таймфрейм для загрузки."""

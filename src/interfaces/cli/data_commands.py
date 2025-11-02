@@ -478,3 +478,107 @@ def dataset_info(ticker: str, timeframe: Optional[str]) -> None:
         )
 
     console.print(table)
+
+
+@data.command("export-dataset", help="Экспортировать датасет в указанный формат")
+@click.option("--ticker", required=True, help="Тикер")
+@click.option("--timeframe", required=True, help="Таймфрейм")
+@click.option(
+    "--format",
+    "export_format",
+    type=click.Choice(["csv", "parquet", "json"]),
+    default="csv",
+    show_default=True,
+    help="Формат экспорта",
+)
+@click.option(
+    "--output",
+    type=click.Path(path_type=Path),
+    help=(
+        "Путь к выходному файлу (если не указан, "
+        "использовать {ticker}_{timeframe}.{format})"
+    ),
+)
+@click.option(
+    "--from-date",
+    type=click.DateTime(["%Y-%m-%d"]),
+    help="Начальная дата (если не указана, экспортировать весь датасет)",
+)
+@click.option(
+    "--to-date",
+    type=click.DateTime(["%Y-%m-%d"]),
+    help="Конечная дата (если не указана, экспортировать весь датасет)",
+)
+@click.option(
+    "--compress/--no-compress",
+    default=False,
+    show_default=True,
+    help="Сжать выходной файл (gzip)",
+)
+def export_dataset(
+    ticker: str,
+    timeframe: str,
+    export_format: str,
+    output: Optional[Path],
+    from_date: Optional[datetime],
+    to_date: Optional[datetime],
+    compress: bool,
+) -> None:
+    """Экспортировать датасет в указанный формат."""
+    from src.common.exceptions import StorageError
+
+    storage = ParquetStorage()
+
+    # Загрузить датасет
+    try:
+        data = storage.load_dataset(
+            ticker,
+            timeframe,
+            from_date=from_date,
+            to_date=to_date,
+        )
+    except StorageError as e:
+        console.print(f"[red]Ошибка загрузки датасета:[/red] {e}")
+        return
+
+    if data.empty:
+        console.print("[yellow]Датасет пустой[/yellow]")
+        return
+
+    # Определить имя выходного файла
+    if output is None:
+        suffix = f".{export_format}"
+        if compress and export_format == "csv":
+            suffix += ".gz"
+        output = Path(f"{ticker}_{timeframe}{suffix}")
+
+    # Экспортировать в указанный формат
+    try:
+        if export_format == "csv":
+            if compress:
+                data.to_csv(output, index=False, compression="gzip")
+            else:
+                data.to_csv(output, index=False)
+        elif export_format == "parquet":
+            # mypy требует Literal для compression
+            if compress:
+                data.to_parquet(str(output), compression="gzip", index=False)
+            else:
+                data.to_parquet(str(output), compression="snappy", index=False)
+        elif export_format == "json":
+            if compress:
+                import gzip
+
+                with gzip.open(output, "wt", encoding="utf-8") as f:
+                    data.to_json(f, orient="records", date_format="iso", indent=2)
+            else:
+                data.to_json(output, orient="records", date_format="iso", indent=2)
+
+        file_size = output.stat().st_size / (1024 * 1024)  # MB
+        console.print(
+            f"[green]Экспорт завершён:[/green] {output.as_posix()} "
+            f"({len(data)} bars, {file_size:.2f} MB)"
+        )
+
+    except Exception as e:
+        console.print(f"[red]Ошибка экспорта:[/red] {e}")
