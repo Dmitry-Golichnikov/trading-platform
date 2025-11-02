@@ -37,6 +37,7 @@ dependencies = [
     "xgboost>=2.0.0",
     "catboost>=1.2.0",
     "pydantic>=2.0.0",
+    "python-dotenv>=1.0.0",
     "jsonschema>=4.17.0",
     "pyyaml>=6.0",
     "python-dotenv>=1.0.0",
@@ -48,6 +49,7 @@ dependencies = [
     "loguru>=0.7.0",
     "tqdm>=4.65.0",
     "click>=8.1.0",
+    "rich>=13.6.0",
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
     "pytest-benchmark>=4.0.0",
@@ -142,6 +144,7 @@ module = [
     "lightgbm.*",
     "xgboost.*",
     "catboost.*",
+    "tqdm.*",
     "talib.*",
 ]
 ignore_missing_imports = true
@@ -163,6 +166,7 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "gpu: marks tests that require GPU",
     "integration: marks integration tests",
+    "performance: marks performance-sensitive tests",
     "e2e: marks end-to-end tests",
 ]
 

@@ -12,7 +12,7 @@ catboost>=1.2.0
 # Data validation
 pydantic>=2.0.0
 jsonschema>=4.17.0
-
+rich>=13.6.0
 # Configuration
 pyyaml>=6.0
 python-dotenv>=1.0.0

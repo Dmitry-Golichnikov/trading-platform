@@ -1,5 +1,7 @@
 """Тесты для модуля validation."""
 
+from datetime import datetime
+
 import pandas as pd
 import pytest
 from pydantic import ValidationError
@@ -14,7 +16,7 @@ from src.common.validation import (
 def test_ohlcv_data_valid() -> None:
     """Тест валидных OHLCV данных."""
     data = OHLCVData(
-        timestamp="2024-01-01 00:00:00",
+        timestamp=datetime.fromisoformat("2024-01-01 00:00:00"),
         open=100.0,
         high=105.0,
         low=95.0,
@@ -33,7 +35,7 @@ def test_ohlcv_data_invalid_high_low() -> None:
     """Тест невалидных OHLCV данных (high < low)."""
     with pytest.raises(ValidationError):
         OHLCVData(
-            timestamp="2024-01-01 00:00:00",
+            timestamp=datetime.fromisoformat("2024-01-01 00:00:00"),
             open=100.0,
             high=90.0,  # меньше low
             low=95.0,
@@ -62,7 +64,7 @@ def test_ohlcv_data_relationships_invalid(
 
     with pytest.raises(ValidationError, match=error_message):
         OHLCVData(
-            timestamp="2024-01-01 00:00:00",
+            timestamp=datetime.fromisoformat("2024-01-01 00:00:00"),
             open=open,
             high=high,
             low=low,
