@@ -14,7 +14,25 @@ from rich.console import Console
 from rich.table import Table
 from tqdm.auto import tqdm
 
+from src.data.cleaners import (
+    DataCorrector,
+    DuplicateHandler,
+    MissingDataHandler,
+)
+from src.data.filters import (
+    DataFilter,
+    PriceAnomalyFilter,
+    VolumeAnomalyFilter,
+)
+from src.data.filters.composite import FilterPipeline
+from src.data.filters.liquidity import LiquidityFilter
+from src.data.filters.outliers import StatisticalOutlierFilter
 from src.data.preprocessors.resampler import TimeframeResampler
+from src.data.quality import (
+    ComparisonReport,
+    DataQualityMetrics,
+    QualityReport,
+)
 from src.data.schemas import DatasetConfig
 from src.data.storage.catalog import DatasetCatalog
 from src.data.storage.parquet_storage import (
@@ -23,7 +41,11 @@ from src.data.storage.parquet_storage import (
     TimeframeLiteral,
 )
 from src.data.storage.versioning import DataVersioning
-from src.data.validators import IntegrityValidator, QualityValidator, SchemaValidator
+from src.data.validators import (
+    IntegrityValidator,
+    QualityValidator,
+    SchemaValidator,
+)
 from src.pipelines import DataPreparationPipeline
 
 if TYPE_CHECKING:
@@ -74,9 +96,8 @@ def _generate_report(results: Sequence["PipelineResult"]) -> Path:
         if not result.metadata:
             lines.append("Данные не загружены.")
             if result.missing_years:
-                lines.append(
-                    f"Отсутствующие годы: {', '.join(map(str, result.missing_years))}"
-                )
+                missing_years_text = ", ".join(map(str, result.missing_years))
+                lines.append(f"Отсутствующие годы: {missing_years_text}")
             lines.append("")
             continue
 
@@ -121,10 +142,15 @@ def data() -> None:
 
 @data.command("load-data", help="Загрузить данные и сохранить в хранилище")
 @click.option(
-    "--ticker", "tickers", multiple=True, help="Тикеры для загрузки (можно несколько)"
+    "--ticker",
+    "tickers",
+    multiple=True,
+    help="Тикеры для загрузки (можно несколько)",
 )
 @click.option(
-    "--tickers-file", type=click.Path(path_type=Path), help="Файл со списком тикеров"
+    "--tickers-file",
+    type=click.Path(path_type=Path),
+    help="Файл со списком тикеров",
 )
 @click.option(
     "--timeframe",
@@ -134,10 +160,14 @@ def data() -> None:
     help="Целевой таймфрейм",
 )
 @click.option(
-    "--from-date", type=click.DateTime(["%Y-%m-%d"]), help="Дата начала (YYYY-MM-DD)"
+    "--from-date",
+    type=click.DateTime(["%Y-%m-%d"]),
+    help="Дата начала (YYYY-MM-DD)",
 )
 @click.option(
-    "--to-date", type=click.DateTime(["%Y-%m-%d"]), help="Дата окончания (YYYY-MM-DD)"
+    "--to-date",
+    type=click.DateTime(["%Y-%m-%d"]),
+    help="Дата окончания (YYYY-MM-DD)",
 )
 @click.option(
     "--source-type",
@@ -408,7 +438,8 @@ def validate_dataset(ticker: str, timeframe: str) -> None:
         console.print("[red]Ошибки валидации:[/red]", schema.errors + integrity.errors)
     if schema.warnings or integrity.warnings:
         console.print(
-            "[yellow]Предупреждения:[/yellow]", schema.warnings + integrity.warnings
+            "[yellow]Предупреждения:[/yellow]",
+            schema.warnings + integrity.warnings,
         )
 
     console.print(table)
@@ -582,3 +613,276 @@ def export_dataset(
 
     except Exception as e:
         console.print(f"[red]Ошибка экспорта:[/red] {e}")
+
+
+@data.command("filter-dataset", help="Применить фильтры к датасету")
+@click.option("--ticker", required=True, help="Тикер")
+@click.option("--timeframe", required=True, help="Таймфрейм")
+@click.option(
+    "--output-ticker",
+    help="Тикер для сохранения (если не указан, использовать исходный)",
+)
+@click.option(
+    "--output-timeframe",
+    help="Таймфрейм для сохранения (если не указан, использовать исходный)",
+)
+@click.option(
+    "--price-anomaly/--no-price-anomaly",
+    default=True,
+    show_default=True,
+    help="Фильтровать аномалии цен",
+)
+@click.option(
+    "--volume-anomaly/--no-volume-anomaly",
+    default=True,
+    show_default=True,
+    help="Фильтровать аномалии объёма",
+)
+@click.option(
+    "--liquidity/--no-liquidity",
+    default=False,
+    show_default=True,
+    help="Фильтровать по ликвидности",
+)
+@click.option(
+    "--outliers/--no-outliers",
+    default=False,
+    show_default=True,
+    help="Фильтровать статистические выбросы",
+)
+@click.option(
+    "--missing-data",
+    type=click.Choice(["drop", "forward_fill", "backward_fill", "interpolate"]),
+    default="forward_fill",
+    show_default=True,
+    help="Метод обработки пропусков",
+)
+@click.option(
+    "--duplicates",
+    type=click.Choice(["first", "last", "mean"]),
+    default="last",
+    show_default=True,
+    help="Стратегия обработки дубликатов",
+)
+@click.option(
+    "--correct-errors/--no-correct-errors",
+    default=True,
+    show_default=True,
+    help="Автоматически исправлять распространённые ошибки",
+)
+def filter_dataset(
+    ticker: str,
+    timeframe: str,
+    output_ticker: Optional[str],
+    output_timeframe: Optional[str],
+    price_anomaly: bool,
+    volume_anomaly: bool,
+    liquidity: bool,
+    outliers: bool,
+    missing_data: str,
+    duplicates: str,
+    correct_errors: bool,
+) -> None:
+    """Применить фильтры и клининг к датасету."""
+    from src.common.exceptions import StorageError
+
+    storage = ParquetStorage()
+
+    # Загрузить данные
+    try:
+        data = storage.load_dataset(ticker, timeframe)
+    except StorageError as e:
+        console.print(f"[red]Ошибка загрузки:[/red] {e}")
+        return
+
+    if data.empty:
+        console.print("[yellow]Датасет пустой[/yellow]")
+        return
+
+    initial_rows = len(data)
+    console.print(f"Загружено {initial_rows} строк")
+
+    # 1. Исправление ошибок
+    if correct_errors:
+        corrector = DataCorrector()
+        data = corrector.apply_all_corrections(data)
+        corrections_count = len(corrector.corrections_log)
+        console.print(f"[green]✓[/green] Исправлено {corrections_count} проблем")
+
+    # 2. Фильтрация
+    filters: list[DataFilter] = []
+    if price_anomaly:
+        filters.append(PriceAnomalyFilter({"method": "zscore", "threshold": 3.0}))
+    if volume_anomaly:
+        filters.append(VolumeAnomalyFilter({"min_volume": 1}))
+    if liquidity:
+        filters.append(LiquidityFilter({"min_volume": 1000}))
+    if outliers:
+        filters.append(StatisticalOutlierFilter({"method": "mad"}))
+
+    if filters:
+        pipeline = FilterPipeline(filters)
+        data = pipeline.apply(data)
+        # Подсчитать общее количество отфильтрованных строк
+        total_filtered = initial_rows - len(data)
+        console.print(
+            (
+                "[green]✓[/green] Фильтрация: "
+                f"{total_filtered} строк удалено "
+                f"({(total_filtered / initial_rows * 100):.2f}%)"
+            )
+        )
+
+    # 3. Обработка пропусков
+    missing_handler = MissingDataHandler({"method": missing_data})
+    data = missing_handler.handle(data)
+    console.print(f"[green]✓[/green] Пропуски обработаны методом {missing_data}")
+
+    # 4. Дедупликация
+    dup_handler = DuplicateHandler({"strategy": duplicates})
+    data = dup_handler.handle(data)
+    console.print("[green]✓[/green] Дубликаты обработаны")
+
+    final_rows = len(data)
+    console.print(
+        f"\nИтого: {initial_rows} → {final_rows} строк "
+        f"(-{initial_rows - final_rows}, "
+        f"{(final_rows / initial_rows * 100):.1f}%)"
+    )
+
+    # Сохранить
+    output_ticker = output_ticker or ticker
+    output_timeframe = output_timeframe or timeframe
+
+    try:
+        # Используем valid values для source  и timeframe
+        source_val: SourceLiteral = "manual"  # "filtered" -> "manual"
+        tf_val = cast(TimeframeLiteral, output_timeframe)
+        storage.save_dataset(data, output_ticker, tf_val, source=source_val)
+        console.print(f"[green]Сохранено:[/green] {output_ticker}/{output_timeframe}")
+    except Exception as e:
+        console.print(f"[red]Ошибка сохранения:[/red] {e}")
+
+
+@data.command("quality-report", help="Генерировать отчёт о качестве данных")
+@click.option("--ticker", required=True, help="Тикер")
+@click.option("--timeframe", required=True, help="Таймфрейм")
+@click.option(
+    "--output",
+    type=click.Path(path_type=Path),
+    help="Путь к выходному файлу (HTML или JSON)",
+)
+@click.option(
+    "--format",
+    "report_format",
+    type=click.Choice(["html", "json"]),
+    default="html",
+    show_default=True,
+    help="Формат отчёта",
+)
+def quality_report(
+    ticker: str,
+    timeframe: str,
+    output: Optional[Path],
+    report_format: str,
+) -> None:
+    """Генерировать отчёт о качестве данных."""
+    from src.common.exceptions import StorageError
+
+    storage = ParquetStorage()
+
+    # Загрузить данные
+    try:
+        data = storage.load_dataset(ticker, timeframe)
+    except StorageError as e:
+        console.print(f"[red]Ошибка загрузки:[/red] {e}")
+        return
+
+    if data.empty:
+        console.print("[yellow]Датасет пустой[/yellow]")
+        return
+
+    console.print(f"Анализ датасета {ticker}/{timeframe}...")
+
+    # Вычислить метрики
+    metrics_calc = DataQualityMetrics()
+    metrics = metrics_calc.get_all_metrics(data)
+
+    # Вывести в консоль
+    table = Table(title="Метрики качества данных")
+    table.add_column("Метрика", style="cyan")
+    table.add_column("Значение", style="green")
+
+    for metric_name, value in metrics.items():
+        table.add_row(metric_name, f"{value:.2f}%")
+
+    console.print(table)
+
+    # Генерировать отчёт
+    if output is None:
+        suffix = "html" if report_format == "html" else "json"
+        output = Path(f"artifacts/reports/{ticker}_{timeframe}_quality.{suffix}")
+
+    report_gen = QualityReport()
+    report_gen.generate_report(data, output, format=report_format)
+
+    console.print(f"[green]Отчёт сохранён:[/green] {output.as_posix()}")
+
+
+@data.command("compare-datasets", help="Сравнить качество нескольких датасетов")
+@click.option(
+    "--datasets",
+    required=True,
+    help="Датасеты в формате TICKER/TIMEFRAME, разделённые запятой",
+)
+@click.option(
+    "--output",
+    type=click.Path(path_type=Path),
+    default=Path("artifacts/reports/comparison.json"),
+    show_default=True,
+    help="Путь к выходному файлу",
+)
+def compare_datasets(datasets: str, output: Path) -> None:
+    """Сравнить качество нескольких датасетов."""
+    from src.common.exceptions import StorageError
+
+    storage = ParquetStorage()
+
+    # Парсить список датасетов
+    dataset_list = [ds.strip() for ds in datasets.split(",")]
+    loaded_datasets = {}
+
+    for ds in dataset_list:
+        try:
+            ticker, timeframe = ds.split("/")
+            data = storage.load_dataset(ticker, timeframe)
+            if not data.empty:
+                loaded_datasets[ds] = data
+                console.print(f"[green]✓[/green] Загружен {ds}")
+            else:
+                console.print(f"[yellow]![/yellow] {ds} пустой, пропускаем")
+        except (ValueError, StorageError) as e:
+            console.print(f"[red]✗[/red] Ошибка загрузки {ds}: {e}")
+
+    if len(loaded_datasets) < 2:
+        console.print("[red]Ошибка:[/red] Нужно минимум 2 датасета для сравнения")
+        return
+
+    # Сравнить
+    comparator = ComparisonReport()
+    comparator.compare_datasets(loaded_datasets, output)
+
+    console.print(f"[green]Отчёт сравнения сохранён:[/green] {output.as_posix()}")
+
+
+@click.group(help="Корневая CLI-группа")
+def cli() -> None:
+    """Корневой CLI, включает команды data.* как прямые подкоманды."""
+
+
+# Добавить группу data как подкоманду root CLI
+cli.add_command(data, name="data")
+
+# Продублировать подкоманды data на верхнем уровне для удобства
+for command_name, command in data.commands.items():
+    cli.add_command(command, name=command_name)
