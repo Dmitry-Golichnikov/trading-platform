@@ -1,0 +1,130 @@
+# Дефолтный набор признаков - сбалансированный между полнотой и скоростью
+
+version: "1.0"
+cache_enabled: true
+
+features:
+  # Ценовые признаки
+  - type: price
+    features:
+      - returns
+      - log_returns
+      - high_low_ratio
+      - close_open_ratio
+      - body_size
+      - upper_wick
+      - lower_wick
+      - price_position
+
+  # Объёмные признаки
+  - type: volume
+    features:
+      - volume_change
+      - volume_ma_ratio
+      - money_volume
+      - relative_volume
+
+  # Календарные признаки
+  - type: calendar
+    features:
+      - hour
+      - day_of_week
+      - month
+      - is_month_start
+      - is_month_end
+
+  # Трендовые индикаторы
+  - type: indicator
+    name: SMA
+    params:
+      window: 20
+
+  - type: indicator
+    name: SMA
+    params:
+      window: 50
+
+  - type: indicator
+    name: EMA
+    params:
+      window: 20
+
+  - type: indicator
+    name: MACD
+    params:
+      fast_period: 12
+      slow_period: 26
+      signal_period: 9
+
+  # Моментум индикаторы
+  - type: indicator
+    name: RSI
+    params:
+      period: 14
+
+  - type: indicator
+    name: Stochastic
+    params:
+      k_period: 14
+      d_period: 3
+
+  # Волатильность
+  - type: indicator
+    name: ATR
+    params:
+      period: 14
+
+  - type: indicator
+    name: BollingerBands
+    params:
+      window: 20
+      num_std: 2
+
+  # Объёмные индикаторы
+  - type: indicator
+    name: OBV
+
+  - type: indicator
+    name: VWAP
+
+  # Rolling статистики для цены закрытия
+  - type: rolling
+    window: 20
+    functions:
+      - mean
+      - std
+      - min
+      - max
+    columns:
+      - close
+
+  # Rolling для объёма
+  - type: rolling
+    window: 20
+    functions:
+      - mean
+      - std
+    columns:
+      - volume
+
+  # Лаги важных признаков
+  - type: lags
+    lags: [1, 2, 5]
+    columns:
+      - close
+      - volume
+
+  # Разности
+  - type: differences
+    periods: [1, 5]
+    method: pct_change
+    columns:
+      - close
+
+# Feature selection с корреляцией
+selection:
+  enabled: true
+  method: correlation
+  params:
+    threshold: 0.01
+  top_k: 50

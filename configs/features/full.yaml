@@ -1,0 +1,271 @@
+# Полный набор признаков - максимум возможностей
+
+version: "1.0"
+cache_enabled: true
+
+features:
+  # Все ценовые признаки
+  - type: price
+    features:
+      - returns
+      - log_returns
+      - high_low_ratio
+      - close_open_ratio
+      - body_size
+      - upper_wick
+      - lower_wick
+      - price_position
+
+  # Все объёмные признаки
+  - type: volume
+    features:
+      - volume_change
+      - volume_ma_ratio
+      - money_volume
+      - relative_volume
+      - volume_volatility
+
+  # Все календарные признаки
+  - type: calendar
+    features:
+      - hour
+      - day_of_week
+      - month
+      - is_month_start
+      - is_month_end
+      - trading_day_of_month
+      - time_since_open
+      - time_to_close
+
+  # Трендовые индикаторы - множество окон
+  - type: indicator
+    name: SMA
+    params:
+      window: 10
+
+  - type: indicator
+    name: SMA
+    params:
+      window: 20
+
+  - type: indicator
+    name: SMA
+    params:
+      window: 50
+
+  - type: indicator
+    name: SMA
+    params:
+      window: 200
+
+  - type: indicator
+    name: EMA
+    params:
+      window: 12
+
+  - type: indicator
+    name: EMA
+    params:
+      window: 26
+
+  - type: indicator
+    name: EMA
+    params:
+      window: 50
+
+  - type: indicator
+    name: WMA
+    params:
+      window: 20
+
+  - type: indicator
+    name: MACD
+    params:
+      fast_period: 12
+      slow_period: 26
+      signal_period: 9
+
+  - type: indicator
+    name: IchimokuCloud
+    params:
+      conversion_period: 9
+      base_period: 26
+      lagging_span: 52
+
+  - type: indicator
+    name: ParabolicSAR
+    params:
+      acceleration: 0.02
+      maximum: 0.2
+
+  # Моментум индикаторы
+  - type: indicator
+    name: RSI
+    params:
+      period: 14
+
+  - type: indicator
+    name: RSI
+    params:
+      period: 7
+
+  - type: indicator
+    name: Stochastic
+    params:
+      k_period: 14
+      d_period: 3
+
+  - type: indicator
+    name: StochasticRSI
+    params:
+      rsi_period: 14
+      stoch_period: 14
+      k_period: 3
+      d_period: 3
+
+  - type: indicator
+    name: CCI
+    params:
+      period: 20
+
+  - type: indicator
+    name: WilliamsR
+    params:
+      period: 14
+
+  # Волатильность
+  - type: indicator
+    name: ATR
+    params:
+      period: 14
+
+  - type: indicator
+    name: BollingerBands
+    params:
+      window: 20
+      num_std: 2
+
+  - type: indicator
+    name: DonchianChannels
+    params:
+      window: 20
+
+  - type: indicator
+    name: KeltnerChannels
+    params:
+      window: 20
+      atr_period: 10
+      multiplier: 2
+
+  - type: indicator
+    name: ADX
+    params:
+      period: 14
+
+  # Объёмные индикаторы
+  - type: indicator
+    name: OBV
+
+  - type: indicator
+    name: VWAP
+
+  - type: indicator
+    name: ChaikinMF
+    params:
+      period: 20
+
+  - type: indicator
+    name: MFI
+    params:
+      period: 14
+
+  - type: indicator
+    name: AccumulationDistribution
+
+  # Продвинутые индикаторы
+  - type: indicator
+    name: TRIX
+    params:
+      period: 15
+
+  - type: indicator
+    name: ElderForceIndex
+    params:
+      period: 13
+
+  - type: indicator
+    name: DPO
+    params:
+      period: 20
+
+  # Rolling статистики - множество окон и функций
+  - type: rolling
+    window: 10
+    functions:
+      - mean
+      - std
+      - min
+      - max
+    columns:
+      - close
+      - volume
+
+  - type: rolling
+    window: 20
+    functions:
+      - mean
+      - std
+      - min
+      - max
+      - skew
+      - kurt
+    columns:
+      - close
+      - volume
+
+  - type: rolling
+    window: 50
+    functions:
+      - mean
+      - std
+      - min
+      - max
+    columns:
+      - close
+
+  # Лаги
+  - type: lags
+    lags: [1, 2, 3, 5, 10, 20]
+    columns:
+      - close
+      - volume
+      - returns
+
+  # Разности
+  - type: differences
+    periods: [1, 5, 10]
+    method: diff
+    columns:
+      - close
+
+  - type: differences
+    periods: [1, 5, 10]
+    method: pct_change
+    columns:
+      - close
+      - volume
+
+  # Соотношения
+  - type: ratios
+    pairs:
+      - [high, low]
+      - [close, open]
+      - [volume, volume]  # заглушка, можно добавить смысловые
+
+# Feature selection с взаимной информацией и отбором топ-100
+selection:
+  enabled: true
+  method: mutual_info
+  params:
+    random_state: 42
+  top_k: 100

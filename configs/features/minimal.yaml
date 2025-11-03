@@ -1,0 +1,39 @@
+# Минимальный набор признаков для быстрого тестирования
+
+version: "1.0"
+cache_enabled: true
+
+features:
+  # Базовые ценовые признаки
+  - type: price
+    features:
+      - returns
+      - log_returns
+      - high_low_ratio
+
+  # Простые индикаторы
+  - type: indicator
+    name: SMA
+    params:
+      window: 20
+
+  - type: indicator
+    name: RSI
+    params:
+      period: 14
+
+  # Объём
+  - type: volume
+    features:
+      - volume_change
+      - volume_ma_ratio
+
+  # Календарные признаки
+  - type: calendar
+    features:
+      - hour
+      - day_of_week
+
+# Feature selection отключен для минимального набора
+selection:
+  enabled: false
