@@ -92,7 +92,7 @@ class StatisticalOutlierFilter(DataFilter):
         modified_z_score = 0.6745 * (values - median) / mad
         mask = modified_z_score.abs() <= self.threshold
 
-        return mask  # type: ignore[no-any-return]
+        return mask
 
     def _detect_tukey(self, data: pd.DataFrame) -> pd.Series:
         """Детекция через Tukey's fences."""
@@ -130,7 +130,7 @@ class StatisticalOutlierFilter(DataFilter):
         g_critical = ((n - 1) / np.sqrt(n)) * np.sqrt(t_dist**2 / (n - 2 + t_dist**2))
 
         mask = pd.Series(g_scores <= g_critical * self.threshold, index=data.index)
-        return mask  # type: ignore[no-any-return]
+        return mask
 
 
 class RollingOutlierFilter(DataFilter):

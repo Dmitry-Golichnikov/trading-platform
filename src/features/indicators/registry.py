@@ -2,7 +2,7 @@
 Централизованный реестр всех технических индикаторов.
 """
 
-from typing import Any, Dict, List, Type
+from typing import Any, Callable, Dict, List, Type
 
 from src.features.indicators.base import Indicator
 
@@ -13,7 +13,7 @@ class IndicatorRegistry:
     _indicators: Dict[str, Type[Indicator]] = {}
 
     @classmethod
-    def register(cls, name: str):  # type: ignore[no-untyped-def]
+    def register(cls, name: str) -> Callable[[Type[Indicator]], Type[Indicator]]:
         """
         Декоратор для регистрации индикатора.
 

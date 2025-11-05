@@ -147,7 +147,7 @@ class PriceAnomalyFilter(DataFilter):
 
         # 1 = normal, -1 = anomaly
         mask = pd.Series(predictions == 1, index=data.index)
-        return mask  # type: ignore[no-any-return]
+        return mask
 
 
 class VolumeAnomalyFilter(DataFilter):
