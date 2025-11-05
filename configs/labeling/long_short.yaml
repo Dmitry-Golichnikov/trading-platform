@@ -1,0 +1,58 @@
+# Конфигурация разметки: Long+Short стратегия
+# Симметричные барьеры для обеих сторон
+
+method: triple_barrier
+
+params:
+  # Симметричные барьеры
+  upper_barrier: 0.02  # 2% тейк-профит для long
+  lower_barrier: 0.02  # 2% тейк-профит для short
+  time_barrier: 30     # 30 баров удержания
+
+  # Направление
+  direction: long+short
+
+  # Минимальный return для учёта
+  min_return: 0.005    # Минимум 0.5% для значимости
+
+  # Параметры для адаптивных барьеров
+  atr_window: 20
+  atr_multiplier: 2.0
+
+  # Тип цены
+  price_type: close
+
+  # Комиссии
+  include_commissions: true
+  commission_pct: 0.001
+
+# Постфильтры
+filters:
+  # 1. Majority vote для стабильности
+  - type: majority_vote
+    params:
+      window: 5
+      weighted: true
+      center: true
+
+  # 2. Удаление коротких последовательностей
+  - type: sequence
+    params:
+      min_length: 3
+      neutral_label: 0
+
+  # 3. Фильтрация опасных зон
+  - type: danger_zones
+    params:
+      high_volatility_threshold: 2.5
+      low_liquidity_threshold: null
+      gap_threshold_pct: 0.03
+      volatility_window: 20
+      neutral_label: 0
+      mark_only: false
+
+# Балансировка классов
+balancing:
+  method: class_weights
+  strategy: effective_samples
+  beta: 0.9999

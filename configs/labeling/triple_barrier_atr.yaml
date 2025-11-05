@@ -1,0 +1,62 @@
+# Конфигурация разметки: Triple Barrier с ATR барьерами
+# Адаптивные барьеры на основе волатильности (ATR)
+
+method: triple_barrier
+
+params:
+  # ATR-based барьеры
+  upper_barrier: atr
+  lower_barrier: atr
+  time_barrier: 25
+
+  # Параметры ATR
+  atr_window: 14
+  atr_multiplier: 2.0  # 2 ATR для барьеров
+
+  # Направление
+  direction: long+short
+
+  # Минимальный return
+  min_return: 0.003  # 0.3%
+
+  # Тип цены
+  price_type: typical  # (high + low + close) / 3
+
+  # Комиссии
+  include_commissions: true
+  commission_pct: 0.001
+
+# Постфильтры
+filters:
+  # 1. Сглаживание
+  - type: smoothing
+    params:
+      method: median
+      window: 3
+
+  # 2. Majority vote
+  - type: majority_vote
+    params:
+      window: 5
+      weighted: false
+      center: true
+
+  # 3. Минимальная последовательность
+  - type: sequence
+    params:
+      min_length: 2
+      neutral_label: 0
+
+  # 4. Опасные зоны
+  - type: danger_zones
+    params:
+      high_volatility_threshold: 3.0
+      gap_threshold_pct: 0.05
+      volatility_window: 20
+      neutral_label: 0
+
+# Балансировка
+balancing:
+  method: class_weights
+  strategy: effective_samples
+  beta: 0.9999

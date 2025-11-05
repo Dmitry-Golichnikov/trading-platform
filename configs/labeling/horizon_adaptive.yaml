@@ -1,0 +1,49 @@
+# Конфигурация разметки: Adaptive Horizon
+# Горизонт адаптируется к волатильности
+
+method: horizon
+
+params:
+  # Адаптивный горизонт
+  horizon: adaptive
+  adaptive_method: atr
+  adaptive_window: 20
+  adaptive_multiplier: 2.0
+  min_horizon: 5
+  max_horizon: 50
+
+  # Направление
+  direction: long+short
+
+  # Порог для разметки
+  threshold_pct: 0.015  # 1.5%
+
+  # Тип цены
+  price_type: close
+
+# Постфильтры
+filters:
+  # 1. Экспоненциальное сглаживание
+  - type: smoothing
+    params:
+      method: exponential
+      alpha: 0.3
+
+  # 2. Минимальная длина последовательности
+  - type: sequence
+    params:
+      min_length: 2
+      neutral_label: 0
+
+  # 3. Опасные зоны
+  - type: danger_zones
+    params:
+      high_volatility_threshold: 3.0
+      gap_threshold_pct: 0.05
+      volatility_window: 20
+      neutral_label: 0
+
+# Балансировка
+balancing:
+  method: class_weights
+  strategy: balanced

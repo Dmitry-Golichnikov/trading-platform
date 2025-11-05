@@ -71,6 +71,12 @@ class FeatureGenerator:
         if self.cache_enabled and use_cache and dataset_id and self.cache:
             cached = self.cache.get(dataset_id, self.config.model_dump())
             if cached is not None:
+                cached = cached.copy()
+                target_freq = getattr(data.index, "freq", None)
+                if target_freq is not None and isinstance(
+                    cached.index, pd.DatetimeIndex
+                ):
+                    cached.index = pd.DatetimeIndex(cached.index, freq=target_freq)
                 logger.info(
                     "Признаки загружены из кэша для датасета %s",
                     dataset_id,
@@ -151,18 +157,54 @@ class FeatureGenerator:
         return None
 
     def _generate_indicator(self, data: pd.DataFrame, config) -> pd.DataFrame:
-        indicator = self.indicator_registry.get(config.name, **config.params)
-        result = indicator.calculate(data)
+        base_params = dict(config.params or {})
+        if "period" in base_params and "window" not in base_params:
+            base_params["window"] = base_params.pop("period")
+        if "length" in base_params and "window" not in base_params:
+            base_params["window"] = base_params.pop("length")
 
-        if config.prefix:
-            if isinstance(result, pd.DataFrame):
-                result = result.add_prefix(f"{config.prefix}_")
-            else:
-                result = result.to_frame(f"{config.prefix}_{config.name}")
+        columns = config.columns or []
+        results: list[pd.DataFrame] = []
 
+        if columns:
+            for column in columns:
+                params = base_params.copy()
+                params.setdefault("column", column)
+                indicator = self.indicator_registry.get(config.name, **params)
+                result = indicator.calculate(data)
+                formatted = self._format_indicator_result(
+                    result,
+                    prefix=config.prefix,
+                    suffix=column,
+                )
+                results.append(formatted)
+        else:
+            indicator = self.indicator_registry.get(config.name, **base_params)
+            result = indicator.calculate(data)
+            formatted = self._format_indicator_result(result, prefix=config.prefix)
+            results.append(formatted)
+
+        return pd.concat(results, axis=1)
+
+    @staticmethod
+    def _format_indicator_result(
+        result: Union[pd.Series, pd.DataFrame],
+        *,
+        prefix: Optional[str] = None,
+        suffix: Optional[str] = None,
+    ) -> pd.DataFrame:
         if isinstance(result, pd.DataFrame):
-            return result
-        return result.to_frame()
+            df = result.copy()
+        else:
+            df = result.to_frame()
+
+        if prefix:
+            df.columns = [f"{prefix}_{col}" for col in df.columns]
+
+        if suffix:
+            df.columns = [f"{col}_{suffix}" for col in df.columns]
+
+        return df
 
     def _generate_price(self, data: pd.DataFrame, config) -> pd.DataFrame:
         return PriceExtractor(config.features).extract(data)

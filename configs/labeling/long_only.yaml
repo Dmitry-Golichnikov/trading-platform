@@ -1,0 +1,55 @@
+# Конфигурация разметки: Long-only стратегия
+# Используется Triple Barrier метод с акцентом на long позиции
+
+method: triple_barrier
+
+params:
+  # Барьеры
+  upper_barrier: 0.02  # 2% тейк-профит
+  lower_barrier: 0.01  # 1% стоп-лосс (более жёсткий)
+  time_barrier: 20     # Максимум 20 баров удержания
+
+  # Направление
+  direction: long      # Только long позиции
+
+  # Минимальный return для учёта
+  min_return: 0.0
+
+  # Параметры для адаптивных барьеров
+  atr_window: 20
+  atr_multiplier: 2.0
+
+  # Тип цены
+  price_type: close
+
+  # Комиссии
+  include_commissions: true
+  commission_pct: 0.001  # 0.1%
+
+# Постфильтры для очистки меток
+filters:
+  # 1. Сглаживание медианным фильтром
+  - type: smoothing
+    params:
+      method: median
+      window: 3
+
+  # 2. Удаление коротких последовательностей
+  - type: sequence
+    params:
+      min_length: 2
+      neutral_label: 0
+
+  # 3. Фильтрация опасных зон
+  - type: danger_zones
+    params:
+      high_volatility_threshold: 3.0
+      gap_threshold_pct: 0.05
+      volatility_window: 20
+      neutral_label: 0
+      mark_only: false
+
+# Балансировка классов
+balancing:
+  method: class_weights
+  strategy: balanced

@@ -13,7 +13,11 @@ import pandas as pd
 class FeatureCache:
     """Кэш вычисленных признаков с хранилищем на основе Parquet."""
 
-    def __init__(self, cache_dir: Path = Path("artifacts/features")):
+    def __init__(
+        self,
+        cache_dir: Path = Path("artifacts/features"),
+        catalog_path: Optional[Path] = None,
+    ):
         """
         Инициализация кэша.
 
@@ -24,7 +28,12 @@ class FeatureCache:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         # Создаём каталог для метаданных (SQLite)
-        self.catalog_path = self.cache_dir.parent / "db" / "feature_catalog.db"
+        if catalog_path is not None:
+            self.catalog_path = Path(catalog_path)
+        elif self.cache_dir == Path("artifacts/features"):
+            self.catalog_path = self.cache_dir.parent / "db" / "feature_catalog.db"
+        else:
+            self.catalog_path = self.cache_dir / "feature_catalog.db"
         self.catalog_path.parent.mkdir(parents=True, exist_ok=True)
 
         self._init_catalog()
@@ -285,5 +294,5 @@ class FeatureCache:
             "total_datasets": total_datasets,
             "total_features": total_features,
             "total_rows": total_rows,
-            "size_mb": round(size_mb, 2),
+            "size_mb": size_mb,
         }
