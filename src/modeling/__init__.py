@@ -4,6 +4,8 @@
 Содержит базовые интерфейсы, реестр моделей, систему обучения, loss functions и утилиты.
 """
 
+from typing import Any, Optional
+
 from src.modeling.base import (
     BaseModel,
     ClassifierMixin,
@@ -11,8 +13,6 @@ from src.modeling.base import (
     ModelType,
     RegressorMixin,
 )
-
-# Callbacks
 from src.modeling.callbacks import (
     Callback,
     CallbackList,
@@ -20,12 +20,6 @@ from src.modeling.callbacks import (
     MLflowLogger,
     ModelCheckpoint,
     ProgressBar,
-)
-
-# Loss Functions
-from src.modeling.loss_functions import (
-    LossRegistry,
-    loss_registry,
 )
 from src.modeling.registry import ModelRegistry, registry
 from src.modeling.sanity_checks import ModelSanityChecker, SanityCheckResult
@@ -42,6 +36,20 @@ from src.modeling.utils import (
     log_system_info,
     set_seed,
 )
+
+# Loss Functions (импортируем опционально, чтобы не требовать torch при простом импорте реестра)
+LossRegistry: Optional[Any]
+loss_registry: Optional[Any]
+
+try:
+    from src.modeling.loss_functions import LossRegistry as _LossRegistryClass
+    from src.modeling.loss_functions import loss_registry as _loss_registry_instance
+except Exception:
+    LossRegistry = None
+    loss_registry = None
+else:
+    LossRegistry = _LossRegistryClass
+    loss_registry = _loss_registry_instance
 
 __all__ = [
     # Base

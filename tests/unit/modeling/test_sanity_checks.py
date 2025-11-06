@@ -72,10 +72,7 @@ class TestModelSanityChecker:
         result = checker.check_target_distribution(y)
 
         assert result.passed is False
-        assert any(
-            "константный" in err.lower() or "constant" in err.lower()
-            for err in result.errors
-        )
+        assert any("константный" in err.lower() or "constant" in err.lower() for err in result.errors)
 
     def test_check_target_distribution_with_missing(self):
         """Тест проверки таргета с пропусками."""
@@ -85,10 +82,7 @@ class TestModelSanityChecker:
         result = checker.check_target_distribution(y)
 
         assert result.passed is False
-        assert any(
-            "пропуск" in err.lower() or "missing" in err.lower()
-            for err in result.errors
-        )
+        assert any("пропуск" in err.lower() or "missing" in err.lower() for err in result.errors)
 
     def test_check_target_distribution_imbalanced(self):
         """Тест проверки несбалансированного таргета."""
@@ -112,9 +106,7 @@ class TestModelSanityChecker:
 
     def test_check_feature_quality_constant(self):
         """Тест проверки константных признаков."""
-        X = pd.DataFrame(
-            {"feature1": [1, 1, 1, 1, 1], "feature2": [2, 3, 4, 5, 6]}  # Нормальный
-        )
+        X = pd.DataFrame({"feature1": [1, 1, 1, 1, 1], "feature2": [2, 3, 4, 5, 6]})  # Нормальный
 
         checker = ModelSanityChecker(verbose=False)
         result = checker.check_feature_quality(X)
@@ -124,17 +116,13 @@ class TestModelSanityChecker:
 
     def test_check_feature_quality_inf_values(self):
         """Тест проверки бесконечных значений."""
-        X = pd.DataFrame(
-            {"feature1": [1, 2, np.inf, 4, 5], "feature2": [1, 2, 3, 4, 5]}
-        )
+        X = pd.DataFrame({"feature1": [1, 2, np.inf, 4, 5], "feature2": [1, 2, 3, 4, 5]})
 
         checker = ModelSanityChecker(verbose=False)
         result = checker.check_feature_quality(X)
 
         assert result.passed is False
-        assert any(
-            "бесконечн" in err.lower() or "inf" in err.lower() for err in result.errors
-        )
+        assert any("бесконечн" in err.lower() or "inf" in err.lower() for err in result.errors)
 
     def test_check_data_leakage_duplicates(self, good_data):
         """Тест проверки дубликатов между train и val."""

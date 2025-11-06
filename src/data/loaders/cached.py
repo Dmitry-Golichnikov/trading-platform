@@ -55,9 +55,7 @@ class CachedDataLoader:
         self.max_memory_size = max_memory_size
 
         # LRU in-memory cache для горячих данных
-        self._memory_cache: OrderedDict[str, tuple[pd.DataFrame, datetime]] = (
-            OrderedDict()
-        )
+        self._memory_cache: OrderedDict[str, tuple[pd.DataFrame, datetime]] = OrderedDict()
 
         # Статистика кэша
         self.stats = {
@@ -147,9 +145,7 @@ class CachedDataLoader:
         except Exception as e:
             raise DataLoadError(f"Failed to load data: {e}") from e
 
-    def _generate_cache_key(
-        self, ticker: str, from_date: datetime, to_date: datetime, timeframe: str
-    ) -> str:
+    def _generate_cache_key(self, ticker: str, from_date: datetime, to_date: datetime, timeframe: str) -> str:
         """
         Генерировать уникальный ключ кэша.
 
@@ -222,9 +218,7 @@ class CachedDataLoader:
         except Exception as e:
             logger.warning(f"Failed to save to cache: {e}")
 
-    def clear_cache(
-        self, older_than: Optional[timedelta] = None, clear_memory: bool = True
-    ) -> dict[str, int]:
+    def clear_cache(self, older_than: Optional[timedelta] = None, clear_memory: bool = True) -> dict[str, int]:
         """
         Очистить кэш.
 
@@ -255,9 +249,7 @@ class CachedDataLoader:
             memory_count = len(self._memory_cache)
             self._memory_cache.clear()
 
-        logger.info(
-            f"Cleared cache: {disk_count} disk files, {memory_count} memory items"
-        )
+        logger.info(f"Cleared cache: {disk_count} disk files, {memory_count} memory items")
         return {"disk": disk_count, "memory": memory_count}
 
     def get_stats(self) -> dict:
@@ -273,22 +265,14 @@ class CachedDataLoader:
             + self.stats["disk_hits"]
             + self.stats["disk_misses"]
         )
-        memory_hit_rate = (
-            self.stats["memory_hits"] / total_requests * 100
-            if total_requests > 0
-            else 0
-        )
+        memory_hit_rate = self.stats["memory_hits"] / total_requests * 100 if total_requests > 0 else 0
         disk_hit_rate = (
-            self.stats["disk_hits"]
-            / (self.stats["disk_hits"] + self.stats["disk_misses"])
-            * 100
+            self.stats["disk_hits"] / (self.stats["disk_hits"] + self.stats["disk_misses"]) * 100
             if (self.stats["disk_hits"] + self.stats["disk_misses"]) > 0
             else 0
         )
         overall_hit_rate = (
-            (self.stats["memory_hits"] + self.stats["disk_hits"]) / total_requests * 100
-            if total_requests > 0
-            else 0
+            (self.stats["memory_hits"] + self.stats["disk_hits"]) / total_requests * 100 if total_requests > 0 else 0
         )
 
         return {

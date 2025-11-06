@@ -55,10 +55,7 @@ class IndicatorRegistry:
         """
         name_lower = name.lower()
         if name_lower not in cls._indicators:
-            raise ValueError(
-                f"Неизвестный индикатор: {name}. "
-                f"Доступные: {', '.join(cls.list_all())}"
-            )
+            raise ValueError(f"Неизвестный индикатор: {name}. " f"Доступные: {', '.join(cls.list_all())}")
         return cls._indicators[name_lower](**params)
 
     @classmethod

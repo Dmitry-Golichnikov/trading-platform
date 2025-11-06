@@ -15,9 +15,7 @@ logger = logging.getLogger(__name__)
 class QualityValidator:
     """Валидатор качества данных."""
 
-    def detect_price_anomalies(
-        self, data: pd.DataFrame, threshold: float = 3.0
-    ) -> ValidationResult:
+    def detect_price_anomalies(self, data: pd.DataFrame, threshold: float = 3.0) -> ValidationResult:
         """Детекция аномалий в ценах (z-score)."""
         result = ValidationResult(is_valid=True)
 
@@ -29,9 +27,7 @@ class QualityValidator:
         anomalies = (z_scores > threshold).sum()
 
         if anomalies > 0:
-            result.add_warning(
-                f"Found {anomalies} price anomalies (z-score > {threshold})"
-            )
+            result.add_warning(f"Found {anomalies} price anomalies (z-score > {threshold})")
 
         result.statistics["anomalies"] = int(anomalies)
         result.statistics["max_z_score"] = float(z_scores.max())
@@ -61,9 +57,7 @@ class QualityValidator:
 
         return result
 
-    def check_spread(
-        self, data: pd.DataFrame, max_spread_pct: float = 10.0
-    ) -> ValidationResult:
+    def check_spread(self, data: pd.DataFrame, max_spread_pct: float = 10.0) -> ValidationResult:
         """Проверка spread (high-low)."""
         result = ValidationResult(is_valid=True)
 
@@ -71,9 +65,7 @@ class QualityValidator:
         large_spreads = (spread_pct > max_spread_pct).sum()
 
         if large_spreads > 0:
-            result.add_warning(
-                f"Found {large_spreads} bars with spread > {max_spread_pct}%"
-            )
+            result.add_warning(f"Found {large_spreads} bars with spread > {max_spread_pct}%")
 
         result.statistics["large_spreads"] = int(large_spreads)
         result.statistics["max_spread_pct"] = float(spread_pct.max())

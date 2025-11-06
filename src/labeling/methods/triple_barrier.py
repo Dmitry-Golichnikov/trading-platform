@@ -241,9 +241,7 @@ class TripleBarrierLabeler(BaseLabeler):
             Кортеж (label, barrier_type, holding_period, realized_return)
         """
         direction = self.params["direction"]
-        commission = (
-            self.params["commission_pct"] if self.params["include_commissions"] else 0.0
-        )
+        commission = self.params["commission_pct"] if self.params["include_commissions"] else 0.0
 
         # Проверяем каждый бар в интервале
         for i in range(start_idx + 1, end_idx + 1):

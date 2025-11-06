@@ -60,9 +60,7 @@ class Stochastic(Indicator):
 
         for name, value in [("k", k), ("smooth_k", smooth_k), ("smooth_d", smooth_d)]:
             if not isinstance(value, int) or value < 1:
-                raise ValueError(
-                    f"{name} должен быть положительным целым числом, получено: {value}"
-                )
+                raise ValueError(f"{name} должен быть положительным целым числом, получено: {value}")
 
     def get_required_columns(self) -> List[str]:
         """Необходимые колонки."""
@@ -104,8 +102,6 @@ class Stochastic(Indicator):
         # Рассчитываем %D (SMA от %K)
         stoch_d = stoch_k.rolling(window=smooth_d, min_periods=smooth_d).mean()
 
-        result = pd.DataFrame(
-            {"Stoch_k": stoch_k, "Stoch_d": stoch_d}, index=data.index
-        )
+        result = pd.DataFrame({"Stoch_k": stoch_k, "Stoch_d": stoch_d}, index=data.index)
 
         return result

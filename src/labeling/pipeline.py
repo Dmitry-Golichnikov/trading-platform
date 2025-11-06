@@ -88,16 +88,12 @@ class LabelingPipeline:
 
         for i, filter_obj in enumerate(self.filters):
             filter_name = filter_obj.__class__.__name__
-            logger.info(
-                f"  Применение фильтра {i+1}/{len(self.filters)}: {filter_name}"
-            )
+            logger.info(f"  Применение фильтра {i+1}/{len(self.filters)}: {filter_name}")
 
             try:
                 if isinstance(filter_obj, DangerZonesFilter):
                     # DangerZonesFilter требует полные данные
-                    labeled_data["label"] = filter_obj.apply(
-                        labeled_data["label"], labeled_data
-                    )
+                    labeled_data["label"] = filter_obj.apply(labeled_data["label"], labeled_data)
                 else:
                     labeled_data["label"] = filter_obj.apply(labeled_data["label"])
 
@@ -163,10 +159,7 @@ class LabelingPipeline:
         min_samples = 10
         for cls, count in distribution.items():
             if count < min_samples:
-                logger.warning(
-                    f"Класс {cls} имеет только {count} примеров "
-                    f"(минимум рекомендуется {min_samples})"
-                )
+                logger.warning(f"Класс {cls} имеет только {count} примеров " f"(минимум рекомендуется {min_samples})")
 
         logger.info("Валидация прошла успешно")
 
@@ -204,17 +197,11 @@ class LabelingPipeline:
 
         # Если есть дополнительные колонки, добавим их статистику
         if "future_return" in data.columns:
-            metadata.add_statistics(
-                "future_return_mean", float(data["future_return"].mean())
-            )
-            metadata.add_statistics(
-                "future_return_std", float(data["future_return"].std())
-            )
+            metadata.add_statistics("future_return_mean", float(data["future_return"].mean()))
+            metadata.add_statistics("future_return_std", float(data["future_return"].std()))
 
         if "holding_period" in data.columns:
-            metadata.add_statistics(
-                "avg_holding_period", float(data["holding_period"].mean())
-            )
+            metadata.add_statistics("avg_holding_period", float(data["holding_period"].mean()))
 
         return metadata
 
@@ -246,9 +233,7 @@ class LabelingPipeline:
         logger.info(f"Результаты сохранены в: {output_path}")
 
     @classmethod
-    def from_config(
-        cls, config: Dict[str, Any], data: pd.DataFrame
-    ) -> "LabelingPipeline":
+    def from_config(cls, config: Dict[str, Any], data: pd.DataFrame) -> "LabelingPipeline":
         """
         Создание пайплайна из конфигурации.
 

@@ -73,8 +73,7 @@ class ModelCheckpoint(Callback):
 
         if self.verbose:
             logger.info(
-                f"ModelCheckpoint: сохранение в {self.filepath}, "
-                f"отслеживается {self.monitor} (mode={self.mode})"
+                f"ModelCheckpoint: сохранение в {self.filepath}, " f"отслеживается {self.monitor} (mode={self.mode})"
             )
 
     def on_epoch_end(self, trainer, epoch: int, logs: Dict[str, Any]) -> None:
@@ -84,8 +83,7 @@ class ModelCheckpoint(Callback):
         if current_value is None:
             if self.verbose:
                 logger.warning(
-                    f"ModelCheckpoint: метрика '{self.monitor}' не найдена. "
-                    f"Доступные: {list(logs.keys())}"
+                    f"ModelCheckpoint: метрика '{self.monitor}' не найдена. " f"Доступные: {list(logs.keys())}"
                 )
             return
 
@@ -98,9 +96,7 @@ class ModelCheckpoint(Callback):
                 should_save = True
 
         if self.verbose:
-            logger.info(
-                f"Эпоха {epoch}: {self.monitor} " f"улучшилась до {current_value:.6f}"
-            )
+            logger.info(f"Эпоха {epoch}: {self.monitor} " f"улучшилась до {current_value:.6f}")
         else:
             # Сохраняем каждые save_freq эпох
             if (epoch + 1) % self.save_freq == 0:

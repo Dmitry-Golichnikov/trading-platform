@@ -21,9 +21,7 @@ class TestTimezoneUtils:
         """Тест конвертации naive timestamps в UTC."""
         data = pd.DataFrame(
             {
-                "timestamp": pd.to_datetime(
-                    ["2024-01-01 10:00:00", "2024-01-01 11:00:00"]
-                ),
+                "timestamp": pd.to_datetime(["2024-01-01 10:00:00", "2024-01-01 11:00:00"]),
                 "value": [1, 2],
             }
         )
@@ -37,9 +35,9 @@ class TestTimezoneUtils:
         """Тест конвертации timezone-aware timestamps в UTC."""
         data = pd.DataFrame(
             {
-                "timestamp": pd.to_datetime(
-                    ["2024-01-01 10:00:00", "2024-01-01 11:00:00"]
-                ).tz_localize("Europe/Moscow"),
+                "timestamp": pd.to_datetime(["2024-01-01 10:00:00", "2024-01-01 11:00:00"]).tz_localize(
+                    "Europe/Moscow"
+                ),
                 "value": [1, 2],
             }
         )
@@ -183,9 +181,7 @@ class TestTimezoneUtils:
             }
         )
 
-        with pytest.raises(
-            PreprocessingError, match="Timestamps must be timezone-aware"
-        ):
+        with pytest.raises(PreprocessingError, match="Timestamps must be timezone-aware"):
             handle_dst_transition(data)
 
     def test_handle_dst_transition_empty_data(self) -> None:

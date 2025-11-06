@@ -90,9 +90,7 @@ class DataPreparationPipeline:
         self.progress_callback = progress_callback
         self._warning_buffer: dict[str, list[str]] = defaultdict(list)
 
-    def _notify_progress(
-        self, ticker: str, stage: str, completed: int, total: int
-    ) -> None:
+    def _notify_progress(self, ticker: str, stage: str, completed: int, total: int) -> None:
         if not self.progress_callback:
             return
         try:
@@ -156,10 +154,7 @@ class DataPreparationPipeline:
 
         self._notify_progress(ticker, "start", 0, total_years)
 
-        load_tasks = [
-            asyncio.create_task(self._load_year_data(ticker, year))
-            for year in years_to_process
-        ]
+        load_tasks = [asyncio.create_task(self._load_year_data(ticker, year)) for year in years_to_process]
 
         year_data: list[pd.DataFrame] = []
         completed = 0
@@ -204,8 +199,7 @@ class DataPreparationPipeline:
                 missing_years = sorted(missing_years_set)
         if missing_years and not self.config.backfill_missing:
             logger.warning(
-                "Ticker %s still has missing years after processing "
-                "(backfill disabled): %s",
+                "Ticker %s still has missing years after processing " "(backfill disabled): %s",
                 ticker,
                 missing_years,
             )
@@ -248,9 +242,7 @@ class DataPreparationPipeline:
                     self.base_timeframe,
                 )
             except Exception as exc:  # noqa: BLE001
-                raise DataLoadError(
-                    f"Failed to load data for {ticker} {year}: {exc}"
-                ) from exc
+                raise DataLoadError(f"Failed to load data for {ticker} {year}: {exc}") from exc
 
             if df is None:
                 return pd.DataFrame()
@@ -260,14 +252,10 @@ class DataPreparationPipeline:
                 return pd.DataFrame()
 
             df = self._postprocess_dataframe(df, ticker)
-            self._run_validations(
-                df, self.base_timeframe, ticker, context=f"{ticker}:{year}"
-            )
+            self._run_validations(df, self.base_timeframe, ticker, context=f"{ticker}:{year}")
             return df
 
-    def _persist_timeframes(
-        self, ticker: str, base_data: pd.DataFrame
-    ) -> list[DatasetMetadata]:
+    def _persist_timeframes(self, ticker: str, base_data: pd.DataFrame) -> list[DatasetMetadata]:
         """Сохранить данные базового и производных таймфреймов."""
         standardized_base = self._postprocess_dataframe(base_data, ticker)
 
@@ -283,9 +271,7 @@ class DataPreparationPipeline:
         )
         metadata_records.append(base_metadata)
 
-        target_timeframes = [
-            tf for tf in self.target_timeframes if tf != self.base_timeframe
-        ]
+        target_timeframes = [tf for tf in self.target_timeframes if tf != self.base_timeframe]
         resampled_map = self.resampler.resample_multiple_timeframes(
             standardized_base,
             source_tf=self.base_timeframe,
@@ -296,9 +282,7 @@ class DataPreparationPipeline:
             if timeframe == self.base_timeframe:
                 continue
             if dataset.empty:
-                logger.warning(
-                    "Ticker %s timeframe %s produced empty dataset", ticker, timeframe
-                )
+                logger.warning("Ticker %s timeframe %s produced empty dataset", ticker, timeframe)
                 continue
 
             standardized_dataset = self._postprocess_dataframe(dataset, ticker)
@@ -376,9 +360,7 @@ class DataPreparationPipeline:
 
         return warnings
 
-    def _save_dataset(
-        self, data: pd.DataFrame, ticker: str, timeframe: str
-    ) -> DatasetMetadata:
+    def _save_dataset(self, data: pd.DataFrame, ticker: str, timeframe: str) -> DatasetMetadata:
         """Сохранить датасет, обновить каталог и версионирование."""
         source = self._resolve_source()
 
@@ -495,9 +477,7 @@ class DataPreparationPipeline:
         planned.add(current_year)
         return planned
 
-    async def _backfill_missing(
-        self, ticker: str, missing_years: Sequence[int]
-    ) -> list[DatasetMetadata]:
+    async def _backfill_missing(self, ticker: str, missing_years: Sequence[int]) -> list[DatasetMetadata]:
         """Докачать отсутствующие годы и сохранить результаты."""
         if not missing_years:
             return []
@@ -508,9 +488,7 @@ class DataPreparationPipeline:
         for year in missing_years:
             df = await self._load_year_data(ticker, year)
             if df.empty:
-                warning = (
-                    f"Backfill skipped for {ticker} {year}: data unavailable or empty"
-                )
+                warning = f"Backfill skipped for {ticker} {year}: data unavailable or empty"
                 logger.warning(warning)
                 self._warning_buffer[ticker].append(warning)
                 continue

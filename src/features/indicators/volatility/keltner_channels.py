@@ -71,18 +71,11 @@ class KeltnerChannels(Indicator):
         multiplier = self.params.get("multiplier", 2.0)
 
         if not isinstance(window, int) or window < 1:
-            raise ValueError(
-                f"window должен быть положительным целым числом, получено: {window}"
-            )
+            raise ValueError(f"window должен быть положительным целым числом, получено: {window}")
         if not isinstance(atr_window, int) or atr_window < 1:
-            raise ValueError(
-                f"atr_window должен быть положительным целым числом, "
-                f"получено: {atr_window}"
-            )
+            raise ValueError(f"atr_window должен быть положительным целым числом, " f"получено: {atr_window}")
         if multiplier <= 0:
-            raise ValueError(
-                f"multiplier должен быть положительным, получено: {multiplier}"
-            )
+            raise ValueError(f"multiplier должен быть положительным, получено: {multiplier}")
 
     def get_required_columns(self) -> List[str]:
         """Необходимые колонки."""

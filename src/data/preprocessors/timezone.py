@@ -109,8 +109,7 @@ def handle_dst_transition(data: pd.DataFrame) -> pd.DataFrame:
     # Проверка timezone-aware
     if data["timestamp"].dt.tz is None:
         raise PreprocessingError(
-            "Timestamps must be timezone-aware to handle DST transitions. "
-            "Use convert_to_utc() first."
+            "Timestamps must be timezone-aware to handle DST transitions. " "Use convert_to_utc() first."
         )
 
     # Если данные уже в UTC, DST не влияет
@@ -139,9 +138,7 @@ def handle_dst_transition(data: pd.DataFrame) -> pd.DataFrame:
 
     # Обработать fall back (дублирующиеся timestamp)
     if duplicates_mask.any():
-        logger.info(
-            f"Detected {duplicates_mask.sum()} duplicate timestamps (fall back)"
-        )
+        logger.info(f"Detected {duplicates_mask.sum()} duplicate timestamps (fall back)")
 
         # Усреднить OHLCV для дублирующихся timestamp
         agg_dict = {
@@ -161,13 +158,9 @@ def handle_dst_transition(data: pd.DataFrame) -> pd.DataFrame:
         non_duplicates = data[~duplicates_mask].copy()
 
         if not duplicates.empty:
-            merged_duplicates = duplicates.groupby(group_cols, as_index=False).agg(
-                agg_dict
-            )
+            merged_duplicates = duplicates.groupby(group_cols, as_index=False).agg(agg_dict)
             # Округлить volume
-            merged_duplicates["volume"] = (
-                merged_duplicates["volume"].round().astype("int64")
-            )
+            merged_duplicates["volume"] = merged_duplicates["volume"].round().astype("int64")
 
             # Объединить обратно
             data = pd.concat([non_duplicates, merged_duplicates], ignore_index=True)

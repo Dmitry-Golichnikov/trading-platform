@@ -37,10 +37,7 @@ class MajorityVoteFilter:
             raise ValueError("window должен быть >= 1")
 
         if window % 2 == 0 and center:
-            logger.warning(
-                f"Для центрированного окна рекомендуется нечётное окно. "
-                f"Текущее: {window}"
-            )
+            logger.warning(f"Для центрированного окна рекомендуется нечётное окно. " f"Текущее: {window}")
 
     def apply(self, labels: pd.Series) -> pd.Series:
         """
@@ -134,9 +131,7 @@ class MajorityVoteFilter:
             window_size = len(window_labels)
             center_idx = (i - start) if not self.center else window_size // 2
 
-            weights = np.array(
-                [1.0 / (abs(j - center_idx) + 1) for j in range(window_size)]
-            )
+            weights = np.array([1.0 / (abs(j - center_idx) + 1) for j in range(window_size)])
             weights /= weights.sum()
 
             # Взвешенное голосование для каждой метки

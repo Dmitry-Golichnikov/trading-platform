@@ -37,10 +37,7 @@ class TestLossRegistry:
         with pytest.raises(ValueError) as exc_info:
             LossRegistry.get("nonexistent_loss")
 
-        assert (
-            "не найдена" in str(exc_info.value)
-            or "not found" in str(exc_info.value).lower()
-        )
+        assert "не найдена" in str(exc_info.value) or "not found" in str(exc_info.value).lower()
 
     def test_list_losses(self):
         """Тест получения списка losses."""

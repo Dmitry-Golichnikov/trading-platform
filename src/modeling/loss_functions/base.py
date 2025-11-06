@@ -43,9 +43,7 @@ class BaseLoss(ABC, nn.Module):
         """
         pass
 
-    def __call__(
-        self, predictions: torch.Tensor, targets: torch.Tensor
-    ) -> torch.Tensor:
+    def __call__(self, predictions: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
         """
         Вызов loss function.
 

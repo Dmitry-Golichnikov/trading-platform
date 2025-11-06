@@ -59,9 +59,7 @@ def _compute_balanced_weights(labels: pd.Series) -> Dict[int, float]:
     unique_classes = np.unique(labels)
 
     # Используем sklearn для вычисления
-    weights = compute_class_weight(
-        class_weight="balanced", classes=unique_classes, y=labels
-    )
+    weights = compute_class_weight(class_weight="balanced", classes=unique_classes, y=labels)
 
     weights_dict = dict(zip(unique_classes, weights))
 
@@ -70,9 +68,7 @@ def _compute_balanced_weights(labels: pd.Series) -> Dict[int, float]:
     return weights_dict
 
 
-def _compute_effective_samples_weights(
-    labels: pd.Series, beta: float = 0.9999
-) -> Dict[int, float]:
+def _compute_effective_samples_weights(labels: pd.Series, beta: float = 0.9999) -> Dict[int, float]:
     """
     Вычисление весов на основе Effective Number of Samples.
 
@@ -98,9 +94,7 @@ def _compute_effective_samples_weights(
 
     # Нормализуем веса
     total_weight = sum(weights_dict.values())
-    weights_dict = {
-        k: v / total_weight * len(weights_dict) for k, v in weights_dict.items()
-    }
+    weights_dict = {k: v / total_weight * len(weights_dict) for k, v in weights_dict.items()}
 
     logger.info(f"Effective samples weights (beta={beta}): {weights_dict}")
 

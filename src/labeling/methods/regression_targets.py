@@ -51,9 +51,7 @@ class RegressionTargetsLabeler(BaseLabeler):
     def _validate_params(self) -> None:
         """Валидация параметров."""
         if self.params["target_type"] not in ["future_return", "mfe", "mae", "sharpe"]:
-            raise ValueError(
-                "target_type должен быть 'future_return', 'mfe', 'mae' или 'sharpe'"
-            )
+            raise ValueError("target_type должен быть 'future_return', 'mfe', 'mae' или 'sharpe'")
 
         if self.params["horizon"] <= 0:
             raise ValueError("horizon должен быть положительным")
@@ -97,8 +95,7 @@ class RegressionTargetsLabeler(BaseLabeler):
         result["target"] = targets
 
         logger.info(
-            f"Regression targets ({target_type}) сгенерированы: "
-            f"mean={targets.mean():.4f}, std={targets.std():.4f}"
+            f"Regression targets ({target_type}) сгенерированы: " f"mean={targets.mean():.4f}, std={targets.std():.4f}"
         )
 
         return result

@@ -63,9 +63,7 @@ class RollingTransformer:
             if col not in data.columns:
                 raise ValueError(f"Колонка {col} не найдена в данных")
 
-            rolling = data[col].rolling(
-                window=self.window, min_periods=self.min_periods
-            )
+            rolling = data[col].rolling(window=self.window, min_periods=self.min_periods)
 
             for func in self.functions:
                 feature_name = f"{col}_rolling_{func}_{self.window}"

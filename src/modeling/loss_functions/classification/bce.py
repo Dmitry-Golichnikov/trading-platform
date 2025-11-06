@@ -34,9 +34,7 @@ class BinaryCrossEntropyLoss(ClassificationLoss):
             reduction: Способ агрегации ('mean', 'sum', 'none')
             pos_weight: Вес для положительных примеров (для дисбаланса классов)
         """
-        super().__init__(
-            name="BinaryCrossEntropy", reduction=reduction, pos_weight=pos_weight
-        )
+        super().__init__(name="BinaryCrossEntropy", reduction=reduction, pos_weight=pos_weight)
         self.reduction = reduction
         self.pos_weight = pos_weight
 
@@ -94,9 +92,7 @@ class BCEWithLogitsLoss(ClassificationLoss):
             reduction: Способ агрегации ('mean', 'sum', 'none')
             pos_weight: Вес для положительных примеров
         """
-        super().__init__(
-            name="BCEWithLogits", reduction=reduction, pos_weight=pos_weight
-        )
+        super().__init__(name="BCEWithLogits", reduction=reduction, pos_weight=pos_weight)
         self.reduction = reduction
         self.pos_weight = pos_weight
 
@@ -182,10 +178,7 @@ class WeightedBCELoss(ClassificationLoss):
             predictions = torch.sigmoid(predictions)
 
         # Вычисляем BCE для каждого примера
-        bce = -(
-            targets * torch.log(predictions + 1e-7)
-            + (1 - targets) * torch.log(1 - predictions + 1e-7)
-        )
+        bce = -(targets * torch.log(predictions + 1e-7) + (1 - targets) * torch.log(1 - predictions + 1e-7))
 
         # Применяем веса
         weights = targets * self.pos_weight + (1 - targets) * self.neg_weight

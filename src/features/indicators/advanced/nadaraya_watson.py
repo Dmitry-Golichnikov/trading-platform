@@ -59,9 +59,7 @@ class NadarayaWatson(Indicator):
         if not isinstance(window, int) or window < 2:
             raise ValueError(f"window должен быть >= 2, получено: {window}")
         if bandwidth <= 0:
-            raise ValueError(
-                f"bandwidth должен быть положительным, получено: {bandwidth}"
-            )
+            raise ValueError(f"bandwidth должен быть положительным, получено: {bandwidth}")
 
     def get_required_columns(self) -> List[str]:
         """Необходимые колонки."""
@@ -115,11 +113,7 @@ class NadarayaWatson(Indicator):
             return nw_value
 
         # Применяем rolling
-        nw_smooth = (
-            data[column]
-            .rolling(window=window, min_periods=window)
-            .apply(nadaraya_watson, raw=True)
-        )
+        nw_smooth = data[column].rolling(window=window, min_periods=window).apply(nadaraya_watson, raw=True)
 
         result = pd.DataFrame({"NW_smooth": nw_smooth}, index=data.index)
 

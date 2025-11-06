@@ -78,16 +78,11 @@ class OverSampler:
             n_samples_to_add = target_count - minority_count
 
             # Случайный выбор с возвратом
-            additional_indices = np.random.choice(
-                minority_indices, size=n_samples_to_add, replace=True
-            )
+            additional_indices = np.random.choice(minority_indices, size=n_samples_to_add, replace=True)
 
             indices.extend(additional_indices)
 
-            logger.info(
-                f"Oversampling класса {cls}: "
-                f"{minority_count} -> {target_count} сэмплов"
-            )
+            logger.info(f"Oversampling класса {cls}: " f"{minority_count} -> {target_count} сэмплов")
 
         # Создаём новый DataFrame
         resampled_data = data.loc[indices].reset_index(drop=True)
@@ -157,15 +152,10 @@ class UnderSampler:
 
                 if target_count < len(cls_indices):
                     # Случайный выбор без возврата
-                    selected_indices = np.random.choice(
-                        cls_indices, size=target_count, replace=False
-                    )
+                    selected_indices = np.random.choice(cls_indices, size=target_count, replace=False)
                     indices.extend(selected_indices)
 
-                    logger.info(
-                        f"Undersampling класса {cls}: "
-                        f"{len(cls_indices)} -> {target_count} сэмплов"
-                    )
+                    logger.info(f"Undersampling класса {cls}: " f"{len(cls_indices)} -> {target_count} сэмплов")
                 else:
                     indices.extend(cls_indices)
 

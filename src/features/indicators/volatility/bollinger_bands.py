@@ -62,9 +62,7 @@ class BollingerBands(Indicator):
         std_dev = self.params.get("std_dev", 2.0)
 
         if not isinstance(window, int) or window < 1:
-            raise ValueError(
-                f"window должен быть положительным целым числом, получено: {window}"
-            )
+            raise ValueError(f"window должен быть положительным целым числом, получено: {window}")
         if std_dev <= 0:
             raise ValueError(f"std_dev должен быть положительным, получено: {std_dev}")
 

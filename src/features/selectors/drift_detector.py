@@ -30,9 +30,7 @@ class DriftDetector:
         self.drift_scores_: Optional[pd.Series] = None
         self.drifted_features_: Optional[List[str]] = None
 
-    def detect(
-        self, X_train: pd.DataFrame, X_test: pd.DataFrame
-    ) -> Tuple[pd.Series, List[str]]:
+    def detect(self, X_train: pd.DataFrame, X_test: pd.DataFrame) -> Tuple[pd.Series, List[str]]:
         """
         Детектировать дрифт признаков.
 
@@ -86,18 +84,12 @@ class DriftDetector:
                 continue
 
             # Вычисляем квантили для биннинга
-            _, bin_edges = pd.qcut(
-                train_vals, q=n_bins, retbins=True, duplicates="drop"
-            )
+            _, bin_edges = pd.qcut(train_vals, q=n_bins, retbins=True, duplicates="drop")
             bins_list: List[float] = bin_edges.tolist()
 
             # Подсчитываем частоты в каждом бине
-            train_freq = pd.cut(
-                train_vals, bins=bins_list, include_lowest=True
-            ).value_counts(normalize=True)
-            test_freq = pd.cut(
-                test_vals, bins=bins_list, include_lowest=True
-            ).value_counts(normalize=True)
+            train_freq = pd.cut(train_vals, bins=bins_list, include_lowest=True).value_counts(normalize=True)
+            test_freq = pd.cut(test_vals, bins=bins_list, include_lowest=True).value_counts(normalize=True)
 
             # Выравниваем индексы
             train_freq = train_freq.reindex(test_freq.index, fill_value=0.001)
@@ -137,9 +129,7 @@ class DriftDetector:
 
         return pd.Series(ks_scores).sort_values(ascending=False)
 
-    def _detect_adversarial(
-        self, X_train: pd.DataFrame, X_test: pd.DataFrame
-    ) -> pd.Series:
+    def _detect_adversarial(self, X_train: pd.DataFrame, X_test: pd.DataFrame) -> pd.Series:
         """
         Adversarial validation.
 

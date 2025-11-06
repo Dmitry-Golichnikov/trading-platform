@@ -38,14 +38,10 @@ class PriceAnomalyFilter(DataFilter):
                 - action: 'remove' | 'replace' | 'mark'
         """
         super().__init__(config)
-        self.method: Literal["zscore", "iqr", "ewma", "isolation_forest"] = (
-            self.config.get("method", "zscore")
-        )
+        self.method: Literal["zscore", "iqr", "ewma", "isolation_forest"] = self.config.get("method", "zscore")
         self.threshold: float = self.config.get("threshold", 3.0)
         self.window: int = self.config.get("window", 100)
-        self.action: Literal["remove", "replace", "mark"] = self.config.get(
-            "action", "remove"
-        )
+        self.action: Literal["remove", "replace", "mark"] = self.config.get("action", "remove")
 
     def filter(self, data: pd.DataFrame) -> pd.DataFrame:
         """Применить фильтр аномалий."""

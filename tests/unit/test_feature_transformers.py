@@ -34,23 +34,17 @@ class TestRollingTransformer:
 
     def test_rolling_mean(self, sample_data):
         """Тест rolling mean."""
-        transformer = RollingTransformer(
-            window=10, functions=["mean"], columns=["close"]
-        )
+        transformer = RollingTransformer(window=10, functions=["mean"], columns=["close"])
         features = transformer.transform(sample_data)
 
         assert "close_rolling_mean_10" in features.columns
         # Проверяем что вычисления корректны
         expected = sample_data["close"].rolling(window=10, min_periods=1).mean()
-        pd.testing.assert_series_equal(
-            features["close_rolling_mean_10"], expected, check_names=False
-        )
+        pd.testing.assert_series_equal(features["close_rolling_mean_10"], expected, check_names=False)
 
     def test_multiple_functions(self, sample_data):
         """Тест нескольких функций."""
-        transformer = RollingTransformer(
-            window=20, functions=["mean", "std", "min", "max"], columns=["close"]
-        )
+        transformer = RollingTransformer(window=20, functions=["mean", "std", "min", "max"], columns=["close"])
         features = transformer.transform(sample_data)
 
         assert len(features.columns) == 4
@@ -61,9 +55,7 @@ class TestRollingTransformer:
 
     def test_multiple_columns(self, sample_data):
         """Тест нескольких колонок."""
-        transformer = RollingTransformer(
-            window=10, functions=["mean"], columns=["close", "volume"]
-        )
+        transformer = RollingTransformer(window=10, functions=["mean"], columns=["close", "volume"])
         features = transformer.transform(sample_data)
 
         assert len(features.columns) == 2
@@ -77,9 +69,7 @@ class TestRollingTransformer:
 
     def test_missing_column(self, sample_data):
         """Тест с отсутствующей колонкой."""
-        transformer = RollingTransformer(
-            window=10, functions=["mean"], columns=["nonexistent"]
-        )
+        transformer = RollingTransformer(window=10, functions=["mean"], columns=["nonexistent"])
 
         with pytest.raises(ValueError):
             transformer.transform(sample_data)
@@ -96,9 +86,7 @@ class TestLagsTransformer:
         assert "close_lag_1" in features.columns
         # Проверяем корректность
         expected = sample_data["close"].shift(1)
-        pd.testing.assert_series_equal(
-            features["close_lag_1"], expected, check_names=False
-        )
+        pd.testing.assert_series_equal(features["close_lag_1"], expected, check_names=False)
 
     def test_multiple_lags(self, sample_data):
         """Тест нескольких лагов."""
@@ -131,37 +119,27 @@ class TestDifferencesTransformer:
 
     def test_diff_method(self, sample_data):
         """Тест метода diff."""
-        transformer = DifferencesTransformer(
-            periods=[1], columns=["close"], method="diff"
-        )
+        transformer = DifferencesTransformer(periods=[1], columns=["close"], method="diff")
         features = transformer.transform(sample_data)
 
         assert "close_diff_1" in features.columns
         # Проверяем корректность
         expected = sample_data["close"].diff(1)
-        pd.testing.assert_series_equal(
-            features["close_diff_1"], expected, check_names=False
-        )
+        pd.testing.assert_series_equal(features["close_diff_1"], expected, check_names=False)
 
     def test_pct_change_method(self, sample_data):
         """Тест метода pct_change."""
-        transformer = DifferencesTransformer(
-            periods=[1], columns=["close"], method="pct_change"
-        )
+        transformer = DifferencesTransformer(periods=[1], columns=["close"], method="pct_change")
         features = transformer.transform(sample_data)
 
         assert "close_pct_change_1" in features.columns
         # Проверяем корректность
         expected = sample_data["close"].pct_change(1)
-        pd.testing.assert_series_equal(
-            features["close_pct_change_1"], expected, check_names=False
-        )
+        pd.testing.assert_series_equal(features["close_pct_change_1"], expected, check_names=False)
 
     def test_multiple_periods(self, sample_data):
         """Тест нескольких периодов."""
-        transformer = DifferencesTransformer(
-            periods=[1, 5], columns=["close"], method="diff"
-        )
+        transformer = DifferencesTransformer(periods=[1, 5], columns=["close"], method="diff")
         features = transformer.transform(sample_data)
 
         assert len(features.columns) == 2
@@ -175,9 +153,7 @@ class TestDifferencesTransformer:
 
     def test_missing_column(self, sample_data):
         """Тест с отсутствующей колонкой."""
-        transformer = DifferencesTransformer(
-            periods=[1], columns=["nonexistent"], method="diff"
-        )
+        transformer = DifferencesTransformer(periods=[1], columns=["nonexistent"], method="diff")
 
         with pytest.raises(ValueError):
             transformer.transform(sample_data)
@@ -204,9 +180,7 @@ class TestRatiosTransformer:
 
     def test_multiple_ratios(self, sample_data):
         """Тест нескольких соотношений."""
-        transformer = RatiosTransformer(
-            pairs=[("feature1", "feature2"), ("close", "volume")]
-        )
+        transformer = RatiosTransformer(pairs=[("feature1", "feature2"), ("close", "volume")])
         features = transformer.transform(sample_data)
 
         assert len(features.columns) == 2

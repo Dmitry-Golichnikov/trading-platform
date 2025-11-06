@@ -50,9 +50,7 @@ class SMA(Indicator):
         """Валидация параметров."""
         window = self.params.get("window", 20)
         if not isinstance(window, int) or window < 1:
-            raise ValueError(
-                f"window должен быть положительным целым числом, получено: {window}"
-            )
+            raise ValueError(f"window должен быть положительным целым числом, получено: {window}")
 
     def get_required_columns(self) -> List[str]:
         """Необходимые колонки."""
@@ -81,8 +79,6 @@ class SMA(Indicator):
         col_name = f"SMA_{window}"
 
         # Каузальный расчёт: rolling с min_periods=window
-        result[col_name] = (
-            data[column].rolling(window=window, min_periods=window).mean()
-        )
+        result[col_name] = data[column].rolling(window=window, min_periods=window).mean()
 
         return result[[col_name]]

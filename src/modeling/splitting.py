@@ -65,10 +65,7 @@ class DataSplitter:
         val_df = data.iloc[train_end:val_end].copy()
         test_df = data.iloc[val_end:].copy()
 
-        logger.info(
-            f"Sequential split: train={len(train_df)}, "
-            f"val={len(val_df)}, test={len(test_df)}"
-        )
+        logger.info(f"Sequential split: train={len(train_df)}, " f"val={len(val_df)}, test={len(test_df)}")
 
         return train_df, val_df, test_df
 
@@ -116,10 +113,7 @@ class DataSplitter:
         # Проверяем что хватает данных
         required_size = min_train_size + test_size * n_splits
         if required_size > n:
-            raise ValueError(
-                f"Недостаточно данных для {n_splits} сплитов. "
-                f"Требуется {required_size}, доступно {n}"
-            )
+            raise ValueError(f"Недостаточно данных для {n_splits} сплитов. " f"Требуется {required_size}, доступно {n}")
 
         splits = []
 
@@ -139,9 +133,7 @@ class DataSplitter:
 
             splits.append((train_df, test_df))
 
-        logger.info(
-            f"Walk-forward split: {len(splits)} splits, " f"test_size={test_size}"
-        )
+        logger.info(f"Walk-forward split: {len(splits)} splits, " f"test_size={test_size}")
 
         return splits
 
@@ -201,10 +193,7 @@ class DataSplitter:
 
         # Разделяем с учётом embargo
         train_df = data[data[timestamp_col] < train_end_time].copy()
-        val_df = data[
-            (data[timestamp_col] >= train_embargo_cutoff)
-            & (data[timestamp_col] < val_end_time)
-        ].copy()
+        val_df = data[(data[timestamp_col] >= train_embargo_cutoff) & (data[timestamp_col] < val_end_time)].copy()
         test_df = data[data[timestamp_col] >= val_embargo_cutoff].copy()
 
         # Считаем сколько удалили
@@ -253,19 +242,14 @@ class DataSplitter:
             val_end = pd.to_datetime(val_end_date)
 
             train_df = data[data[timestamp_col] < train_end].copy()
-            val_df = data[
-                (data[timestamp_col] >= train_end) & (data[timestamp_col] < val_end)
-            ].copy()
+            val_df = data[(data[timestamp_col] >= train_end) & (data[timestamp_col] < val_end)].copy()
             test_df = data[data[timestamp_col] >= val_end].copy()
         else:
             train_df = data[data[timestamp_col] < train_end].copy()
             val_df = pd.DataFrame()
             test_df = data[data[timestamp_col] >= train_end].copy()
 
-        logger.info(
-            f"Split by date: train={len(train_df)}, val={len(val_df)}, "
-            f"test={len(test_df)}"
-        )
+        logger.info(f"Split by date: train={len(train_df)}, val={len(val_df)}, " f"test={len(test_df)}")
 
         return train_df, val_df, test_df
 
@@ -309,8 +293,7 @@ class DataSplitter:
 
                 if train_max >= test_min:
                     issues.append(
-                        f"Временное пересечение: train заканчивается {train_max}, "
-                        f"test начинается {test_min}"
+                        f"Временное пересечение: train заканчивается {train_max}, " f"test начинается {test_min}"
                     )
 
             if len(val) > 0:

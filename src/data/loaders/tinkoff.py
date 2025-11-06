@@ -90,12 +90,8 @@ class TinkoffDataLoader(DataLoader):
             )
 
         self.base_url = base_url
-        self.downloads_dir = (
-            downloads_dir or Path("artifacts/raw/downloads")
-        ).resolve()
-        self.extracted_dir = (
-            extracted_dir or Path("artifacts/raw/extracted")
-        ).resolve()
+        self.downloads_dir = (downloads_dir or Path("artifacts/raw/downloads")).resolve()
+        self.extracted_dir = (extracted_dir or Path("artifacts/raw/extracted")).resolve()
         self.downloads_dir.mkdir(parents=True, exist_ok=True)
         self.extracted_dir.mkdir(parents=True, exist_ok=True)
 
@@ -150,9 +146,7 @@ class TinkoffDataLoader(DataLoader):
                 data_frames.append(df)
 
         if not data_frames:
-            logger.warning(
-                "No data downloaded for %s in %s-%s", ticker, start_year, end_year
-            )
+            logger.warning("No data downloaded for %s in %s-%s", ticker, start_year, end_year)
             return pd.DataFrame(
                 columns=[
                     "timestamp",
@@ -213,9 +207,7 @@ class TinkoffDataLoader(DataLoader):
         resolver = self._instrument_resolver or self._resolve_instrument_via_api
         info = resolver(ticker)
         if not isinstance(info, InstrumentInfo):
-            raise DataLoadError(
-                "Instrument resolver must return InstrumentInfo instance"
-            )
+            raise DataLoadError("Instrument resolver must return InstrumentInfo instance")
 
         with self._instrument_lock:
             self._instrument_cache[ticker] = info
@@ -228,9 +220,7 @@ class TinkoffDataLoader(DataLoader):
             with Client(self.token, app_name=self._app_name) as client:
                 response = client.instruments.find_instrument(query=ticker)
         except RequestError as exc:  # pragma: no cover - network error path
-            raise DataLoadError(
-                f"Failed to resolve instrument '{ticker}': {exc}"
-            ) from exc
+            raise DataLoadError(f"Failed to resolve instrument '{ticker}': {exc}") from exc
 
         if not response.instruments:
             raise DataLoadError(f"Instrument '{ticker}' not found in Tinkoff catalog")
@@ -239,17 +229,12 @@ class TinkoffDataLoader(DataLoader):
         candidates = [
             ins
             for ins in response.instruments
-            if ins.ticker.upper() == ticker.upper()
-            and ins.class_code.upper().startswith("TQ")
+            if ins.ticker.upper() == ticker.upper() and ins.class_code.upper().startswith("TQ")
         ]
 
         if not candidates:
             # Fallback: любые совпадения по тикеру
-            candidates = [
-                ins
-                for ins in response.instruments
-                if ins.ticker.upper() == ticker.upper()
-            ]
+            candidates = [ins for ins in response.instruments if ins.ticker.upper() == ticker.upper()]
 
         if not candidates:
             raise DataLoadError(f"No matching instruments found for ticker '{ticker}'")
@@ -286,15 +271,11 @@ class TinkoffDataLoader(DataLoader):
             first_1min_candle=first_candle,
         )
 
-    def _load_year(
-        self, instrument: InstrumentInfo, year: int, ticker: str
-    ) -> pd.DataFrame:
+    def _load_year(self, instrument: InstrumentInfo, year: int, ticker: str) -> pd.DataFrame:
         try:
             archive_path = self._ensure_archive(instrument, year, ticker)
         except DataLoadError as exc:
-            logger.warning(
-                "Failed to download archive for %s %s: %s", ticker, year, exc
-            )
+            logger.warning("Failed to download archive for %s %s: %s", ticker, year, exc)
             return pd.DataFrame()
         if not archive_path.exists():
             return pd.DataFrame()
@@ -304,9 +285,7 @@ class TinkoffDataLoader(DataLoader):
         except zipfile.BadZipFile as exc:
             raise DataLoadError(f"Corrupted archive {archive_path}") from exc
 
-    def _ensure_archive(
-        self, instrument: InstrumentInfo, year: int, ticker: str
-    ) -> Path:
+    def _ensure_archive(self, instrument: InstrumentInfo, year: int, ticker: str) -> Path:
         ticker_dir = self.downloads_dir / ticker
         ticker_dir.mkdir(parents=True, exist_ok=True)
         archive_path = ticker_dir / f"{year}.zip"
@@ -320,9 +299,7 @@ class TinkoffDataLoader(DataLoader):
         self._download_archive(instrument, year, archive_path)
         return archive_path
 
-    def _download_archive(
-        self, instrument: InstrumentInfo, year: int, target_path: Path
-    ) -> None:
+    def _download_archive(self, instrument: InstrumentInfo, year: int, target_path: Path) -> None:
         logger.info(
             "Downloading %s (%s) history for %s",
             instrument.ticker,
@@ -366,9 +343,7 @@ class TinkoffDataLoader(DataLoader):
             % (instrument.ticker, year, response.status_code, response.text)
         )
 
-    def _parse_archive(
-        self, archive_path: Path, ticker: str, year: int
-    ) -> pd.DataFrame:
+    def _parse_archive(self, archive_path: Path, ticker: str, year: int) -> pd.DataFrame:
         frames: list[pd.DataFrame] = []
         with zipfile.ZipFile(archive_path) as zf:
             for info in zf.infolist():
@@ -377,37 +352,27 @@ class TinkoffDataLoader(DataLoader):
 
                 data = zf.read(info)
                 if info.filename.endswith(".zip"):
-                    frames.extend(
-                        self._parse_nested_zip(data, ticker, year, info.filename)
-                    )
+                    frames.extend(self._parse_nested_zip(data, ticker, year, info.filename))
                     continue
 
-                frames.append(
-                    self._process_csv_bytes(data, ticker, year, info.filename)
-                )
+                frames.append(self._process_csv_bytes(data, ticker, year, info.filename))
 
         if not frames:
             return pd.DataFrame()
 
         return pd.concat(frames, ignore_index=True)
 
-    def _parse_nested_zip(
-        self, payload: bytes, ticker: str, year: int, filename: str
-    ) -> list[pd.DataFrame]:
+    def _parse_nested_zip(self, payload: bytes, ticker: str, year: int, filename: str) -> list[pd.DataFrame]:
         frames: list[pd.DataFrame] = []
         with zipfile.ZipFile(io.BytesIO(payload)) as nested:
             for info in nested.infolist():
                 if info.is_dir():
                     continue
                 data = nested.read(info)
-                frames.append(
-                    self._process_csv_bytes(data, ticker, year, info.filename)
-                )
+                frames.append(self._process_csv_bytes(data, ticker, year, info.filename))
         return frames
 
-    def _process_csv_bytes(
-        self, payload: bytes, ticker: str, year: int, source_name: str
-    ) -> pd.DataFrame:
+    def _process_csv_bytes(self, payload: bytes, ticker: str, year: int, source_name: str) -> pd.DataFrame:
         if not payload:
             return pd.DataFrame()
 
@@ -450,9 +415,7 @@ class TinkoffDataLoader(DataLoader):
         df["volume"] = df["volume"].astype("Int64")
 
         # Удаляем строки с пропущенными значениями
-        df = df.dropna(
-            subset=["timestamp", "open", "high", "low", "close"]
-        ).reset_index(drop=True)
+        df = df.dropna(subset=["timestamp", "open", "high", "low", "close"]).reset_index(drop=True)
         df = df.sort_values("timestamp").reset_index(drop=True)
 
         # Добавляем ticker и переименовываем timestamp

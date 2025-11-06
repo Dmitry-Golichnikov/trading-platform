@@ -77,9 +77,7 @@ def test_validate_causality_with_sma():
     import numpy as np
 
     overlap = result2.iloc[: len(result1)]
-    assert np.allclose(
-        result1.values, overlap.values, rtol=1e-5, atol=1e-8, equal_nan=True
-    )
+    assert np.allclose(result1.values, overlap.values, rtol=1e-5, atol=1e-8, equal_nan=True)
 
 
 def test_generate_random_ohlcv():
@@ -87,10 +85,7 @@ def test_generate_random_ohlcv():
     data = generate_random_ohlcv(n_bars=100, start_price=100.0)
 
     assert len(data) == 100
-    assert all(
-        col in data.columns
-        for col in ["timestamp", "open", "high", "low", "close", "volume"]
-    )
+    assert all(col in data.columns for col in ["timestamp", "open", "high", "low", "close", "volume"])
 
     # Проверяем что high >= max(open, close) и low <= min(open, close)
     for i in range(len(data)):

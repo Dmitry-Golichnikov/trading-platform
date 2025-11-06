@@ -48,9 +48,7 @@ class FocalLoss(ClassificationLoss):
             gamma: Focusing parameter (обычно 2.0)
             reduction: Способ агрегации ('mean', 'sum', 'none')
         """
-        super().__init__(
-            name="FocalLoss", alpha=alpha, gamma=gamma, reduction=reduction
-        )
+        super().__init__(name="FocalLoss", alpha=alpha, gamma=gamma, reduction=reduction)
         self.alpha = alpha
         self.gamma = gamma
         self.reduction = reduction
@@ -119,9 +117,7 @@ class MultiClassFocalLoss(ClassificationLoss):
             gamma: Focusing parameter
             reduction: Способ агрегации
         """
-        super().__init__(
-            name="MultiClassFocalLoss", alpha=alpha, gamma=gamma, reduction=reduction
-        )
+        super().__init__(name="MultiClassFocalLoss", alpha=alpha, gamma=gamma, reduction=reduction)
         self.alpha = alpha
         self.gamma = gamma
         self.reduction = reduction

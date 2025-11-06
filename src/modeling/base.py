@@ -28,7 +28,13 @@ class BaseModel(ABC):
         Args:
             **hyperparams: Гиперпараметры модели
         """
-        self.hyperparams = hyperparams
+        # Сохраняем гиперпараметры, исключая служебные ключи (например, 'task')
+        hp = hyperparams.copy()
+        # Убираем ключ 'task', если он случайно оказался в hyperparams — модели сами хранят task
+        if "task" in hp:
+            hp.pop("task")
+
+        self.hyperparams = hp
         self.metadata: Dict[str, Any] = {
             "created_at": datetime.now().isoformat(),
             "training_time": None,
@@ -36,6 +42,9 @@ class BaseModel(ABC):
             "n_features": None,
         }
         self._is_fitted = False
+        self.model: Any = None
+        self._classes: np.ndarray = np.array([])
+        self._feature_names: list[str] = []
 
     @abstractmethod
     def fit(
@@ -90,9 +99,7 @@ class BaseModel(ABC):
         Raises:
             NotImplementedError: Если модель не поддерживает вероятности
         """
-        raise NotImplementedError(
-            f"{self.__class__.__name__} не поддерживает predict_proba"
-        )
+        raise NotImplementedError(f"{self.__class__.__name__} не поддерживает predict_proba")
 
     @abstractmethod
     def save(self, path: Path) -> None:
@@ -222,9 +229,7 @@ class ClassifierMixin:
         Raises:
             NotImplementedError: Если модель не поддерживает decision function
         """
-        raise NotImplementedError(
-            f"{self.__class__.__name__} не поддерживает decision_function"
-        )
+        raise NotImplementedError(f"{self.__class__.__name__} не поддерживает decision_function")
 
 
 class RegressorMixin:
@@ -248,9 +253,7 @@ class RegressorMixin:
         Raises:
             NotImplementedError: Если модель не поддерживает квантили
         """
-        raise NotImplementedError(
-            f"{self.__class__.__name__} не поддерживает predict_quantiles"
-        )
+        raise NotImplementedError(f"{self.__class__.__name__} не поддерживает predict_quantiles")
 
 
 # Типы для type hints

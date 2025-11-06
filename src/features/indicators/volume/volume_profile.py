@@ -53,9 +53,7 @@ class VolumeProfile(Indicator):
         bins = self.params.get("bins", 20)
 
         if not isinstance(window, int) or window < 1:
-            raise ValueError(
-                f"window должен быть положительным целым числом, получено: {window}"
-            )
+            raise ValueError(f"window должен быть положительным целым числом, получено: {window}")
         if not isinstance(bins, int) or bins < 2:
             raise ValueError(f"bins должен быть >= 2, получено: {bins}")
 
@@ -163,8 +161,6 @@ class VolumeProfile(Indicator):
                 val[i] = price_levels[va_indices[0]]
                 vah[i] = price_levels[va_indices[-1] + 1]
 
-        result = pd.DataFrame(
-            {"VP_poc": poc, "VP_vah": vah, "VP_val": val}, index=data.index
-        )
+        result = pd.DataFrame({"VP_poc": poc, "VP_vah": vah, "VP_val": val}, index=data.index)
 
         return result

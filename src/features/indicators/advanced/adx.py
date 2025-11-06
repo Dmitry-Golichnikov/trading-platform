@@ -57,9 +57,7 @@ class ADX(Indicator):
         """Валидация параметров."""
         window = self.params.get("window", 14)
         if not isinstance(window, int) or window < 1:
-            raise ValueError(
-                f"window должен быть положительным целым числом, получено: {window}"
-            )
+            raise ValueError(f"window должен быть положительным целым числом, получено: {window}")
 
     def get_required_columns(self) -> List[str]:
         """Необходимые колонки."""
@@ -105,12 +103,8 @@ class ADX(Indicator):
         minus_dm = ((low_diff > high_diff) & (low_diff > 0)) * low_diff
 
         # Сглаживание DM
-        plus_dm_smooth = plus_dm.ewm(
-            span=window, adjust=False, min_periods=window
-        ).mean()
-        minus_dm_smooth = minus_dm.ewm(
-            span=window, adjust=False, min_periods=window
-        ).mean()
+        plus_dm_smooth = plus_dm.ewm(span=window, adjust=False, min_periods=window).mean()
+        minus_dm_smooth = minus_dm.ewm(span=window, adjust=False, min_periods=window).mean()
 
         # Directional Indicators
         di_plus = 100 * plus_dm_smooth / atr

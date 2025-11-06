@@ -146,8 +146,7 @@ class ModelTrainer:
             if self.verbose:
                 logger.info(
                     f"Начало обучения {self.model.__class__.__name__}: "
-                    f"train_size={len(X_train)}"
-                    + (f", val_size={len(X_val)}" if X_val is not None else "")
+                    f"train_size={len(X_train)}" + (f", val_size={len(X_val)}" if X_val is not None else "")
                 )
 
             # Callbacks: начало обучения
@@ -167,9 +166,7 @@ class ModelTrainer:
                 )
             else:
                 # Одношаговое обучение (sklearn-like модели)
-                result = self._train_single_step(
-                    X_train, y_train, X_val, y_val, callback_list, **fit_kwargs
-                )
+                result = self._train_single_step(X_train, y_train, X_val, y_val, callback_list, **fit_kwargs)
 
             training_time = time.time() - start_time
 
@@ -187,10 +184,7 @@ class ModelTrainer:
             callback_list.on_train_end(self, result.metrics)
 
             if self.verbose:
-                logger.info(
-                    f"Обучение завершено за {training_time:.2f}s, "
-                    f"эпох: {result.n_epochs}"
-                )
+                logger.info(f"Обучение завершено за {training_time:.2f}s, " f"эпох: {result.n_epochs}")
 
             return result
 

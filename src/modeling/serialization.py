@@ -11,7 +11,11 @@ from pathlib import Path
 from typing import Any, Dict, Literal, Optional
 
 import joblib
-import torch
+
+try:
+    import torch
+except Exception:
+    torch = None
 
 from src.modeling.base import BaseModel
 
@@ -25,7 +29,7 @@ class ModelSerializer:
     Поддерживает различные форматы: pickle, joblib, PyTorch, ONNX.
     """
 
-    SUPPORTED_FORMATS = ["pickle", "joblib", "torch", "onnx"]
+    SUPPORTED_FORMATS = ["pickle", "joblib", "onnx"] + (["torch"] if torch is not None else [])
 
     @staticmethod
     def save(
@@ -61,13 +65,10 @@ class ModelSerializer:
         # Проверяем формат
         if chosen_format not in ModelSerializer.SUPPORTED_FORMATS:
             raise ValueError(
-                f"Неподдерживаемый формат: {chosen_format}. "
-                f"Доступные: {ModelSerializer.SUPPORTED_FORMATS}"
+                f"Неподдерживаемый формат: {chosen_format}. " f"Доступные: {ModelSerializer.SUPPORTED_FORMATS}"
             )
 
-        logger.info(
-            f"Сохранение модели {model.__class__.__name__} в {path} ({chosen_format})"
-        )
+        logger.info(f"Сохранение модели {model.__class__.__name__} в {path} ({chosen_format})")
 
         # Сохраняем в зависимости от формата
         if chosen_format == "pickle":
@@ -184,29 +185,25 @@ class ModelSerializer:
     @staticmethod
     def _save_torch(model: BaseModel, path: Path, **kwargs) -> None:
         """Сохранить PyTorch модель."""
+        if torch is None:
+            raise ImportError("PyTorch не установлен. Установите: pip install torch")
+
         if hasattr(model, "state_dict"):
             # Сохраняем state_dict + метаданные
             save_dict = {
                 "state_dict": model.state_dict(),
-                "hyperparams": (
-                    model.hyperparams if hasattr(model, "hyperparams") else {}
-                ),
+                "hyperparams": (model.hyperparams if hasattr(model, "hyperparams") else {}),
                 "metadata": model.metadata if hasattr(model, "metadata") else {},
                 "model_class": model.__class__.__name__,
             }
             torch.save(save_dict, path, **kwargs)
         else:
             # Fallback to pickle
-            logger.warning(
-                f"Модель {model.__class__.__name__} не имеет state_dict, "
-                f"использую pickle"
-            )
+            logger.warning(f"Модель {model.__class__.__name__} не имеет state_dict, " f"использую pickle")
             ModelSerializer._save_pickle(model, path, **kwargs)
 
     @staticmethod
-    def _load_torch(
-        path: Path, model_class: Optional[type] = None, **kwargs
-    ) -> BaseModel:
+    def _load_torch(path: Path, model_class: Optional[type] = None, **kwargs) -> BaseModel:
         """
         Загрузить PyTorch модель.
 
@@ -215,14 +212,15 @@ class ModelSerializer:
             model_class: Класс модели (для восстановления архитектуры)
             **kwargs: Дополнительные параметры
         """
+        if torch is None:
+            raise ImportError("PyTorch не установлен. Установите: pip install torch")
+
         checkpoint = torch.load(path, **kwargs)
 
         if isinstance(checkpoint, dict) and "state_dict" in checkpoint:
             # Загружаем из нашего формата
             if model_class is None:
-                raise ValueError(
-                    "Для загрузки PyTorch модели необходимо указать model_class"
-                )
+                raise ValueError("Для загрузки PyTorch модели необходимо указать model_class")
 
             # Создаём экземпляр модели
             hyperparams = checkpoint.get("hyperparams", {})
@@ -256,10 +254,7 @@ class ModelSerializer:
 
         dummy_input = kwargs.pop("dummy_input", None)
         if dummy_input is None:
-            raise ValueError(
-                "Для ONNX export необходимо указать dummy_input "
-                "(пример входных данных)"
-            )
+            raise ValueError("Для ONNX export необходимо указать dummy_input " "(пример входных данных)")
 
         # Экспорт в ONNX
         torch.onnx.export(model, dummy_input, path, **kwargs)
@@ -276,10 +271,7 @@ class ModelSerializer:
         try:
             import onnxruntime as ort
         except ImportError:
-            raise ImportError(
-                "Для загрузки ONNX моделей необходимо установить onnxruntime: "
-                "pip install onnxruntime"
-            )
+            raise ImportError("Для загрузки ONNX моделей необходимо установить onnxruntime: " "pip install onnxruntime")
 
         session = ort.InferenceSession(str(path), **kwargs)
         logger.info(f"ONNX модель загружена: {path}")

@@ -62,9 +62,7 @@ def validate_causality(
             return False
 
         # Сравнить с учётом NaN
-        is_equal = np.allclose(
-            vals1, vals2, rtol=rtol, atol=atol, equal_nan=True  # type: ignore
-        )
+        is_equal = np.allclose(vals1, vals2, rtol=rtol, atol=atol, equal_nan=True)  # type: ignore
         if not is_equal:
             return False
 

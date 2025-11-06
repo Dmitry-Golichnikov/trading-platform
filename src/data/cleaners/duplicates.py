@@ -29,9 +29,7 @@ class DuplicateHandler:
                 - subset: колонки для проверки дубликатов (default: ['timestamp'])
         """
         self.config = config or {}
-        self.strategy: Literal["first", "last", "mean", "validate"] = self.config.get(
-            "strategy", "last"
-        )
+        self.strategy: Literal["first", "last", "mean", "validate"] = self.config.get("strategy", "last")
         self.subset: list[str] = self.config.get("subset", ["timestamp"])
 
     def handle(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -60,9 +58,7 @@ class DuplicateHandler:
         logger.info(f"Found {num_duplicates} duplicate rows")
 
         if self.strategy == "validate":
-            raise PreprocessingError(
-                f"Found {num_duplicates} duplicate rows (validation failed)"
-            )
+            raise PreprocessingError(f"Found {num_duplicates} duplicate rows (validation failed)")
         elif self.strategy == "first":
             return self._keep_first(data)
         elif self.strategy == "last":
@@ -74,15 +70,11 @@ class DuplicateHandler:
 
     def _keep_first(self, data: pd.DataFrame) -> pd.DataFrame:
         """Оставить первое вхождение."""
-        return data.drop_duplicates(subset=self.subset, keep="first").reset_index(
-            drop=True
-        )
+        return data.drop_duplicates(subset=self.subset, keep="first").reset_index(drop=True)
 
     def _keep_last(self, data: pd.DataFrame) -> pd.DataFrame:
         """Оставить последнее вхождение."""
-        return data.drop_duplicates(subset=self.subset, keep="last").reset_index(
-            drop=True
-        )
+        return data.drop_duplicates(subset=self.subset, keep="last").reset_index(drop=True)
 
     def _aggregate_mean(self, data: pd.DataFrame) -> pd.DataFrame:
         """Усреднить дубликаты."""

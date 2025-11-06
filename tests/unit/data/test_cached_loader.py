@@ -53,9 +53,7 @@ class TestCachedDataLoader:
         return MockLoader()
 
     @pytest.fixture
-    def cached_loader(
-        self, mock_loader: MockLoader, tmp_path: Path
-    ) -> CachedDataLoader:
+    def cached_loader(self, mock_loader: MockLoader, tmp_path: Path) -> CachedDataLoader:
         """Кэширующий загрузчик с временной директорией."""
         return CachedDataLoader(
             loader=mock_loader,
@@ -64,9 +62,7 @@ class TestCachedDataLoader:
             max_memory_size=2,  # Маленький размер для тестирования LRU
         )
 
-    def test_first_load_misses_both_caches(
-        self, cached_loader: CachedDataLoader, mock_loader: MockLoader
-    ) -> None:
+    def test_first_load_misses_both_caches(self, cached_loader: CachedDataLoader, mock_loader: MockLoader) -> None:
         """Первая загрузка - промах обоих кэшей."""
         from_date = datetime(2024, 1, 1, tzinfo=timezone.utc)
         to_date = datetime(2024, 1, 2, tzinfo=timezone.utc)
@@ -78,9 +74,7 @@ class TestCachedDataLoader:
         assert cached_loader.stats["memory_misses"] == 1
         assert cached_loader.stats["disk_misses"] == 1
 
-    def test_second_load_hits_memory_cache(
-        self, cached_loader: CachedDataLoader, mock_loader: MockLoader
-    ) -> None:
+    def test_second_load_hits_memory_cache(self, cached_loader: CachedDataLoader, mock_loader: MockLoader) -> None:
         """Вторая загрузка тех же данных - попадание в memory cache."""
         from_date = datetime(2024, 1, 1, tzinfo=timezone.utc)
         to_date = datetime(2024, 1, 2, tzinfo=timezone.utc)
@@ -98,9 +92,7 @@ class TestCachedDataLoader:
 
         pd.testing.assert_frame_equal(result1, result2)
 
-    def test_lru_eviction(
-        self, cached_loader: CachedDataLoader, mock_loader: MockLoader
-    ) -> None:
+    def test_lru_eviction(self, cached_loader: CachedDataLoader, mock_loader: MockLoader) -> None:
         """Тест вытеснения из LRU кэша при переполнении."""
         # max_memory_size=2, загрузим 3 разных датасета
 
@@ -126,9 +118,7 @@ class TestCachedDataLoader:
         # Должен быть 1 disk hit (для первого датасета после вытеснения из памяти)
         assert stats["disk_hits"] == 1
 
-    def test_disk_cache_hit_after_memory_clear(
-        self, cached_loader: CachedDataLoader, mock_loader: MockLoader
-    ) -> None:
+    def test_disk_cache_hit_after_memory_clear(self, cached_loader: CachedDataLoader, mock_loader: MockLoader) -> None:
         """Тест попадания в disk cache после очистки memory cache."""
         from_date = datetime(2024, 1, 1, tzinfo=timezone.utc)
         to_date = datetime(2024, 1, 2, tzinfo=timezone.utc)
@@ -145,13 +135,9 @@ class TestCachedDataLoader:
         assert len(result_data) == 2
         assert mock_loader.call_count == 1  # Только один вызов источника
         assert cached_loader.stats["disk_hits"] == 1
-        assert (
-            cached_loader.stats["memory_misses"] == 2
-        )  # Обе загрузки промахнулись по памяти
+        assert cached_loader.stats["memory_misses"] == 2  # Обе загрузки промахнулись по памяти
 
-    def test_ttl_expiration(
-        self, cached_loader: CachedDataLoader, mock_loader: MockLoader, tmp_path: Path
-    ) -> None:
+    def test_ttl_expiration(self, cached_loader: CachedDataLoader, mock_loader: MockLoader, tmp_path: Path) -> None:
         """Тест истечения TTL для memory cache."""
         # Создать новый loader с очень коротким TTL
         short_ttl_loader = CachedDataLoader(
@@ -178,9 +164,7 @@ class TestCachedDataLoader:
         # Должно быть 2 вызова источника
         assert mock_loader.call_count == 2
 
-    def test_cache_disabled(
-        self, cached_loader: CachedDataLoader, mock_loader: MockLoader
-    ) -> None:
+    def test_cache_disabled(self, cached_loader: CachedDataLoader, mock_loader: MockLoader) -> None:
         """Тест отключения кэша."""
         from_date = datetime(2024, 1, 1, tzinfo=timezone.utc)
         to_date = datetime(2024, 1, 2, tzinfo=timezone.utc)
@@ -194,9 +178,7 @@ class TestCachedDataLoader:
         assert cached_loader.stats["memory_hits"] == 0
         assert cached_loader.stats["disk_hits"] == 0
 
-    def test_get_stats(
-        self, cached_loader: CachedDataLoader, mock_loader: MockLoader
-    ) -> None:
+    def test_get_stats(self, cached_loader: CachedDataLoader, mock_loader: MockLoader) -> None:
         """Тест получения статистики."""
         from_date = datetime(2024, 1, 1, tzinfo=timezone.utc)
         to_date = datetime(2024, 1, 2, tzinfo=timezone.utc)
@@ -223,9 +205,7 @@ class TestCachedDataLoader:
         assert stats["memory_misses"] == 1
         assert stats["disk_misses"] == 1
 
-    def test_clear_cache(
-        self, cached_loader: CachedDataLoader, mock_loader: MockLoader
-    ) -> None:
+    def test_clear_cache(self, cached_loader: CachedDataLoader, mock_loader: MockLoader) -> None:
         """Тест очистки кэша."""
         from_date = datetime(2024, 1, 1, tzinfo=timezone.utc)
         to_date = datetime(2024, 1, 2, tzinfo=timezone.utc)
@@ -244,9 +224,7 @@ class TestCachedDataLoader:
         assert stats["memory_cache_size"] == 0
         assert stats["disk_cache_size"] == 0
 
-    def test_get_available_tickers(
-        self, cached_loader: CachedDataLoader, mock_loader: MockLoader
-    ) -> None:
+    def test_get_available_tickers(self, cached_loader: CachedDataLoader, mock_loader: MockLoader) -> None:
         """Тест делегирования метода get_available_tickers."""
         tickers = cached_loader.get_available_tickers()
         assert tickers == ["TEST"]

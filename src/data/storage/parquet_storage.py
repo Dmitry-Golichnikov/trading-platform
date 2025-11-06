@@ -106,9 +106,7 @@ class ParquetStorage:
 
             # Создать или обновить метаданные
             if metadata is None:
-                metadata = self._create_metadata(
-                    data=data, ticker=ticker, timeframe=timeframe, source=source
-                )
+                metadata = self._create_metadata(data=data, ticker=ticker, timeframe=timeframe, source=source)
 
             # Сохранить метаданные
             metadata_file = dataset_dir / "metadata.json"
@@ -116,8 +114,7 @@ class ParquetStorage:
                 json.dump(metadata.model_dump(mode="json"), f, indent=2, default=str)
 
             logger.info(
-                f"Saved dataset: {ticker}/{timeframe}, "
-                f"{len(data)} bars, {len(data['year'].unique())} years"
+                f"Saved dataset: {ticker}/{timeframe}, " f"{len(data)} bars, {len(data['year'].unique())} years"
             )
 
             return metadata
@@ -175,15 +172,11 @@ class ParquetStorage:
                 mask = pd.Series([True] * len(data))
                 if from_date:
                     if from_date.tzinfo is None:
-                        from_date = from_date.replace(
-                            tzinfo=pd.Timestamp("now", tz="UTC").tzinfo
-                        )
+                        from_date = from_date.replace(tzinfo=pd.Timestamp("now", tz="UTC").tzinfo)
                     mask &= data["timestamp"] >= from_date
                 if to_date:
                     if to_date.tzinfo is None:
-                        to_date = to_date.replace(
-                            tzinfo=pd.Timestamp("now", tz="UTC").tzinfo
-                        )
+                        to_date = to_date.replace(tzinfo=pd.Timestamp("now", tz="UTC").tzinfo)
                     mask &= data["timestamp"] <= to_date
                 data = data[mask].copy()
 
@@ -230,8 +223,7 @@ class ParquetStorage:
                 combined,
                 ticker,
                 timeframe,
-                source=source
-                or (existing_metadata.source if existing_metadata else "local"),
+                source=source or (existing_metadata.source if existing_metadata else "local"),
             )
 
             logger.info(f"Appended data to {ticker}/{timeframe}")
@@ -240,9 +232,7 @@ class ParquetStorage:
         except Exception as e:
             raise StorageError(f"Failed to append data: {e}") from e
 
-    def list_datasets(
-        self, ticker: Optional[str] = None, timeframe: Optional[str] = None
-    ) -> list[DatasetMetadata]:
+    def list_datasets(self, ticker: Optional[str] = None, timeframe: Optional[str] = None) -> list[DatasetMetadata]:
         """
         Получить список всех датасетов.
 
@@ -257,19 +247,13 @@ class ParquetStorage:
 
         # Определить директории для поиска
         if ticker:
-            ticker_dirs = (
-                [self.data_dir / ticker] if (self.data_dir / ticker).exists() else []
-            )
+            ticker_dirs = [self.data_dir / ticker] if (self.data_dir / ticker).exists() else []
         else:
             ticker_dirs = [d for d in self.data_dir.iterdir() if d.is_dir()]
 
         for ticker_dir in ticker_dirs:
             if timeframe:
-                timeframe_dirs = (
-                    [ticker_dir / timeframe]
-                    if (ticker_dir / timeframe).exists()
-                    else []
-                )
+                timeframe_dirs = [ticker_dir / timeframe] if (ticker_dir / timeframe).exists() else []
             else:
                 timeframe_dirs = [d for d in ticker_dir.iterdir() if d.is_dir()]
 
@@ -282,9 +266,7 @@ class ParquetStorage:
                         metadata = DatasetMetadata(**metadata_dict)
                         datasets.append(metadata)
                     except Exception as e:
-                        logger.warning(
-                            f"Failed to load metadata from {metadata_file}: {e}"
-                        )
+                        logger.warning(f"Failed to load metadata from {metadata_file}: {e}")
 
         return datasets
 

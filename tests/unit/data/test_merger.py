@@ -76,9 +76,7 @@ class TestDataMerger:
         assert len(result) == len(sample_data_1)
         pd.testing.assert_frame_equal(result, sample_data_1)
 
-    def test_merge_latest_strategy(
-        self, sample_data_1: pd.DataFrame, sample_data_2: pd.DataFrame
-    ) -> None:
+    def test_merge_latest_strategy(self, sample_data_1: pd.DataFrame, sample_data_2: pd.DataFrame) -> None:
         """Тест стратегии 'latest'."""
         merger = DataMerger()
         result = merger.merge_sources([sample_data_1, sample_data_2], strategy="latest")
@@ -88,15 +86,11 @@ class TestDataMerger:
         assert result["timestamp"].is_monotonic_increasing
 
         # Последние значения для дубликатов должны быть из sample_data_2
-        row_10_01 = result[
-            result["timestamp"] == pd.Timestamp("2024-01-01 10:01:00", tz="UTC")
-        ]
+        row_10_01 = result[result["timestamp"] == pd.Timestamp("2024-01-01 10:01:00", tz="UTC")]
         close_value = _ensure_float(row_10_01.iloc[0]["close"])
         assert close_value == pytest.approx(101.8)
 
-    def test_merge_priority_strategy(
-        self, sample_data_1: pd.DataFrame, sample_data_2: pd.DataFrame
-    ) -> None:
+    def test_merge_priority_strategy(self, sample_data_1: pd.DataFrame, sample_data_2: pd.DataFrame) -> None:
         """Тест стратегии 'priority'."""
         merger = DataMerger()
 
@@ -110,28 +104,20 @@ class TestDataMerger:
         assert len(result) == 4
 
         # Для дубликатов должны быть значения из tinkoff (высокий приоритет)
-        row_10_01 = result[
-            result["timestamp"] == pd.Timestamp("2024-01-01 10:01:00", tz="UTC")
-        ]
+        row_10_01 = result[result["timestamp"] == pd.Timestamp("2024-01-01 10:01:00", tz="UTC")]
         close_value = _ensure_float(row_10_01.iloc[0]["close"])
         assert close_value == pytest.approx(101.8)
         assert row_10_01.iloc[0]["source"] == "tinkoff"
 
-    def test_merge_average_strategy(
-        self, sample_data_1: pd.DataFrame, sample_data_2: pd.DataFrame
-    ) -> None:
+    def test_merge_average_strategy(self, sample_data_1: pd.DataFrame, sample_data_2: pd.DataFrame) -> None:
         """Тест стратегии 'average'."""
         merger = DataMerger()
-        result = merger.merge_sources(
-            [sample_data_1, sample_data_2], strategy="average"
-        )
+        result = merger.merge_sources([sample_data_1, sample_data_2], strategy="average")
 
         assert len(result) == 4
 
         # Для дубликатов значения должны быть усреднены
-        row_10_01 = result[
-            result["timestamp"] == pd.Timestamp("2024-01-01 10:01:00", tz="UTC")
-        ]
+        row_10_01 = result[result["timestamp"] == pd.Timestamp("2024-01-01 10:01:00", tz="UTC")]
         expected_close = (101.2 + 101.8) / 2
         close_value = _ensure_float(row_10_01.iloc[0]["close"])
         assert close_value == pytest.approx(expected_close, abs=0.01)
@@ -207,20 +193,14 @@ class TestDataMerger:
         with pytest.raises(PreprocessingError, match="No sources provided"):
             merger.merge_sources([])
 
-    def test_merge_priority_without_priority_order(
-        self, sample_data_1: pd.DataFrame
-    ) -> None:
+    def test_merge_priority_without_priority_order(self, sample_data_1: pd.DataFrame) -> None:
         """Тест стратегии priority без указания порядка приоритета."""
         merger = DataMerger()
 
-        with pytest.raises(
-            PreprocessingError, match="priority_order must be specified"
-        ):
+        with pytest.raises(PreprocessingError, match="priority_order must be specified"):
             merger.merge_sources([sample_data_1], strategy="priority")
 
-    def test_resolve_conflicts(
-        self, sample_data_1: pd.DataFrame, sample_data_2: pd.DataFrame
-    ) -> None:
+    def test_resolve_conflicts(self, sample_data_1: pd.DataFrame, sample_data_2: pd.DataFrame) -> None:
         """Тест разрешения конфликтов."""
         merger = DataMerger()
 
@@ -229,7 +209,5 @@ class TestDataMerger:
 
         assert len(result) == 4
         # local имеет высокий приоритет, должны остаться его значения для дубликатов
-        row_10_01 = result[
-            result["timestamp"] == pd.Timestamp("2024-01-01 10:01:00", tz="UTC")
-        ]
+        row_10_01 = result[result["timestamp"] == pd.Timestamp("2024-01-01 10:01:00", tz="UTC")]
         assert row_10_01.iloc[0]["source"] == "local"

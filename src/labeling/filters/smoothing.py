@@ -41,9 +41,7 @@ class SmoothingFilter:
             raise ValueError("window должен быть >= 1")
 
         if method not in ["moving_average", "exponential", "median"]:
-            raise ValueError(
-                "method должен быть 'moving_average', 'exponential' или 'median'"
-            )
+            raise ValueError("method должен быть 'moving_average', 'exponential' или 'median'")
 
     def apply(self, labels: pd.Series) -> pd.Series:
         """
@@ -114,9 +112,7 @@ class SmoothingFilter:
             Series с сглаженными метками
         """
         # Используем scipy median filter
-        smoothed_values = ndimage.median_filter(
-            labels.values, size=self.window, mode="nearest"
-        )
+        smoothed_values = ndimage.median_filter(labels.values, size=self.window, mode="nearest")
 
         return pd.Series(smoothed_values, index=labels.index)
 

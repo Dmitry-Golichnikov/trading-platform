@@ -58,13 +58,9 @@ class TRIX(Indicator):
         signal = self.params.get("signal", 9)
 
         if not isinstance(window, int) or window < 1:
-            raise ValueError(
-                f"window должен быть положительным целым числом, получено: {window}"
-            )
+            raise ValueError(f"window должен быть положительным целым числом, получено: {window}")
         if not isinstance(signal, int) or signal < 1:
-            raise ValueError(
-                f"signal должен быть положительным целым числом, получено: {signal}"
-            )
+            raise ValueError(f"signal должен быть положительным целым числом, получено: {signal}")
 
     def get_required_columns(self) -> List[str]:
         """Необходимые колонки."""
@@ -103,8 +99,6 @@ class TRIX(Indicator):
         # Сигнальная линия
         trix_signal = trix.ewm(span=signal, adjust=False, min_periods=signal).mean()
 
-        result = pd.DataFrame(
-            {"TRIX": trix, "TRIX_signal": trix_signal}, index=data.index
-        )
+        result = pd.DataFrame({"TRIX": trix, "TRIX_signal": trix_signal}, index=data.index)
 
         return result

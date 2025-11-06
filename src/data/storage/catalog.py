@@ -62,13 +62,8 @@ class DatasetCatalog:
 
             # Создать индексы
             conn.execute("CREATE INDEX IF NOT EXISTS idx_ticker ON datasets(ticker)")
-            conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_timeframe ON datasets(timeframe)"
-            )
-            conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_ticker_timeframe "
-                "ON datasets(ticker, timeframe)"
-            )
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_timeframe ON datasets(timeframe)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_ticker_timeframe " "ON datasets(ticker, timeframe)")
 
             conn.commit()
 
@@ -77,10 +72,7 @@ class DatasetCatalog:
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.execute(
-                    (
-                        "INSERT OR REPLACE INTO datasets VALUES "
-                        "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-                    ),
+                    ("INSERT OR REPLACE INTO datasets VALUES " "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"),
                     (
                         str(metadata.dataset_id),
                         metadata.ticker,
@@ -98,9 +90,7 @@ class DatasetCatalog:
                 )
                 conn.commit()
 
-            logger.debug(
-                f"Added dataset to catalog: {metadata.ticker}/{metadata.timeframe}"
-            )
+            logger.debug(f"Added dataset to catalog: {metadata.ticker}/{metadata.timeframe}")
 
         except Exception as e:
             raise CatalogError(f"Failed to add dataset: {e}") from e
@@ -166,9 +156,7 @@ class DatasetCatalog:
         """Получить датасет по ID."""
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
-            cursor = conn.execute(
-                "SELECT * FROM datasets WHERE dataset_id = ?", (str(dataset_id),)
-            )
+            cursor = conn.execute("SELECT * FROM datasets WHERE dataset_id = ?", (str(dataset_id),))
             row = cursor.fetchone()
 
         if row:
@@ -191,8 +179,6 @@ class DatasetCatalog:
     def delete(self, dataset_id: UUID) -> None:
         """Удалить датасет из каталога."""
         with sqlite3.connect(self.db_path) as conn:
-            conn.execute(
-                "DELETE FROM datasets WHERE dataset_id = ?", (str(dataset_id),)
-            )
+            conn.execute("DELETE FROM datasets WHERE dataset_id = ?", (str(dataset_id),))
             conn.commit()
         logger.debug(f"Deleted dataset from catalog: {dataset_id}")

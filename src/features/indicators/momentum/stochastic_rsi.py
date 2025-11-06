@@ -76,10 +76,7 @@ class StochasticRSI(Indicator):
         for param_name in ["rsi_period", "stoch_period", "smooth_k", "smooth_d"]:
             value = self.params.get(param_name)
             if not isinstance(value, int) or value < 1:
-                raise ValueError(
-                    f"{param_name} должен быть положительным целым "
-                    f"числом, получено: {value}"
-                )
+                raise ValueError(f"{param_name} должен быть положительным целым " f"числом, получено: {value}")
 
     def get_required_columns(self) -> List[str]:
         """Необходимые колонки."""
@@ -115,12 +112,8 @@ class StochasticRSI(Indicator):
         delta = data[column].diff()
         gain = delta.where(delta > 0, 0.0)
         loss = -delta.where(delta < 0, 0.0)
-        avg_gain = gain.ewm(
-            span=rsi_period, adjust=False, min_periods=rsi_period
-        ).mean()
-        avg_loss = loss.ewm(
-            span=rsi_period, adjust=False, min_periods=rsi_period
-        ).mean()
+        avg_gain = gain.ewm(span=rsi_period, adjust=False, min_periods=rsi_period).mean()
+        avg_loss = loss.ewm(span=rsi_period, adjust=False, min_periods=rsi_period).mean()
         rs = avg_gain / avg_loss
         rsi = 100 - (100 / (1 + rs))
 
@@ -131,9 +124,7 @@ class StochasticRSI(Indicator):
         stoch_rsi = (rsi - rsi_min) / (rsi_max - rsi_min)
 
         # Сглаживаем %K
-        stoch_rsi_k = (
-            stoch_rsi.rolling(window=smooth_k, min_periods=smooth_k).mean() * 100
-        )
+        stoch_rsi_k = stoch_rsi.rolling(window=smooth_k, min_periods=smooth_k).mean() * 100
 
         # Рассчитываем %D
         stoch_rsi_d = stoch_rsi_k.rolling(window=smooth_d, min_periods=smooth_d).mean()

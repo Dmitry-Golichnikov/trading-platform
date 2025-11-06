@@ -72,12 +72,7 @@ class HeikinAshi(Indicator):
         ha_close = [0.0] * n
 
         # Первый бар
-        ha_close[0] = (
-            data["open"].iloc[0]
-            + data["high"].iloc[0]
-            + data["low"].iloc[0]
-            + data["close"].iloc[0]
-        ) / 4
+        ha_close[0] = (data["open"].iloc[0] + data["high"].iloc[0] + data["low"].iloc[0] + data["close"].iloc[0]) / 4
         ha_open[0] = (data["open"].iloc[0] + data["close"].iloc[0]) / 2
         ha_high[0] = max(data["high"].iloc[0], ha_open[0], ha_close[0])
         ha_low[0] = min(data["low"].iloc[0], ha_open[0], ha_close[0])
@@ -86,10 +81,7 @@ class HeikinAshi(Indicator):
         for i in range(1, n):
             # HA Close
             ha_close[i] = (
-                data["open"].iloc[i]
-                + data["high"].iloc[i]
-                + data["low"].iloc[i]
-                + data["close"].iloc[i]
+                data["open"].iloc[i] + data["high"].iloc[i] + data["low"].iloc[i] + data["close"].iloc[i]
             ) / 4
 
             # HA Open (зависит от предыдущего)

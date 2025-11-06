@@ -34,9 +34,7 @@ def test_setup_logging_default_stderr(
 
 @mock.patch("src.common.logging.logger.add")
 @mock.patch("src.common.logging.logger.remove")
-def test_setup_logging_with_file(
-    mock_remove: mock.Mock, mock_add: mock.Mock, tmp_path: Path
-) -> None:
+def test_setup_logging_with_file(mock_remove: mock.Mock, mock_add: mock.Mock, tmp_path: Path) -> None:
     """Проверяет что при указании файла добавляется файловый handler."""
 
     log_file = tmp_path / "logs" / "app.log"

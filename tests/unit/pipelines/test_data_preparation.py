@@ -15,9 +15,7 @@ class StubLoader:
     def __init__(self, listing_year: int | None = None) -> None:
         self.listing_year = listing_year
 
-    def get_listing_year(
-        self, ticker: str
-    ) -> int | None:  # pragma: no cover - simple stub
+    def get_listing_year(self, ticker: str) -> int | None:  # pragma: no cover - simple stub
         return self.listing_year
 
     def get_available_tickers(self) -> list[str]:  # pragma: no cover - simple stub

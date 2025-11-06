@@ -48,9 +48,7 @@ class Callback(ABC):
         """
         pass
 
-    def on_epoch_end(
-        self, trainer: "ModelTrainer", epoch: int, logs: Dict[str, Any]
-    ) -> None:
+    def on_epoch_end(self, trainer: "ModelTrainer", epoch: int, logs: Dict[str, Any]) -> None:
         """
         Вызывается в конце эпохи.
 
@@ -71,9 +69,7 @@ class Callback(ABC):
         """
         pass
 
-    def on_batch_end(
-        self, trainer: "ModelTrainer", batch_idx: int, logs: Dict[str, Any]
-    ) -> None:
+    def on_batch_end(self, trainer: "ModelTrainer", batch_idx: int, logs: Dict[str, Any]) -> None:
         """
         Вызывается в конце batch.
 
@@ -118,9 +114,7 @@ class CallbackList:
         for callback in self.callbacks:
             callback.on_epoch_begin(trainer, epoch)
 
-    def on_epoch_end(
-        self, trainer: "ModelTrainer", epoch: int, logs: Dict[str, Any]
-    ) -> None:
+    def on_epoch_end(self, trainer: "ModelTrainer", epoch: int, logs: Dict[str, Any]) -> None:
         """Вызвать on_epoch_end для всех callbacks."""
         for callback in self.callbacks:
             callback.on_epoch_end(trainer, epoch, logs)
@@ -130,9 +124,7 @@ class CallbackList:
         for callback in self.callbacks:
             callback.on_batch_begin(trainer, batch_idx)
 
-    def on_batch_end(
-        self, trainer: "ModelTrainer", batch_idx: int, logs: Dict[str, Any]
-    ) -> None:
+    def on_batch_end(self, trainer: "ModelTrainer", batch_idx: int, logs: Dict[str, Any]) -> None:
         """Вызвать on_batch_end для всех callbacks."""
         for callback in self.callbacks:
             callback.on_batch_end(trainer, batch_idx, logs)

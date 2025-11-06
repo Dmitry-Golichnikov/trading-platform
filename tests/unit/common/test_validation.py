@@ -111,9 +111,7 @@ def test_validate_ohlcv_dataframe_timestamp_wrong_dtype(
 
 
 @pytest.mark.parametrize("column", ["open", "high", "low", "close"])
-def test_validate_ohlcv_dataframe_missing_price_values(
-    sample_ohlcv_data: dict, column: str
-) -> None:
+def test_validate_ohlcv_dataframe_missing_price_values(sample_ohlcv_data: dict, column: str) -> None:
     """Проверяет что пустые значения ценовых колонок вызывают ошибку."""
 
     df = pd.DataFrame(sample_ohlcv_data)
@@ -279,9 +277,7 @@ def test_validate_ohlcv_dataframe_high_less_than_close() -> None:
         ),
     ],
 )
-def test_validate_ohlcv_dataframe_relationship_violations(
-    column: str, values: dict, regex: str
-) -> None:
+def test_validate_ohlcv_dataframe_relationship_violations(column: str, values: dict, regex: str) -> None:
     """Проверяет ошибки соотношений цен в DataFrame."""
 
     base = {
@@ -326,6 +322,4 @@ def test_check_look_ahead_detects_bias(sample_ohlcv_data: dict) -> None:
     """Проверяет что look-ahead bias обнаруживается."""
 
     df = pd.DataFrame(sample_ohlcv_data)
-    assert not check_look_ahead(
-        df, feature_cols=["target", "feat"], target_col="target"
-    )
+    assert not check_look_ahead(df, feature_cols=["target", "feat"], target_col="target")

@@ -87,9 +87,7 @@ class FDI(Indicator):
                 return np.nan
 
             # Нормализуем цены к [0, 1]
-            prices_norm = (prices - prices.min()) / (
-                prices.max() - prices.min() + 1e-10
-            )
+            prices_norm = (prices - prices.min()) / (prices.max() - prices.min() + 1e-10)
 
             # Длина пути (сумма евклидовых расстояний между точками)
             path_length = 0
@@ -99,15 +97,11 @@ class FDI(Indicator):
                 path_length += np.sqrt(dx**2 + dy**2)
 
             # Прямая линия от начала до конца
-            straight_line = np.sqrt(
-                (n - 1) ** 2 + (prices_norm[-1] - prices_norm[0]) ** 2
-            )
+            straight_line = np.sqrt((n - 1) ** 2 + (prices_norm[-1] - prices_norm[0]) ** 2)
 
             # FDI
             if straight_line > 0:
-                fdi = 1 + (np.log(path_length) - np.log(straight_line)) / np.log(
-                    2 * (n - 1)
-                )
+                fdi = 1 + (np.log(path_length) - np.log(straight_line)) / np.log(2 * (n - 1))
             else:
                 fdi = 1.0
 
@@ -117,11 +111,7 @@ class FDI(Indicator):
             return fdi
 
         # Применяем rolling
-        fdi_values = (
-            data[column]
-            .rolling(window=window, min_periods=window)
-            .apply(calc_fdi, raw=True)
-        )
+        fdi_values = data[column].rolling(window=window, min_periods=window).apply(calc_fdi, raw=True)
 
         col_name = f"FDI_{window}"
         result = pd.DataFrame({col_name: fdi_values}, index=data.index)

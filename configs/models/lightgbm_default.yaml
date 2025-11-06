@@ -1,0 +1,47 @@
+# LightGBM дефолтная конфигурация
+
+model_type: lightgbm
+task: classification  # или regression
+
+hyperparameters:
+  # Основные параметры
+  objective: binary  # binary, multiclass, regression
+  metric: auc  # auc, logloss, rmse и т.д.
+  boosting_type: gbdt  # gbdt, dart, goss
+
+  # Параметры дерева
+  num_leaves: 31
+  max_depth: -1  # -1 = без ограничений
+  min_data_in_leaf: 20
+  min_gain_to_split: 0.0
+
+  # Обучение
+  learning_rate: 0.05
+  n_estimators: 1000
+
+  # Sampling
+  feature_fraction: 0.8
+  bagging_fraction: 0.8
+  bagging_freq: 5
+
+  # Регуляризация
+  lambda_l1: 0.0
+  lambda_l2: 0.0
+  min_split_gain: 0.0
+
+  # Другое
+  device: cpu  # cpu или gpu
+  random_state: 42
+  verbose: -1
+  n_jobs: -1
+
+# Early stopping
+early_stopping:
+  enabled: true
+  rounds: 50
+  verbose: false
+
+# Логирование
+logging:
+  evaluation_period: 10
+  show_stdv: false

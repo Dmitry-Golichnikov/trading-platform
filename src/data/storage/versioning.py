@@ -50,9 +50,7 @@ class DataVersioning:
         cols = ["timestamp", "open", "high", "low", "close", "volume"]
         available_cols = [c for c in cols if c in data.columns]
 
-        hash_data = data[available_cols].to_json(
-            orient="records", date_format="iso", double_precision=10
-        )
+        hash_data = data[available_cols].to_json(orient="records", date_format="iso", double_precision=10)
         return hashlib.sha256(hash_data.encode()).hexdigest()
 
     def save_version(
@@ -104,9 +102,7 @@ class DataVersioning:
 
         return version_hash
 
-    def load_version(
-        self, ticker: str, timeframe: str, version_hash: str
-    ) -> pd.DataFrame:
+    def load_version(self, ticker: str, timeframe: str, version_hash: str) -> pd.DataFrame:
         """
         Загрузить конкретную версию датасета.
 
@@ -121,14 +117,10 @@ class DataVersioning:
         Raises:
             StorageError: Если версия не найдена
         """
-        version_file = (
-            self.versions_dir / ticker / timeframe / f"{version_hash}.parquet"
-        )
+        version_file = self.versions_dir / ticker / timeframe / f"{version_hash}.parquet"
 
         if not version_file.exists():
-            raise StorageError(
-                f"Version {version_hash} not found for {ticker}/{timeframe}"
-            )
+            raise StorageError(f"Version {version_hash} not found for {ticker}/{timeframe}")
 
         return pd.read_parquet(version_file)
 
@@ -161,9 +153,7 @@ class DataVersioning:
         history.sort(key=lambda x: x["created_at"], reverse=True)
         return history
 
-    def compare_versions(
-        self, ticker: str, timeframe: str, hash1: str, hash2: str
-    ) -> dict:
+    def compare_versions(self, ticker: str, timeframe: str, hash1: str, hash2: str) -> dict:
         """
         Сравнить две версии датасета.
 

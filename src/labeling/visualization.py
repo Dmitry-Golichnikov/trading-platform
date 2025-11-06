@@ -86,9 +86,7 @@ def plot_holding_periods(
     holding_periods = data["holding_period"].dropna()
 
     # Histogram
-    axes[0].hist(
-        holding_periods, bins=50, color="steelblue", alpha=0.7, edgecolor="black"
-    )
+    axes[0].hist(holding_periods, bins=50, color="steelblue", alpha=0.7, edgecolor="black")
     axes[0].axvline(
         holding_periods.mean(),
         color="red",
@@ -113,10 +111,7 @@ def plot_holding_periods(
         labels_unique = sorted(data_with_labels["label"].unique())
 
         box_data = [
-            data_with_labels[data_with_labels["label"] == label][
-                "holding_period"
-            ].values
-            for label in labels_unique
+            data_with_labels[data_with_labels["label"] == label]["holding_period"].values for label in labels_unique
         ]
 
         bp = axes[1].boxplot(
@@ -187,10 +182,7 @@ def plot_returns_by_label(
     axes[0, 0].grid(axis="y", alpha=0.3)
 
     # 2. Box plot
-    box_data = [
-        data_clean[data_clean["label"] == label][return_column].values
-        for label in labels_unique
-    ]
+    box_data = [data_clean[data_clean["label"] == label][return_column].values for label in labels_unique]
 
     bp = axes[0, 1].boxplot(
         box_data,
@@ -368,9 +360,7 @@ def create_labeling_report(
     logger.info("Создание отчёта по разметке...")
 
     # 1. Label distribution
-    plot_label_distribution(
-        data["label"], save_path=output_dir / "label_distribution.png"
-    )
+    plot_label_distribution(data["label"], save_path=output_dir / "label_distribution.png")
 
     # 2. Holding periods (если есть)
     if "holding_period" in data.columns:
@@ -378,9 +368,7 @@ def create_labeling_report(
 
     # 3. Returns by label (если есть)
     if "future_return" in data.columns or "realized_return" in data.columns:
-        return_col = (
-            "future_return" if "future_return" in data.columns else "realized_return"
-        )
+        return_col = "future_return" if "future_return" in data.columns else "realized_return"
         plot_returns_by_label(
             data,
             return_column=return_col,

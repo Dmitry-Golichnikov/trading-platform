@@ -49,9 +49,7 @@ class ElderForce(Indicator):
         """Валидация параметров."""
         window = self.params.get("window", 13)
         if not isinstance(window, int) or window < 1:
-            raise ValueError(
-                f"window должен быть положительным целым числом, получено: {window}"
-            )
+            raise ValueError(f"window должен быть положительным целым числом, получено: {window}")
 
     def get_required_columns(self) -> List[str]:
         """Необходимые колонки."""
@@ -80,9 +78,7 @@ class ElderForce(Indicator):
         force_index = price_change * data["volume"]
 
         # Сглаживание
-        force_smoothed = force_index.ewm(
-            span=window, adjust=False, min_periods=window
-        ).mean()
+        force_smoothed = force_index.ewm(span=window, adjust=False, min_periods=window).mean()
 
         col_name = f"Elder_Force_{window}"
         result = pd.DataFrame({col_name: force_smoothed}, index=data.index)

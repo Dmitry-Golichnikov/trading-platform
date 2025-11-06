@@ -16,9 +16,7 @@ class TestOHLCVBar:
     def test_valid_bar(self) -> None:
         """Тест валидного бара."""
         bar = OHLCVBar(
-            timestamp=datetime(2020, 1, 1, 12, 0, tzinfo=None).replace(
-                tzinfo=datetime.now().astimezone().tzinfo
-            ),
+            timestamp=datetime(2020, 1, 1, 12, 0, tzinfo=None).replace(tzinfo=datetime.now().astimezone().tzinfo),
             ticker="SBER",
             open=100.0,
             high=105.0,
@@ -34,9 +32,7 @@ class TestOHLCVBar:
         """Тест валидации high >= max(open, close)."""
         with pytest.raises(ValueError, match="high"):
             OHLCVBar(
-                timestamp=datetime(
-                    2020, 1, 1, tzinfo=datetime.now().astimezone().tzinfo
-                ),
+                timestamp=datetime(2020, 1, 1, tzinfo=datetime.now().astimezone().tzinfo),
                 ticker="SBER",
                 open=100.0,
                 high=99.0,  # Invalid: high < open
@@ -49,9 +45,7 @@ class TestOHLCVBar:
         """Тест валидации low <= min(open, close)."""
         with pytest.raises(ValueError, match="low"):
             OHLCVBar(
-                timestamp=datetime(
-                    2020, 1, 1, tzinfo=datetime.now().astimezone().tzinfo
-                ),
+                timestamp=datetime(2020, 1, 1, tzinfo=datetime.now().astimezone().tzinfo),
                 ticker="SBER",
                 open=100.0,
                 high=105.0,
@@ -64,9 +58,7 @@ class TestOHLCVBar:
         """Тест на отрицательный volume."""
         with pytest.raises(ValueError):
             OHLCVBar(
-                timestamp=datetime(
-                    2020, 1, 1, tzinfo=datetime.now().astimezone().tzinfo
-                ),
+                timestamp=datetime(2020, 1, 1, tzinfo=datetime.now().astimezone().tzinfo),
                 ticker="SBER",
                 open=100.0,
                 high=105.0,

@@ -59,9 +59,7 @@ class VolumeExtractor:
         """
         return data["volume"].pct_change()
 
-    def _extract_volume_ma_ratio(
-        self, data: pd.DataFrame, window: int = 20
-    ) -> pd.Series:
+    def _extract_volume_ma_ratio(self, data: pd.DataFrame, window: int = 20) -> pd.Series:
         """
         Отношение текущего объёма к его скользящей средней (каузальное).
 
@@ -84,9 +82,7 @@ class VolumeExtractor:
         typical_price = (data["high"] + data["low"] + data["close"]) / 3
         return data["volume"] * typical_price
 
-    def _extract_relative_volume(
-        self, data: pd.DataFrame, window: int = 20
-    ) -> pd.Series:
+    def _extract_relative_volume(self, data: pd.DataFrame, window: int = 20) -> pd.Series:
         """
         Относительный объём (каузальное).
 
@@ -104,9 +100,7 @@ class VolumeExtractor:
 
         return (data["volume"] - rolling_mean) / rolling_std
 
-    def _extract_volume_volatility(
-        self, data: pd.DataFrame, window: int = 20
-    ) -> pd.Series:
+    def _extract_volume_volatility(self, data: pd.DataFrame, window: int = 20) -> pd.Series:
         """
         Волатильность объёма (каузальное).
 

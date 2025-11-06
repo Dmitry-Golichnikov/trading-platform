@@ -103,10 +103,7 @@ class TestPriceExtractor:
         features = extractor.extract(sample_ohlc_data)
 
         assert len(features.columns) == 3
-        assert all(
-            col in features.columns
-            for col in ["returns", "high_low_ratio", "body_size"]
-        )
+        assert all(col in features.columns for col in ["returns", "high_low_ratio", "body_size"])
 
 
 class TestVolumeExtractor:

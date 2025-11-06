@@ -14,9 +14,7 @@ class HigherTimeframeExtractor:
         self,
         source_tf: str,
         indicators: List[str],
-        alignment: Literal[
-            "forward_fill", "backward_fill", "interpolate"
-        ] = "forward_fill",
+        alignment: Literal["forward_fill", "backward_fill", "interpolate"] = "forward_fill",
     ):
         """
         Инициализация extractor'а.
@@ -154,9 +152,7 @@ class HigherTimeframeExtractor:
 
         return result
 
-    def _align_with_target(
-        self, source_series: pd.Series, target_index: pd.DatetimeIndex
-    ) -> pd.Series:
+    def _align_with_target(self, source_series: pd.Series, target_index: pd.DatetimeIndex) -> pd.Series:
         """
         Выровнять данные старшего таймфрейма с целевым индексом.
 

@@ -24,9 +24,7 @@ class ProfitBasedLoss(TradingLoss):
         >>> loss = loss_fn(predictions, targets)
     """
 
-    def __init__(
-        self, commission: float = 0.001, slippage: float = 0.0, reduction: str = "mean"
-    ):
+    def __init__(self, commission: float = 0.001, slippage: float = 0.0, reduction: str = "mean"):
         """
         Args:
             commission: Комиссия за сделку (в долях)
@@ -190,11 +188,7 @@ class ExpectedPnLLoss(TradingLoss):
             predictions = torch.sigmoid(predictions)
 
         # Ожидаемый PnL для каждой позиции
-        expected_pnl = (
-            predictions * self.take_profit
-            - (1 - predictions) * self.stop_loss
-            - self.commission
-        )
+        expected_pnl = predictions * self.take_profit - (1 - predictions) * self.stop_loss - self.commission
 
         # Loss = негативный ожидаемый PnL
         loss = -expected_pnl

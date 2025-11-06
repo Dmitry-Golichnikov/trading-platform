@@ -117,9 +117,7 @@ class TestFeatureGenerationPipeline:
             cache_dir = Path(tmpdir) / "features"
 
             # Первый прогон - создание кэша
-            generator = FeatureGenerator(
-                config_path, cache_enabled=True, cache_dir=cache_dir
-            )
+            generator = FeatureGenerator(config_path, cache_enabled=True, cache_dir=cache_dir)
 
             start_time = time.time()
             features1 = generator.generate(data, dataset_id="test", use_cache=True)
@@ -189,9 +187,7 @@ class TestFeatureGenerationPipeline:
         assert elapsed_time < 10.0, error_msg
 
         processed_bars = len(large_ohlc_data)
-        print(
-            "\nПроизводительность: " f"{processed_bars} баров за {elapsed_time:.2f} сек"
-        )
+        print("\nПроизводительность: " f"{processed_bars} баров за {elapsed_time:.2f} сек")
         print(f"Скорость: {processed_bars / elapsed_time:.0f} баров/сек")
         print(f"Признаков: {features.shape[1]}")
 

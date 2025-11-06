@@ -47,15 +47,9 @@ class OHLCVBar(BaseModel):
     def validate_ohlc_relationships(self) -> "OHLCVBar":
         """Проверить корректность соотношений OHLC."""
         if self.high < max(self.open, self.close):
-            raise ValueError(
-                f"high ({self.high}) must be >= max(open, close) "
-                f"({max(self.open, self.close)})"
-            )
+            raise ValueError(f"high ({self.high}) must be >= max(open, close) " f"({max(self.open, self.close)})")
         if self.low > min(self.open, self.close):
-            raise ValueError(
-                f"low ({self.low}) must be <= min(open, close) "
-                f"({min(self.open, self.close)})"
-            )
+            raise ValueError(f"low ({self.low}) must be <= min(open, close) " f"({min(self.open, self.close)})")
         return self
 
     class Config:
@@ -93,21 +87,15 @@ class DatasetMetadata(BaseModel):
 
     dataset_id: UUID = Field(default_factory=uuid4, description="UUID датасета")
     ticker: str = Field(..., description="Тикер инструмента")
-    timeframe: Literal["1m", "5m", "15m", "1h", "4h", "1d"] = Field(
-        ..., description="Временной интервал"
-    )
+    timeframe: Literal["1m", "5m", "15m", "1h", "4h", "1d"] = Field(..., description="Временной интервал")
     start_date: datetime = Field(..., description="Дата начала данных")
     end_date: datetime = Field(..., description="Дата окончания данных")
-    source: Literal["local", "tinkoff", "manual"] = Field(
-        ..., description="Источник данных"
-    )
+    source: Literal["local", "tinkoff", "manual"] = Field(..., description="Источник данных")
     timezone: str = Field(default="UTC", description="Таймзона данных")
     total_bars: int = Field(..., ge=0, description="Общее количество баров")
     missing_bars: int = Field(default=0, ge=0, description="Количество пропусков")
     hash: str = Field(..., description="SHA256 хэш данных")
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Дата создания"
-    )
+    created_at: datetime = Field(default_factory=datetime.utcnow, description="Дата создания")
     schema_version: str = Field(default="1.0", description="Версия схемы")
 
     @model_validator(mode="after")
@@ -151,34 +139,20 @@ class DatasetConfig(BaseModel):
         backfill_missing: Автоматически докачивать недостающие архивы
     """
 
-    ticker: Optional[str | list[str]] = Field(
-        default=None, description="Тикер или список тикеров"
-    )
-    tickers_file: Optional[Path] = Field(
-        default=None, description="Путь к файлу со списком тикеров"
-    )
-    timeframe: Literal["1m", "5m", "15m", "1h", "4h", "1d"] = Field(
-        ..., description="Целевой временной интервал"
-    )
+    ticker: Optional[str | list[str]] = Field(default=None, description="Тикер или список тикеров")
+    tickers_file: Optional[Path] = Field(default=None, description="Путь к файлу со списком тикеров")
+    timeframe: Literal["1m", "5m", "15m", "1h", "4h", "1d"] = Field(..., description="Целевой временной интервал")
     from_date: date = Field(..., description="Дата начала загрузки")
     to_date: date = Field(..., description="Дата окончания загрузки")
-    source_type: Literal["local", "api"] = Field(
-        ..., description="Тип источника данных"
-    )
-    file_path: Optional[Path] = Field(
-        default=None, description="Путь к локальному файлу (для source_type='local')"
-    )
+    source_type: Literal["local", "api"] = Field(..., description="Тип источника данных")
+    file_path: Optional[Path] = Field(default=None, description="Путь к локальному файлу (для source_type='local')")
     resample_from: Optional[Literal["1m", "5m", "15m", "1h", "4h"]] = Field(
         default=None, description="Загрузить из меньшего таймфрейма и ресэмплировать"
     )
     timezone: str = Field(default="UTC", description="Таймзона данных")
     validate_data: bool = Field(default=True, description="Выполнять валидацию данных")
-    update_latest_year: bool = Field(
-        default=True, description="Обновлять данные текущего года"
-    )
-    backfill_missing: bool = Field(
-        default=True, description="Автоматически докачивать недостающие архивы"
-    )
+    update_latest_year: bool = Field(default=True, description="Обновлять данные текущего года")
+    backfill_missing: bool = Field(default=True, description="Автоматически докачивать недостающие архивы")
     api_token: Optional[str] = Field(
         default=None,
         description=(
@@ -209,16 +183,13 @@ class DatasetConfig(BaseModel):
             to_idx = timeframes.index(self.timeframe)
             if from_idx >= to_idx:
                 raise ValueError(
-                    f"resample_from ({self.resample_from}) must be smaller "
-                    f"than timeframe ({self.timeframe})"
+                    f"resample_from ({self.resample_from}) must be smaller " f"than timeframe ({self.timeframe})"
                 )
 
         if self.source_type == "api":
             import os
 
-            env_token = os.getenv("TINKOFF_API_TOKEN") or os.getenv(
-                "TINKOFF_INVEST_TOKEN"
-            )
+            env_token = os.getenv("TINKOFF_API_TOKEN") or os.getenv("TINKOFF_INVEST_TOKEN")
             if not self.api_token and not env_token:
                 raise ValueError(
                     "API token is required for source_type='api'. "

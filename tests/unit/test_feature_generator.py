@@ -131,19 +131,13 @@ class TestFeatureGenerator:
         """Тест кэширования."""
         with tempfile.TemporaryDirectory() as tmpdir:
             cache_dir = Path(tmpdir) / "features"
-            generator = FeatureGenerator(
-                minimal_config, cache_enabled=True, cache_dir=cache_dir
-            )
+            generator = FeatureGenerator(minimal_config, cache_enabled=True, cache_dir=cache_dir)
 
             # Первая генерация - кэш пустой
-            features1 = generator.generate(
-                sample_ohlc_data, dataset_id="test", use_cache=True
-            )
+            features1 = generator.generate(sample_ohlc_data, dataset_id="test", use_cache=True)
 
             # Вторая генерация - должна использовать кэш
-            features2 = generator.generate(
-                sample_ohlc_data, dataset_id="test", use_cache=True
-            )
+            features2 = generator.generate(sample_ohlc_data, dataset_id="test", use_cache=True)
 
             # Результаты должны быть идентичны
             pd.testing.assert_frame_equal(features1, features2)

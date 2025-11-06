@@ -158,9 +158,7 @@ class EmbeddedSelector:
             else:
                 coefficients = np.abs(model.coef_)
 
-            self.feature_scores_ = pd.Series(coefficients, index=X.columns).sort_values(
-                ascending=False
-            )
+            self.feature_scores_ = pd.Series(coefficients, index=X.columns).sort_values(ascending=False)
 
             # Отбираем признаки с ненулевыми коэффициентами
             selected = self.feature_scores_[self.feature_scores_ > 0].index.tolist()
@@ -177,10 +175,7 @@ class EmbeddedSelector:
         try:
             import shap
         except ImportError:
-            raise ImportError(
-                "Для метода SHAP требуется библиотека shap. "
-                "Установите её: pip install shap"
-            )
+            raise ImportError("Для метода SHAP требуется библиотека shap. " "Установите её: pip install shap")
 
         # Заполняем NaN
         X_filled = X.fillna(0)
@@ -219,9 +214,7 @@ class EmbeddedSelector:
         # Вычисляем средние абсолютные SHAP values
         mean_abs_shap = np.abs(shap_values).mean(axis=0)
 
-        self.feature_scores_ = pd.Series(mean_abs_shap, index=X.columns).sort_values(
-            ascending=False
-        )
+        self.feature_scores_ = pd.Series(mean_abs_shap, index=X.columns).sort_values(ascending=False)
 
         # Отбираем top_k или все с SHAP выше порога
         threshold = self.params.get("threshold", 0.0)

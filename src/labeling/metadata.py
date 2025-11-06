@@ -105,9 +105,7 @@ class LabelingMetadata:
         Returns:
             Строка с резюме
         """
-        filters_repr = (
-            ", ".join(self.filters_applied) if self.filters_applied else "None"
-        )
+        filters_repr = ", ".join(self.filters_applied) if self.filters_applied else "None"
 
         summary = [
             f"Labeling ID: {self.labeling_id}",

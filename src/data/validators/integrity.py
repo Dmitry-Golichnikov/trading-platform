@@ -46,9 +46,7 @@ class IntegrityValidator:
         result.statistics["is_monotonic"] = is_monotonic
         return result
 
-    def check_missing_bars(
-        self, data: pd.DataFrame, timeframe: str
-    ) -> ValidationResult:
+    def check_missing_bars(self, data: pd.DataFrame, timeframe: str) -> ValidationResult:
         """Проверка на пропуски баров."""
         result = ValidationResult(is_valid=True)
 
@@ -72,9 +70,7 @@ class IntegrityValidator:
         freq = freq_map[timeframe]
 
         # Создать полный диапазон
-        full_range = pd.date_range(
-            start=timestamps.min(), end=timestamps.max(), freq=freq
-        )
+        full_range = pd.date_range(start=timestamps.min(), end=timestamps.max(), freq=freq)
 
         missing_count = len(full_range) - len(timestamps)
 
@@ -102,9 +98,7 @@ class IntegrityValidator:
 
         return result
 
-    def validate_all(
-        self, data: pd.DataFrame, timeframe: str = "1m"
-    ) -> ValidationResult:
+    def validate_all(self, data: pd.DataFrame, timeframe: str = "1m") -> ValidationResult:
         """Выполнить все проверки целостности."""
         result = ValidationResult(is_valid=True)
 

@@ -12,9 +12,7 @@ class IndicatorFeatureConfig(BaseModel):
 
     type: Literal["indicator"] = "indicator"
     name: str = Field(..., description="Название индикатора из реестра")
-    params: Dict[str, Any] = Field(
-        default_factory=dict, description="Параметры индикатора"
-    )
+    params: Dict[str, Any] = Field(default_factory=dict, description="Параметры индикатора")
     columns: Optional[List[str]] = Field(None, description="Колонки для применения")
     prefix: Optional[str] = Field(None, description="Префикс для названий признаков")
 
@@ -98,9 +96,7 @@ class TickerFeatureConfig(BaseModel):
     """Конфигурация тикер-специфичных признаков."""
 
     type: Literal["ticker"] = "ticker"
-    encoding: Literal["label", "onehot", "target"] = Field(
-        "label", description="Тип кодирования тикера"
-    )
+    encoding: Literal["label", "onehot", "target"] = Field("label", description="Тип кодирования тикера")
     sector: bool = Field(False, description="Добавить сектор (если есть данные)")
     industry: bool = Field(False, description="Добавить индустрию (если есть данные)")
 
@@ -112,9 +108,7 @@ class RollingFeatureConfig(BaseModel):
     window: int = Field(..., gt=0, description="Размер окна")
     functions: List[str] = Field(..., description="Список функций")
     columns: List[str] = Field(..., description="Колонки для применения")
-    min_periods: Optional[int] = Field(
-        None, description="Минимальное количество наблюдений"
-    )
+    min_periods: Optional[int] = Field(None, description="Минимальное количество наблюдений")
 
     @field_validator("functions")
     @classmethod
@@ -159,9 +153,7 @@ class DifferencesFeatureConfig(BaseModel):
     type: Literal["differences"] = "differences"
     periods: List[int] = Field(..., description="Периоды для diff")
     columns: List[str] = Field(..., description="Колонки для применения")
-    method: Literal["diff", "pct_change"] = Field(
-        "diff", description="Метод вычисления"
-    )
+    method: Literal["diff", "pct_change"] = Field("diff", description="Метод вычисления")
 
     @field_validator("periods")
     @classmethod
@@ -176,18 +168,14 @@ class RatiosFeatureConfig(BaseModel):
     """Конфигурация соотношений."""
 
     type: Literal["ratios"] = "ratios"
-    pairs: List[tuple[str, str]] = Field(
-        ..., description="Пары колонок (числитель, знаменатель)"
-    )
+    pairs: List[tuple[str, str]] = Field(..., description="Пары колонок (числитель, знаменатель)")
 
 
 class HigherTimeframeFeatureConfig(BaseModel):
     """Конфигурация признаков из старших таймфреймов."""
 
     type: Literal["higher_timeframe"] = "higher_timeframe"
-    source_tf: str = Field(
-        ..., description="Исходный таймфрейм (например, '1h', '4h', '1d')"
-    )
+    source_tf: str = Field(..., description="Исходный таймфрейм (например, '1h', '4h', '1d')")
     indicators: List[str] = Field(..., description="Список индикаторов для вычисления")
     alignment: Literal["forward_fill", "backward_fill", "interpolate"] = Field(
         "forward_fill", description="Метод выравнивания"
@@ -224,9 +212,7 @@ class FeatureSelectionConfig(BaseModel):
         "shap",
     ] = Field("variance_threshold", description="Метод отбора")
     params: Dict[str, Any] = Field(default_factory=dict, description="Параметры метода")
-    top_k: Optional[int] = Field(
-        None, description="Количество топ признаков для отбора"
-    )
+    top_k: Optional[int] = Field(None, description="Количество топ признаков для отбора")
 
 
 class FeatureConfig(BaseModel):
@@ -234,9 +220,7 @@ class FeatureConfig(BaseModel):
 
     version: str = Field("1.0", description="Версия конфига")
     features: List[FeatureConfigItem] = Field(..., description="Список признаков")
-    selection: Optional[FeatureSelectionConfig] = Field(
-        None, description="Конфигурация отбора"
-    )
+    selection: Optional[FeatureSelectionConfig] = Field(None, description="Конфигурация отбора")
     cache_enabled: bool = Field(True, description="Включить кэширование")
 
 

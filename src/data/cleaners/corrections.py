@@ -84,9 +84,7 @@ class DataCorrector:
             self.corrections_log.append({"type": "inverted_ohlc", "count": count})
 
             # Swap high and low
-            data.loc[inverted_mask, ["high", "low"]] = data.loc[
-                inverted_mask, ["low", "high"]
-            ].values
+            data.loc[inverted_mask, ["high", "low"]] = data.loc[inverted_mask, ["low", "high"]].values
 
             logger.warning(f"Fixed {count} inverted OHLC rows")
 
@@ -111,9 +109,7 @@ class DataCorrector:
             if mask_10x.any():
                 count = mask_10x.sum()
                 data.loc[mask_10x, col] = data.loc[mask_10x, col] / 10
-                self.corrections_log.append(
-                    {"type": "decimal_10x", "column": col, "count": count}
-                )
+                self.corrections_log.append({"type": "decimal_10x", "column": col, "count": count})
                 logger.warning(f"Fixed {count} 10x errors in {col}")
 
             # 100x error
@@ -121,9 +117,7 @@ class DataCorrector:
             if mask_100x.any():
                 count = mask_100x.sum()
                 data.loc[mask_100x, col] = data.loc[mask_100x, col] / 100
-                self.corrections_log.append(
-                    {"type": "decimal_100x", "column": col, "count": count}
-                )
+                self.corrections_log.append({"type": "decimal_100x", "column": col, "count": count})
                 logger.warning(f"Fixed {count} 100x errors in {col}")
 
         return data
@@ -179,8 +173,7 @@ class PriceConsistencyChecker:
             suspicious_data["price_change_pct"] = price_change_pct[suspicious]
 
             logger.warning(
-                f"Found {len(suspicious_data)} bars with suspicious price changes "
-                f"(>{self.max_change_pct}%)"
+                f"Found {len(suspicious_data)} bars with suspicious price changes " f"(>{self.max_change_pct}%)"
             )
 
             return suspicious_data[["timestamp", "close", "price_change_pct"]]

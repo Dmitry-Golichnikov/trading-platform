@@ -148,9 +148,7 @@ def test_danger_zones_filter_basic(sample_data):
     """Тест фильтра опасных зон."""
     labels = pd.Series(1, index=sample_data.index)
 
-    filter_obj = DangerZonesFilter(
-        high_volatility_threshold=2.0, gap_threshold_pct=0.05
-    )
+    filter_obj = DangerZonesFilter(high_volatility_threshold=2.0, gap_threshold_pct=0.05)
 
     filtered = filter_obj.apply(labels, sample_data)
 
@@ -162,9 +160,7 @@ def test_danger_zones_filter_basic(sample_data):
 
 def test_danger_zones_get_mask(sample_data):
     """Тест получения маски опасных зон."""
-    filter_obj = DangerZonesFilter(
-        high_volatility_threshold=2.0, gap_threshold_pct=0.05
-    )
+    filter_obj = DangerZonesFilter(high_volatility_threshold=2.0, gap_threshold_pct=0.05)
 
     danger_mask = filter_obj.get_danger_zones(sample_data)
 
@@ -188,9 +184,7 @@ def test_danger_zones_with_volume_threshold(sample_data):
     """Тест с порогом ликвидности."""
     labels = pd.Series(1, index=sample_data.index)
 
-    filter_obj = DangerZonesFilter(
-        low_liquidity_threshold=5000  # Половина среднего объёма
-    )
+    filter_obj = DangerZonesFilter(low_liquidity_threshold=5000)  # Половина среднего объёма
 
     filtered = filter_obj.apply(labels, sample_data)
 

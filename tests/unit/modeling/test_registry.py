@@ -65,9 +65,7 @@ class TestModelRegistry:
     def test_register_with_metadata(self):
         """Тест регистрации с метаданными."""
 
-        @ModelRegistry.register(
-            "test_model_b", description="Test Model B", tags=["test", "dummy"]
-        )
+        @ModelRegistry.register("test_model_b", description="Test Model B", tags=["test", "dummy"])
         class TestModel(DummyModelB):
             pass
 
@@ -97,9 +95,7 @@ class TestModelRegistry:
         with pytest.raises(ValueError) as exc_info:
             ModelRegistry.create("nonexistent_model")
 
-        assert "Unknown model" in str(exc_info.value) or "не зарегистрирована" in str(
-            exc_info.value
-        )
+        assert "Unknown model" in str(exc_info.value) or "не зарегистрирована" in str(exc_info.value)
 
     def test_duplicate_registration(self):
         """Тест дублирования регистрации."""

@@ -115,9 +115,7 @@ class TestTimeframeResampler:
     def test_resample_multiple_timeframes(self, sample_1m_data: pd.DataFrame) -> None:
         """Тест ресэмплинга в несколько таймфреймов."""
         resampler = TimeframeResampler()
-        results = resampler.resample_multiple_timeframes(
-            sample_1m_data, source_tf="1m", target_tfs=["5m", "1h"]
-        )
+        results = resampler.resample_multiple_timeframes(sample_1m_data, source_tf="1m", target_tfs=["5m", "1h"])
 
         assert "1m" in results
         assert "5m" in results

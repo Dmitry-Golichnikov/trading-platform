@@ -62,9 +62,7 @@ class DataMerger:
 
         # Проверить priority_order для стратегии priority
         if strategy == "priority" and priority_order is None:
-            raise PreprocessingError(
-                "priority_order must be specified for 'priority' strategy"
-            )
+            raise PreprocessingError("priority_order must be specified for 'priority' strategy")
 
         if len(sources) == 1:
             logger.debug("Only one source, returning as-is")
@@ -75,9 +73,7 @@ class DataMerger:
             for idx, source in enumerate(sources):
                 result = self.schema_validator.validate_columns(source)
                 if not result.is_valid:
-                    raise PreprocessingError(
-                        f"Source {idx} failed schema validation: {result.errors}"
-                    )
+                    raise PreprocessingError(f"Source {idx} failed schema validation: {result.errors}")
 
             # Объединить все источники
             combined = pd.concat(sources, ignore_index=True)
@@ -93,17 +89,13 @@ class DataMerger:
             else:
                 raise PreprocessingError(f"Unknown merge strategy: {strategy}")
 
-            logger.info(
-                f"Merged {len(sources)} sources: {len(combined)} → {len(merged)} bars"
-            )
+            logger.info(f"Merged {len(sources)} sources: {len(combined)} → {len(merged)} bars")
             return merged
 
         except Exception as e:
             raise PreprocessingError(f"Failed to merge sources: {e}") from e
 
-    def resolve_conflicts(
-        self, data: pd.DataFrame, priority_order: Sequence[str]
-    ) -> pd.DataFrame:
+    def resolve_conflicts(self, data: pd.DataFrame, priority_order: Sequence[str]) -> pd.DataFrame:
         """
         Разрешить конфликты по приоритету источников.
 
@@ -156,18 +148,14 @@ class DataMerger:
         elif method == "backward_fill":
             result[fill_cols] = result[fill_cols].bfill(limit=limit)
         elif method == "interpolate":
-            result[fill_cols] = result[fill_cols].interpolate(
-                method="linear", limit=limit
-            )
+            result[fill_cols] = result[fill_cols].interpolate(method="linear", limit=limit)
         else:
             raise PreprocessingError(f"Unknown fill method: {method}")
 
         # Удалить оставшиеся NaN
         result = result.dropna()
 
-        logger.info(
-            f"Filled gaps using {method}: {len(data)} → {len(result)} bars remaining"
-        )
+        logger.info(f"Filled gaps using {method}: {len(data)} → {len(result)} bars remaining")
         return result
 
     def validate_after_merge(self, data: pd.DataFrame, timeframe: str) -> None:
@@ -184,16 +172,12 @@ class DataMerger:
         # Проверка схемы
         schema_result = self.schema_validator.validate_all(data)
         if not schema_result.is_valid:
-            raise PreprocessingError(
-                f"Merged data failed schema validation: {schema_result.errors}"
-            )
+            raise PreprocessingError(f"Merged data failed schema validation: {schema_result.errors}")
 
         # Проверка целостности
         integrity_result = self.integrity_validator.validate_all(data, timeframe)
         if not integrity_result.is_valid:
-            raise PreprocessingError(
-                f"Merged data failed integrity validation: {integrity_result.errors}"
-            )
+            raise PreprocessingError(f"Merged data failed integrity validation: {integrity_result.errors}")
 
         logger.info("Merged data passed validation")
 
@@ -204,14 +188,10 @@ class DataMerger:
         Предполагается, что последние записи в DataFrame - самые свежие.
         """
         # Сортировать по timestamp и оставить последнее значение для каждого timestamp
-        result = data.sort_values("timestamp").drop_duplicates(
-            subset=["timestamp", "ticker"], keep="last"
-        )
+        result = data.sort_values("timestamp").drop_duplicates(subset=["timestamp", "ticker"], keep="last")
         return result.reset_index(drop=True)
 
-    def _resolve_priority(
-        self, data: pd.DataFrame, priority_order: Sequence[str]
-    ) -> pd.DataFrame:
+    def _resolve_priority(self, data: pd.DataFrame, priority_order: Sequence[str]) -> pd.DataFrame:
         """
         Разрешить конфликты по приоритету источников.
 

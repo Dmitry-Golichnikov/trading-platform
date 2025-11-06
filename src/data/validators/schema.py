@@ -43,9 +43,7 @@ class SchemaValidator:
 
     REQUIRED_COLUMNS = ["timestamp", "open", "high", "low", "close", "volume"]
 
-    def validate_columns(
-        self, data: pd.DataFrame, required_columns: Sequence[str] | None = None
-    ) -> ValidationResult:
+    def validate_columns(self, data: pd.DataFrame, required_columns: Sequence[str] | None = None) -> ValidationResult:
         """Проверить наличие обязательных колонок."""
         result = ValidationResult(is_valid=True)
 

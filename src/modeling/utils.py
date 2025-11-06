@@ -12,7 +12,11 @@ from pathlib import Path
 from typing import Optional, Union
 
 import numpy as np
-import torch
+
+try:
+    import torch
+except Exception:
+    torch = None
 
 logger = logging.getLogger(__name__)
 
@@ -60,9 +64,7 @@ def set_seed(seed: int = 42, deterministic: bool = True) -> None:
     logger.info(f"Seed установлен: {seed} (deterministic={deterministic})")
 
 
-def get_device(
-    device: Optional[Union[str, torch.device]] = None, fallback_to_cpu: bool = True
-) -> torch.device:
+def get_device(device: Optional[Union[str, "torch.device"]] = None, fallback_to_cpu: bool = True) -> "torch.device":
     """
     Получить устройство для вычислений (CPU/GPU).
 
@@ -123,7 +125,7 @@ def get_available_devices() -> list[str]:
     return devices
 
 
-def check_gpu_memory(device: Optional[torch.device] = None) -> dict[str, float]:
+def check_gpu_memory(device: Optional["torch.device"] = None) -> dict[str, float]:
     """
     Проверить использование памяти GPU.
 
@@ -155,7 +157,7 @@ def check_gpu_memory(device: Optional[torch.device] = None) -> dict[str, float]:
     }
 
 
-def clear_gpu_memory(device: Optional[torch.device] = None) -> None:
+def clear_gpu_memory(device: Optional["torch.device"] = None) -> None:
     """
     Очистить кэш GPU памяти.
 
@@ -178,7 +180,7 @@ def clear_gpu_memory(device: Optional[torch.device] = None) -> None:
     logger.info("GPU память очищена")
 
 
-def count_parameters(model: torch.nn.Module) -> dict[str, int]:
+def count_parameters(model: "torch.nn.Module") -> dict[str, int]:
     """
     Подсчитать количество параметров в PyTorch модели.
 
@@ -200,9 +202,7 @@ def count_parameters(model: torch.nn.Module) -> dict[str, int]:
     return {"total": total, "trainable": trainable, "non_trainable": non_trainable}
 
 
-def ensure_reproducibility(
-    seed: int = 42, disable_gpu_nondeterminism: bool = True
-) -> None:
+def ensure_reproducibility(seed: int = 42, disable_gpu_nondeterminism: bool = True) -> None:
     """
     Максимально обеспечить воспроизводимость экспериментов.
 
@@ -249,8 +249,8 @@ def get_model_size(model_path: Path) -> float:
 
 
 def move_to_device(
-    data: Union[torch.Tensor, dict, list, tuple], device: torch.device
-) -> Union[torch.Tensor, dict, list, tuple]:
+    data: Union["torch.Tensor", dict, list, tuple], device: "torch.device"
+) -> Union["torch.Tensor", dict, list, tuple]:
     """
     Рекурсивно переместить данные на устройство.
 

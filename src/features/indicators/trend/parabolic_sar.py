@@ -67,15 +67,11 @@ class ParabolicSAR(Indicator):
         if af_start <= 0 or af_start > 1:
             raise ValueError(f"af_start должен быть в (0, 1], получено: {af_start}")
         if af_increment <= 0 or af_increment > 1:
-            raise ValueError(
-                f"af_increment должен быть в (0, 1], получено: {af_increment}"
-            )
+            raise ValueError(f"af_increment должен быть в (0, 1], получено: {af_increment}")
         if af_max <= 0 or af_max > 1:
             raise ValueError(f"af_max должен быть в (0, 1], получено: {af_max}")
         if af_start > af_max:
-            raise ValueError(
-                f"af_start ({af_start}) не может быть больше af_max ({af_max})"
-            )
+            raise ValueError(f"af_start ({af_start}) не может быть больше af_max ({af_max})")
 
     def get_required_columns(self) -> List[str]:
         """Необходимые колонки."""

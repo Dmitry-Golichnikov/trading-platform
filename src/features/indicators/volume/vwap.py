@@ -53,10 +53,7 @@ class VWAP(Indicator):
         """Валидация параметров."""
         window = self.params.get("window")
         if window is not None and (not isinstance(window, int) or window < 1):
-            raise ValueError(
-                f"window должен быть положительным целым числом или "
-                f"None, получено: {window}"
-            )
+            raise ValueError(f"window должен быть положительным целым числом или " f"None, получено: {window}")
 
     def get_required_columns(self) -> List[str]:
         """Необходимые колонки."""

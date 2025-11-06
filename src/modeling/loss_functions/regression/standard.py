@@ -118,9 +118,7 @@ class HuberLoss(RegressionLoss):
         Returns:
             Loss value
         """
-        return F.huber_loss(
-            predictions, targets, delta=self.delta, reduction=self.reduction
-        )
+        return F.huber_loss(predictions, targets, delta=self.delta, reduction=self.reduction)
 
 
 class QuantileLoss(RegressionLoss):

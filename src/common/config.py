@@ -42,9 +42,7 @@ def load_yaml_config(config_path: Path) -> Dict[str, Any]:
     return config or {}
 
 
-def merge_configs(
-    base_config: Dict[str, Any], override_config: Dict[str, Any]
-) -> Dict[str, Any]:
+def merge_configs(base_config: Dict[str, Any], override_config: Dict[str, Any]) -> Dict[str, Any]:
     """
     Объединяет две конфигурации с приоритетом для override_config.
 

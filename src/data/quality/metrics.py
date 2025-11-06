@@ -49,10 +49,7 @@ class DataQualityMetrics:
 
         completeness = (present_cells / total_cells) * 100
 
-        logger.debug(
-            f"Completeness: {completeness:.2f}% "
-            f"({present_cells}/{total_cells} cells present)"
-        )
+        logger.debug(f"Completeness: {completeness:.2f}% " f"({present_cells}/{total_cells} cells present)")
 
         return float(completeness)
 
@@ -77,12 +74,7 @@ class DataQualityMetrics:
 
         # Неотрицательные цены
         if all(col in data.columns for col in ["open", "high", "low", "close"]):
-            price_positive = (
-                (data["open"] >= 0)
-                & (data["high"] >= 0)
-                & (data["low"] >= 0)
-                & (data["close"] >= 0)
-            )
+            price_positive = (data["open"] >= 0) & (data["high"] >= 0) & (data["low"] >= 0) & (data["close"] >= 0)
             checks.append(price_positive)
 
         # Неотрицательный volume
@@ -108,9 +100,7 @@ class DataQualityMetrics:
 
         validity = (valid_rows / total_rows) * 100
 
-        logger.debug(
-            f"Validity: {validity:.2f}% ({valid_rows}/{total_rows} valid rows)"
-        )
+        logger.debug(f"Validity: {validity:.2f}% ({valid_rows}/{total_rows} valid rows)")
 
         return validity
 
@@ -147,10 +137,7 @@ class DataQualityMetrics:
 
         consistency = (consistent_rows / total_rows) * 100
 
-        logger.debug(
-            f"Consistency: {consistency:.2f}% "
-            f"({consistent_rows}/{total_rows} consistent rows)"
-        )
+        logger.debug(f"Consistency: {consistency:.2f}% " f"({consistent_rows}/{total_rows} consistent rows)")
 
         return consistency
 
@@ -176,15 +163,11 @@ class DataQualityMetrics:
 
         uniqueness = (unique_rows / total_rows) * 100
 
-        logger.debug(
-            f"Uniqueness: {uniqueness:.2f}% ({unique_rows}/{total_rows} unique)"
-        )
+        logger.debug(f"Uniqueness: {uniqueness:.2f}% ({unique_rows}/{total_rows} unique)")
 
         return uniqueness
 
-    def calculate_quality_score(
-        self, data: pd.DataFrame, weights: dict[str, float] | None = None
-    ) -> float:
+    def calculate_quality_score(self, data: pd.DataFrame, weights: dict[str, float] | None = None) -> float:
         """
         Вычислить агрегированный score качества.
 

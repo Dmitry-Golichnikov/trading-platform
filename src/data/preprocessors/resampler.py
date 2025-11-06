@@ -52,10 +52,7 @@ class TimeframeResampler:
         # Проверить что целевой таймфрейм больше исходного
         timeframes = list(self.TIMEFRAME_MAP.keys())
         if timeframes.index(to_tf) <= timeframes.index(from_tf):
-            raise PreprocessingError(
-                f"Cannot resample from {from_tf} to {to_tf}: "
-                "target timeframe must be larger"
-            )
+            raise PreprocessingError(f"Cannot resample from {from_tf} to {to_tf}: " "target timeframe must be larger")
 
         logger.info(f"Resampling from {from_tf} to {to_tf}")
 
@@ -67,9 +64,7 @@ class TimeframeResampler:
                 data["timestamp"] = pd.to_datetime(data["timestamp"])
                 data = data.set_index("timestamp")
             elif not isinstance(data.index, pd.DatetimeIndex):
-                raise PreprocessingError(
-                    "Data must have timestamp column or DatetimeIndex"
-                )
+                raise PreprocessingError("Data must have timestamp column or DatetimeIndex")
 
             # Получить pandas freq string
             target_freq = self.TIMEFRAME_MAP[to_tf]
@@ -98,10 +93,7 @@ class TimeframeResampler:
             # Сбросить индекс чтобы timestamp стал колонкой
             resampled = resampled.reset_index()
 
-            logger.info(
-                f"Resampled {len(data)} bars ({from_tf}) to "
-                f"{len(resampled)} bars ({to_tf})"
-            )
+            logger.info(f"Resampled {len(data)} bars ({from_tf}) to " f"{len(resampled)} bars ({to_tf})")
 
             return resampled
 

@@ -31,9 +31,7 @@ def sample_data():
 
 def test_triple_barrier_initialization():
     """Тест инициализации TripleBarrierLabeler."""
-    labeler = TripleBarrierLabeler(
-        upper_barrier=0.02, lower_barrier=0.02, time_barrier=20
-    )
+    labeler = TripleBarrierLabeler(upper_barrier=0.02, lower_barrier=0.02, time_barrier=20)
 
     assert labeler.params["upper_barrier"] == 0.02
     assert labeler.params["lower_barrier"] == 0.02
@@ -51,9 +49,7 @@ def test_triple_barrier_invalid_params():
 
 def test_triple_barrier_basic_labeling(sample_data):
     """Тест базовой разметки."""
-    labeler = TripleBarrierLabeler(
-        upper_barrier=0.02, lower_barrier=0.02, time_barrier=20, direction="long+short"
-    )
+    labeler = TripleBarrierLabeler(upper_barrier=0.02, lower_barrier=0.02, time_barrier=20, direction="long+short")
 
     result = labeler.label(sample_data)
 
@@ -90,9 +86,7 @@ def test_triple_barrier_atr_barriers(sample_data):
 
 def test_triple_barrier_long_only(sample_data):
     """Тест long-only режима."""
-    labeler = TripleBarrierLabeler(
-        upper_barrier=0.02, lower_barrier=0.01, time_barrier=20, direction="long"
-    )
+    labeler = TripleBarrierLabeler(upper_barrier=0.02, lower_barrier=0.01, time_barrier=20, direction="long")
 
     result = labeler.label(sample_data)
 
@@ -125,10 +119,7 @@ def test_triple_barrier_with_commissions(sample_data):
     # (для profitable сделок)
     mask = result_no_comm["realized_return"] > 0
     if mask.any():
-        assert (
-            result_with_comm.loc[mask, "realized_return"]
-            < result_no_comm.loc[mask, "realized_return"]
-        ).any()
+        assert (result_with_comm.loc[mask, "realized_return"] < result_no_comm.loc[mask, "realized_return"]).any()
 
 
 def test_triple_barrier_min_return(sample_data):
@@ -150,9 +141,7 @@ def test_triple_barrier_min_return(sample_data):
 
 def test_triple_barrier_holding_periods(sample_data):
     """Тест периодов удержания."""
-    labeler = TripleBarrierLabeler(
-        upper_barrier=0.02, lower_barrier=0.02, time_barrier=20
-    )
+    labeler = TripleBarrierLabeler(upper_barrier=0.02, lower_barrier=0.02, time_barrier=20)
 
     result = labeler.label(sample_data)
 

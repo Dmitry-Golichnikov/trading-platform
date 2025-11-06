@@ -49,9 +49,7 @@ class ATR(Indicator):
         """Валидация параметров."""
         window = self.params.get("window", 14)
         if not isinstance(window, int) or window < 1:
-            raise ValueError(
-                f"window должен быть положительным целым числом, получено: {window}"
-            )
+            raise ValueError(f"window должен быть положительным целым числом, получено: {window}")
 
     def get_required_columns(self) -> List[str]:
         """Необходимые колонки."""

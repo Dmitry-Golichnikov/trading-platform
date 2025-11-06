@@ -115,9 +115,7 @@ class MLflowLogger(Callback):
             try:
                 params = trainer.model.get_params()
                 # MLflow не принимает None, заменяем на строку
-                params = {
-                    k: (v if v is not None else "None") for k, v in params.items()
-                }
+                params = {k: (v if v is not None else "None") for k, v in params.items()}
                 mlflow.log_params(params)
             except Exception as e:
                 logger.warning(f"Не удалось залогировать параметры: {e}")

@@ -70,9 +70,7 @@ class HorizonLabeler(BaseLabeler):
             raise ValueError("threshold_pct должен быть положительным")
 
         if self.params["adaptive_method"] not in ["atr", "volatility", "custom"]:
-            raise ValueError(
-                "adaptive_method должен быть 'atr', 'volatility' или 'custom'"
-            )
+            raise ValueError("adaptive_method должен быть 'atr', 'volatility' или 'custom'")
 
     def label(self, data: pd.DataFrame) -> pd.DataFrame:
         """

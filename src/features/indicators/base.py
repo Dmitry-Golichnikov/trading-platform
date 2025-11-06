@@ -91,10 +91,7 @@ class Indicator(ABC):
         required = self.get_required_columns()
         missing = set(required) - set(data.columns)
         if missing:
-            raise ValueError(
-                f"Индикатор {self.name} требует колонки {required}, "
-                f"но отсутствуют: {missing}"
-            )
+            raise ValueError(f"Индикатор {self.name} требует колонки {required}, " f"но отсутствуют: {missing}")
 
     def __repr__(self) -> str:
         """Строковое представление индикатора."""

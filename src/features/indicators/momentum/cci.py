@@ -55,13 +55,9 @@ class CCI(Indicator):
         constant = self.params.get("constant", 0.015)
 
         if not isinstance(window, int) or window < 1:
-            raise ValueError(
-                f"window должен быть положительным целым числом, получено: {window}"
-            )
+            raise ValueError(f"window должен быть положительным целым числом, получено: {window}")
         if constant <= 0:
-            raise ValueError(
-                f"constant должна быть положительной, получено: {constant}"
-            )
+            raise ValueError(f"constant должна быть положительной, получено: {constant}")
 
     def get_required_columns(self) -> List[str]:
         """Необходимые колонки."""
@@ -93,9 +89,7 @@ class CCI(Indicator):
         tp_sma = tp.rolling(window=window, min_periods=window).mean()
 
         # Mean Deviation
-        mean_dev = tp.rolling(window=window, min_periods=window).apply(
-            lambda x: abs(x - x.mean()).mean(), raw=False
-        )
+        mean_dev = tp.rolling(window=window, min_periods=window).apply(lambda x: abs(x - x.mean()).mean(), raw=False)
 
         # CCI
         cci = (tp - tp_sma) / (constant * mean_dev)

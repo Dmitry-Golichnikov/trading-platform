@@ -68,9 +68,7 @@ class FilterSelector:
 
         return X[self.selected_features_]
 
-    def fit_transform(
-        self, X: pd.DataFrame, y: Optional[pd.Series] = None
-    ) -> pd.DataFrame:
+    def fit_transform(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> pd.DataFrame:
         """
         Обучить и отобрать признаки.
 
@@ -139,13 +137,9 @@ class FilterSelector:
 
         # Вычисляем mutual information
         if is_classification:
-            mi_scores = mutual_info_classif(
-                X_filled, y, random_state=self.params.get("random_state", 42)
-            )
+            mi_scores = mutual_info_classif(X_filled, y, random_state=self.params.get("random_state", 42))
         else:
-            mi_scores = mutual_info_regression(
-                X_filled, y, random_state=self.params.get("random_state", 42)
-            )
+            mi_scores = mutual_info_regression(X_filled, y, random_state=self.params.get("random_state", 42))
 
         # Создаём Series со score'ами
         mi_series = pd.Series(mi_scores, index=X.columns)

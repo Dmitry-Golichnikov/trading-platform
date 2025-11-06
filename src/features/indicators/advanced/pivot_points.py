@@ -78,14 +78,9 @@ class PivotPoints(Indicator):
         window = self.params.get("window", 1)
 
         if method not in ["classic", "fibonacci", "camarilla"]:
-            raise ValueError(
-                f"method должен быть 'classic', 'fibonacci' или "
-                f"'camarilla', получено: {method}"
-            )
+            raise ValueError(f"method должен быть 'classic', 'fibonacci' или " f"'camarilla', получено: {method}")
         if not isinstance(window, int) or window < 1:
-            raise ValueError(
-                f"window должен быть положительным целым числом, получено: {window}"
-            )
+            raise ValueError(f"window должен быть положительным целым числом, получено: {window}")
 
     def get_required_columns(self) -> List[str]:
         """Необходимые колонки."""

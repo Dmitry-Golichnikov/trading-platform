@@ -30,9 +30,7 @@ class TestDataSplitter:
     def test_split_sequential(self, sample_data):
         """Тест последовательного разделения."""
 
-        train, val, test = DataSplitter.split_sequential(
-            sample_data, train_size=0.7, val_size=0.15, test_size=0.15
-        )
+        train, val, test = DataSplitter.split_sequential(sample_data, train_size=0.7, val_size=0.15, test_size=0.15)
 
         # Проверяем размеры
         assert len(train) == 70
@@ -47,16 +45,12 @@ class TestDataSplitter:
         """Тест с неправильными размерами."""
 
         with pytest.raises(ValueError):
-            DataSplitter.split_sequential(
-                sample_data, train_size=0.5, val_size=0.3, test_size=0.3  # Сумма > 1.0
-            )
+            DataSplitter.split_sequential(sample_data, train_size=0.5, val_size=0.3, test_size=0.3)  # Сумма > 1.0
 
     def test_walk_forward(self, sample_data):
         """Тест walk-forward splitting."""
 
-        splits = DataSplitter.split_walk_forward(
-            sample_data, n_splits=3, test_size=10, min_train_size=30
-        )
+        splits = DataSplitter.split_walk_forward(sample_data, n_splits=3, test_size=10, min_train_size=30)
 
         # Должно быть 3 сплита
         assert len(splits) == 3
@@ -138,7 +132,4 @@ class TestDataSplitter:
         validation = DataSplitter.validate_split(empty_df, empty_df, empty_df)
 
         assert validation["valid"] is False
-        assert (
-            "пустая" in " ".join(validation["issues"]).lower()
-            or "empty" in " ".join(validation["issues"]).lower()
-        )
+        assert "пустая" in " ".join(validation["issues"]).lower() or "empty" in " ".join(validation["issues"]).lower()

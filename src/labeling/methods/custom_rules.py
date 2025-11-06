@@ -43,9 +43,7 @@ class CustomRulesLabeler(BaseLabeler):
             raise ValueError("Необходимо задать хотя бы одно правило")
 
         if self.params["aggregation"] not in ["majority", "unanimous", "any"]:
-            raise ValueError(
-                "aggregation должен быть 'majority', 'unanimous' или 'any'"
-            )
+            raise ValueError("aggregation должен быть 'majority', 'unanimous' или 'any'")
 
     def label(self, data: pd.DataFrame) -> pd.DataFrame:
         """
@@ -145,9 +143,7 @@ class CustomRulesLabeler(BaseLabeler):
 
 
 # Примеры готовых правил
-def trend_following_rule(
-    data: pd.DataFrame, fast_period: int = 10, slow_period: int = 30
-) -> pd.Series:
+def trend_following_rule(data: pd.DataFrame, fast_period: int = 10, slow_period: int = 30) -> pd.Series:
     """
     Правило на основе скользящих средних (trend following).
 
@@ -169,9 +165,7 @@ def trend_following_rule(
     return labels
 
 
-def momentum_rule(
-    data: pd.DataFrame, period: int = 14, threshold: float = 0.02
-) -> pd.Series:
+def momentum_rule(data: pd.DataFrame, period: int = 14, threshold: float = 0.02) -> pd.Series:
     """
     Правило на основе моментума.
 
@@ -192,9 +186,7 @@ def momentum_rule(
     return labels
 
 
-def volatility_breakout_rule(
-    data: pd.DataFrame, period: int = 20, num_std: float = 2.0
-) -> pd.Series:
+def volatility_breakout_rule(data: pd.DataFrame, period: int = 20, num_std: float = 2.0) -> pd.Series:
     """
     Правило на основе прорыва волатильности (Bollinger Bands).
 

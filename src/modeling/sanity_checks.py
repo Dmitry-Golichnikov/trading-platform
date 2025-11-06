@@ -34,11 +34,7 @@ class SanityCheckResult:
     def __repr__(self) -> str:
         """Строковое представление."""
         status = "PASSED" if self.passed else "FAILED"
-        return (
-            f"SanityCheck({status}, "
-            f"warnings={len(self.warnings)}, "
-            f"errors={len(self.errors)})"
-        )
+        return f"SanityCheck({status}, " f"warnings={len(self.warnings)}, " f"errors={len(self.errors)})"
 
     def summary(self) -> str:
         """Полная сводка по проверке."""
@@ -162,23 +158,17 @@ class ModelSanityChecker:
 
         # Проверка на слишком мало примеров
         if n_samples < 100:
-            result.warnings.append(
-                f"Слишком мало примеров для обучения: {n_samples} < 100"
-            )
+            result.warnings.append(f"Слишком мало примеров для обучения: {n_samples} < 100")
 
         # Проверка пропусков
         if n_missing > 0:
             missing_pct = n_missing / n_samples * 100
-            result.errors.append(
-                f"Таргет содержит пропуски: {n_missing} ({missing_pct:.1f}%)"
-            )
+            result.errors.append(f"Таргет содержит пропуски: {n_missing} ({missing_pct:.1f}%)")
             result.passed = False
 
         # Проверка на constant target
         if n_unique == 1:
-            result.errors.append(
-                "Таргет константный (все значения одинаковые). Обучение невозможно."
-            )
+            result.errors.append("Таргет константный (все значения одинаковые). Обучение невозможно.")
             result.passed = False
             return result
 
@@ -234,9 +224,7 @@ class ModelSanityChecker:
         high_missing_cols = missing_per_col[missing_per_col / n_samples > 0.5]
 
         if len(high_missing_cols) > 0:
-            result.warnings.append(
-                f"Признаки с >50% пропусков: {list(high_missing_cols.index)}"
-            )
+            result.warnings.append(f"Признаки с >50% пропусков: {list(high_missing_cols.index)}")
 
         result.info["features_with_missing"] = (missing_per_col > 0).sum()
 
@@ -258,9 +246,7 @@ class ModelSanityChecker:
         if n_features < 100:
             duplicates = self._find_duplicate_features(X)
             if duplicates:
-                result.warnings.append(
-                    f"Найдено {len(duplicates)} дубликатов признаков"
-                )
+                result.warnings.append(f"Найдено {len(duplicates)} дубликатов признаков")
 
         # Проверка на бесконечные значения
         inf_cols = []
@@ -274,9 +260,7 @@ class ModelSanityChecker:
 
         return result
 
-    def check_look_ahead(
-        self, X: pd.DataFrame, y: pd.Series, timestamp_col: Optional[str] = None
-    ) -> SanityCheckResult:
+    def check_look_ahead(self, X: pd.DataFrame, y: pd.Series, timestamp_col: Optional[str] = None) -> SanityCheckResult:
         """
         Проверить look-ahead bias (простая эвристика).
 
@@ -292,9 +276,7 @@ class ModelSanityChecker:
 
         # Проверяем что таргет не является признаком
         if "target" in X.columns or "label" in X.columns:
-            result.errors.append(
-                "Таргет содержится в признаках! Удалите столбцы 'target' или 'label'."
-            )
+            result.errors.append("Таргет содержится в признаках! Удалите столбцы 'target' или 'label'.")
             result.passed = False
 
         # Проверяем корреляцию с таргетом (слишком высокая может указывать на leakage)
@@ -306,8 +288,7 @@ class ModelSanityChecker:
 
                 if len(suspicious) > 0:
                     result.warnings.append(
-                        f"Подозрительно высокая корреляция с таргетом (>0.99): "
-                        f"{list(suspicious.index)}"
+                        f"Подозрительно высокая корреляция с таргетом (>0.99): " f"{list(suspicious.index)}"
                     )
 
         return result
@@ -342,9 +323,7 @@ class ModelSanityChecker:
         if duplicates:
             n_dup = len(duplicates)
             dup_pct = n_dup / len(X_val) * 100
-            result.warnings.append(
-                f"Найдено {n_dup} ({dup_pct:.2f}%) дубликатов между train и val"
-            )
+            result.warnings.append(f"Найдено {n_dup} ({dup_pct:.2f}%) дубликатов между train и val")
 
         # Проверка временного overlap (если есть timestamp)
         if "timestamp" in X_train.columns and "timestamp" in X_val.columns:
@@ -353,8 +332,7 @@ class ModelSanityChecker:
 
             if train_max >= val_min:
                 result.warnings.append(
-                    f"Временное пересечение: train заканчивается {train_max}, "
-                    f"val начинается {val_min}"
+                    f"Временное пересечение: train заканчивается {train_max}, " f"val начинается {val_min}"
                 )
 
         return result

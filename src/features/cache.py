@@ -98,9 +98,7 @@ class FeatureCache:
         conn = sqlite3.connect(self.catalog_path)
         cursor = conn.cursor()
 
-        cursor.execute(
-            "SELECT file_path FROM features WHERE cache_key = ?", (cache_key,)
-        )
+        cursor.execute("SELECT file_path FROM features WHERE cache_key = ?", (cache_key,))
         result = cursor.fetchone()
 
         conn.close()
@@ -140,9 +138,7 @@ class FeatureCache:
             metadata: Дополнительные метаданные
         """
         cache_key = self._compute_cache_key(dataset_id, feature_config)
-        config_hash = hashlib.sha256(
-            json.dumps(feature_config, sort_keys=True).encode()
-        ).hexdigest()[:8]
+        config_hash = hashlib.sha256(json.dumps(feature_config, sort_keys=True).encode()).hexdigest()[:8]
 
         # Создаём поддиректорию для датасета
         dataset_dir = self.cache_dir / dataset_id
@@ -284,9 +280,7 @@ class FeatureCache:
         conn.close()
 
         # Размер на диске
-        total_size = sum(
-            f.stat().st_size for f in self.cache_dir.rglob("*.parquet") if f.is_file()
-        )
+        total_size = sum(f.stat().st_size for f in self.cache_dir.rglob("*.parquet") if f.is_file())
         size_mb = total_size / (1024 * 1024)
 
         return {

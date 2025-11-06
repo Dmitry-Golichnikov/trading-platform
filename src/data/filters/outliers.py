@@ -37,9 +37,7 @@ class StatisticalOutlierFilter(DataFilter):
                 - action: 'remove' | 'mark'
         """
         super().__init__(config)
-        self.method: Literal["mad", "tukey", "grubbs"] = self.config.get(
-            "method", "mad"
-        )
+        self.method: Literal["mad", "tukey", "grubbs"] = self.config.get("method", "mad")
         self.threshold: float = self.config.get("threshold", 3.5)
         self.column: str = self.config.get("column", "close")
         self.action: Literal["remove", "mark"] = self.config.get("action", "remove")
@@ -188,12 +186,8 @@ class RollingOutlierFilter(DataFilter):
         values = data[self.column]
 
         # Rolling mean и std
-        rolling_mean = values.rolling(
-            window=self.window, min_periods=self.min_periods
-        ).mean()
-        rolling_std = values.rolling(
-            window=self.window, min_periods=self.min_periods
-        ).std()
+        rolling_mean = values.rolling(window=self.window, min_periods=self.min_periods).mean()
+        rolling_std = values.rolling(window=self.window, min_periods=self.min_periods).std()
 
         # Избежать деления на ноль
         rolling_std = rolling_std.replace(0, np.nan)

@@ -101,9 +101,7 @@ def label_dataset(
         if visualize:
             click.echo("\n📈 Создание визуализации...")
             viz_output_dir = output_path / pipeline.labeling_id / "visualizations"
-            create_labeling_report(
-                labeled_data, metadata=metadata.to_dict(), output_dir=viz_output_dir
-            )
+            create_labeling_report(labeled_data, metadata=metadata.to_dict(), output_dir=viz_output_dir)
             click.echo(f"✓ Визуализация сохранена в: {viz_output_dir}")
 
         click.echo("\n✅ Разметка завершена успешно!")
@@ -193,9 +191,7 @@ def analyze_labels(
         output_path = Path(output_dir) if output_dir else labeling_path_obj / "analysis"
 
         click.echo("\n📈 Создание отчёта...")
-        create_labeling_report(
-            labeled_data, metadata=metadata.to_dict(), output_dir=output_path
-        )
+        create_labeling_report(labeled_data, metadata=metadata.to_dict(), output_dir=output_path)
 
         click.echo("✅ Анализ завершён!")
         click.echo(f"📁 Отчёт сохранён в: {output_path}")
@@ -261,9 +257,7 @@ def list_labelings(labels_dir: str):
         return
 
     # Вывод таблицы
-    click.echo(
-        f"{'ID':<50} {'Method':<25} {'Dataset':<15} {'Samples':<10} {'Created':<20}"
-    )
+    click.echo(f"{'ID':<50} {'Method':<25} {'Dataset':<15} {'Samples':<10} {'Created':<20}")
     click.echo("=" * 130)
 
     for labeling in sorted(labelings, key=lambda x: str(x["created"]), reverse=True):

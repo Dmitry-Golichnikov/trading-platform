@@ -73,9 +73,7 @@ class FeatureGenerator:
             if cached is not None:
                 cached = cached.copy()
                 target_freq = getattr(data.index, "freq", None)
-                if target_freq is not None and isinstance(
-                    cached.index, pd.DatetimeIndex
-                ):
+                if target_freq is not None and isinstance(cached.index, pd.DatetimeIndex):
                     cached.index = pd.DatetimeIndex(cached.index, freq=target_freq)
                 logger.info(
                     "Признаки загружены из кэша для датасета %s",
@@ -108,11 +106,7 @@ class FeatureGenerator:
         logger.info("Сгенерировано %d признаков", result.shape[1])
 
         selection_config = self.config.selection
-        if (
-            selection_config is not None
-            and selection_config.enabled
-            and target is not None
-        ):
+        if selection_config is not None and selection_config.enabled and target is not None:
             result = self._apply_selection(result, target, selection_config)
             logger.info("После отбора осталось %d признаков", result.shape[1])
 
@@ -126,9 +120,7 @@ class FeatureGenerator:
 
         return result
 
-    def _generate_single_feature(
-        self, data: pd.DataFrame, feature_config: FeatureConfigItem
-    ) -> Optional[pd.DataFrame]:
+    def _generate_single_feature(self, data: pd.DataFrame, feature_config: FeatureConfigItem) -> Optional[pd.DataFrame]:
         """Сгенерировать один тип признаков."""
 
         feature_type = feature_config.type

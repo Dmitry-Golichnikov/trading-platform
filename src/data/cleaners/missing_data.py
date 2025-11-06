@@ -44,9 +44,7 @@ class MissingDataHandler:
             "median",
         ] = self.config.get("method", "forward_fill")
         self.max_gap: int = self.config.get("max_gap", 5)
-        self.fill_volume_with_zero: bool = self.config.get(
-            "fill_volume_with_zero", True
-        )
+        self.fill_volume_with_zero: bool = self.config.get("fill_volume_with_zero", True)
 
     def handle(self, data: pd.DataFrame) -> pd.DataFrame:
         """
@@ -110,11 +108,7 @@ class MissingDataHandler:
                 data["volume"] = data["volume"].ffill(limit=self.max_gap)
 
         # Остальные колонки - forward fill
-        other_cols = [
-            col
-            for col in data.columns
-            if col not in price_cols + ["volume", "timestamp", "ticker"]
-        ]
+        other_cols = [col for col in data.columns if col not in price_cols + ["volume", "timestamp", "ticker"]]
         for col in other_cols:
             data[col] = data[col].ffill(limit=self.max_gap)
 
@@ -137,9 +131,7 @@ class MissingDataHandler:
             for start, size in gaps:
                 if size <= self.max_gap:
                     data.loc[start : start + size - 1, col] = (
-                        data[col]
-                        .iloc[start : start + size]
-                        .interpolate(method="linear", limit_area="inside")
+                        data[col].iloc[start : start + size].interpolate(method="linear", limit_area="inside")
                     )
 
         return data

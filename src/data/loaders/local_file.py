@@ -70,9 +70,7 @@ class LocalFileLoader:
         if file_path is None:
             file_path = self._find_file(ticker, timeframe)
         else:
-            file_path = (
-                self.base_path / file_path if not file_path.is_absolute() else file_path
-            )
+            file_path = self.base_path / file_path if not file_path.is_absolute() else file_path
 
         if not file_path.exists():
             raise DataLoadError(f"File not found: {file_path}")
@@ -148,9 +146,7 @@ class LocalFileLoader:
                 df = self._load_tinkoff_csv(file_path)
             else:
                 # Стандартный CSV
-                df = pd.read_csv(
-                    file_path, parse_dates=["timestamp"], date_format="ISO8601"
-                )
+                df = pd.read_csv(file_path, parse_dates=["timestamp"], date_format="ISO8601")
 
             # Конвертировать timestamp в UTC
             if "timestamp" in df.columns:
@@ -214,9 +210,7 @@ class LocalFileLoader:
         except Exception as e:
             raise DataLoadError(f"Failed to parse Tinkoff CSV: {e}") from e
 
-    def _filter_by_dates(
-        self, df: pd.DataFrame, from_date: datetime, to_date: datetime
-    ) -> pd.DataFrame:
+    def _filter_by_dates(self, df: pd.DataFrame, from_date: datetime, to_date: datetime) -> pd.DataFrame:
         """Фильтровать DataFrame по диапазону дат."""
         if "timestamp" not in df.columns:
             raise DataValidationError("DataFrame must have 'timestamp' column")
@@ -255,9 +249,7 @@ class LocalFileLoader:
             if not pd.api.types.is_numeric_dtype(df[col]):
                 raise DataValidationError(f"'{col}' must be numeric type")
 
-        if not pd.api.types.is_integer_dtype(
-            df["volume"]
-        ) and not pd.api.types.is_numeric_dtype(df["volume"]):
+        if not pd.api.types.is_integer_dtype(df["volume"]) and not pd.api.types.is_numeric_dtype(df["volume"]):
             raise DataValidationError("'volume' must be numeric type")
 
     def _find_file(self, ticker: str, timeframe: str) -> Path:
@@ -285,9 +277,7 @@ class LocalFileLoader:
                 if matches:
                     return matches[0]
 
-        raise DataLoadError(
-            f"Could not find data file for ticker={ticker}, timeframe={timeframe}"
-        )
+        raise DataLoadError(f"Could not find data file for ticker={ticker}, timeframe={timeframe}")
 
     def get_available_tickers(self) -> list[str]:
         """

@@ -17,9 +17,7 @@ console = Console()
 def _parse_dataset_id(dataset_id: str) -> Tuple[str, str]:
     """Разобрать идентификатор формата TICKER_TIMEFRAME."""
     if "_" not in dataset_id:
-        raise ValueError(
-            "Идентификатор датасета должен быть в формате TICKER_TIMEFRAME"
-        )
+        raise ValueError("Идентификатор датасета должен быть в формате TICKER_TIMEFRAME")
 
     ticker, timeframe = dataset_id.split("_", 1)
     if not ticker or not timeframe:
@@ -109,9 +107,7 @@ def generate_features(
         target = None
         if target_column and target_column in data.columns:
             target = data[target_column]
-            console.print(
-                f"[cyan]Используется таргет из колонки {target_column}[/cyan]"
-            )
+            console.print(f"[cyan]Используется таргет из колонки {target_column}[/cyan]")
 
         # Генерируем признаки
         console.print("[cyan]Генерация признаков...[/cyan]")
@@ -122,10 +118,7 @@ def generate_features(
             use_cache=use_cache,
         )
 
-        console.print(
-            "[green]Сгенерировано "
-            f"{features.shape[1]} признаков для {features.shape[0]} строк[/green]"
-        )
+        console.print("[green]Сгенерировано " f"{features.shape[1]} признаков для {features.shape[0]} строк[/green]")
 
         # Сохраняем если указан output
         if output:
@@ -133,10 +126,7 @@ def generate_features(
             features.to_parquet(output, compression="snappy")
             console.print(f"[green]Признаки сохранены в {output}[/green]")
         else:
-            console.print(
-                "[yellow]Признаки сохранены в кэш "
-                "(укажите --output для сохранения в файл)[/yellow]"
-            )
+            console.print("[yellow]Признаки сохранены в кэш " "(укажите --output для сохранения в файл)[/yellow]")
 
         # Показываем первые несколько признаков
         table = Table(title="Примеры признаков")
@@ -149,16 +139,8 @@ def generate_features(
         for col in features.columns[:10]:  # Показываем первые 10
             dtype = str(features[col].dtype)
             nan_pct = features[col].isna().mean() * 100
-            min_val = (
-                features[col].min()
-                if pd.api.types.is_numeric_dtype(features[col])
-                else "N/A"
-            )
-            max_val = (
-                features[col].max()
-                if pd.api.types.is_numeric_dtype(features[col])
-                else "N/A"
-            )
+            min_val = features[col].min() if pd.api.types.is_numeric_dtype(features[col]) else "N/A"
+            max_val = features[col].max() if pd.api.types.is_numeric_dtype(features[col]) else "N/A"
 
             table.add_row(
                 col,
@@ -303,15 +285,11 @@ def validate_config(config_path: Path):
         console.print("[green]✓ Конфигурация валидна[/green]")
         console.print(f"  Версия: {config.version}")
         console.print(f"  Признаков: {len(config.features)}")
-        console.print(
-            f"  Кэширование: {'включено' if config.cache_enabled else 'выключено'}"
-        )
+        console.print(f"  Кэширование: {'включено' if config.cache_enabled else 'выключено'}")
 
         if config.selection:
             console.print(
-                "  Feature selection: "
-                f"{config.selection.method} "
-                f"(top_k={config.selection.top_k or 'все'})"
+                "  Feature selection: " f"{config.selection.method} " f"(top_k={config.selection.top_k or 'все'})"
             )
 
         # Показываем типы признаков

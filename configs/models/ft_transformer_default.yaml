@@ -1,0 +1,39 @@
+# FT-Transformer дефолтная конфигурация
+
+model_type: ft_transformer
+task: classification  # или regression
+
+hyperparameters:
+  # Архитектура
+  d_token: 192  # dimension of token embeddings
+  n_blocks: 3  # number of transformer blocks
+  attention_heads: 8  # number of attention heads
+
+  # Dropout
+  attention_dropout: 0.2  # dropout в attention
+  ffn_dropout: 0.1  # dropout в feed-forward network
+  residual_dropout: 0.0  # dropout в residual connections
+
+  # Optimizer
+  learning_rate: 1e-4
+  weight_decay: 1e-5
+
+  # Batch
+  batch_size: 256
+
+  # Обучение
+  max_epochs: 100
+  patience: 15  # early stopping patience
+
+# Устройство
+device: cpu  # cpu или cuda
+
+# Логирование
+logging:
+  verbose: 1
+
+# Примечания
+notes:
+  - "d_token должен быть кратен attention_heads"
+  - "Увеличьте d_token для больших датасетов"
+  - "attention_dropout помогает против переобучения"

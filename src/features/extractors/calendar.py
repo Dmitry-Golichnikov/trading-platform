@@ -62,16 +62,12 @@ class CalendarExtractor:
         counts = series.groupby([index.year, index.month]).cumcount() + 1
         return counts.rename("trading_day_of_month")
 
-    def _extract_time_since_open(
-        self, index: pd.DatetimeIndex, market_open: int = 10
-    ) -> pd.Series:
+    def _extract_time_since_open(self, index: pd.DatetimeIndex, market_open: int = 10) -> pd.Series:
         hours = index.hour + index.minute / 60.0
         values = pd.Series(index=index, data=hours - market_open)
         return values.clip(lower=0).rename("time_since_open")
 
-    def _extract_time_to_close(
-        self, index: pd.DatetimeIndex, market_close: int = 18
-    ) -> pd.Series:
+    def _extract_time_to_close(self, index: pd.DatetimeIndex, market_close: int = 18) -> pd.Series:
         hours = index.hour + index.minute / 60.0
         values = pd.Series(index=index, data=market_close - hours)
         return values.clip(lower=0).rename("time_to_close")

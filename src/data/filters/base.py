@@ -22,9 +22,7 @@ class FilterStatistics:
     filter_percentage: float = 0.0
     reasons: dict[str, int] = field(default_factory=dict)
 
-    def calculate_stats(
-        self, data_before: pd.DataFrame, data_after: pd.DataFrame
-    ) -> None:
+    def calculate_stats(self, data_before: pd.DataFrame, data_after: pd.DataFrame) -> None:
         """
         Вычислить статистику фильтрации.
 

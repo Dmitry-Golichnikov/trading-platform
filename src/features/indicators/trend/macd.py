@@ -67,17 +67,11 @@ class MACD(Indicator):
         signal = self.params.get("signal", 9)
 
         if not isinstance(fast, int) or fast < 1:
-            raise ValueError(
-                f"fast должен быть положительным целым числом, получено: {fast}"
-            )
+            raise ValueError(f"fast должен быть положительным целым числом, получено: {fast}")
         if not isinstance(slow, int) or slow < 1:
-            raise ValueError(
-                f"slow должен быть положительным целым числом, получено: {slow}"
-            )
+            raise ValueError(f"slow должен быть положительным целым числом, получено: {slow}")
         if not isinstance(signal, int) or signal < 1:
-            raise ValueError(
-                f"signal должен быть положительным целым числом, получено: {signal}"
-            )
+            raise ValueError(f"signal должен быть положительным целым числом, получено: {signal}")
         if fast >= slow:
             raise ValueError(f"fast ({fast}) должен быть меньше slow ({slow})")
 
@@ -117,9 +111,7 @@ class MACD(Indicator):
         macd_line = ema_fast - ema_slow
 
         # Signal Line (EMA от MACD Line)
-        signal_line = macd_line.ewm(
-            span=signal, adjust=False, min_periods=signal
-        ).mean()
+        signal_line = macd_line.ewm(span=signal, adjust=False, min_periods=signal).mean()
 
         # Histogram
         histogram = macd_line - signal_line

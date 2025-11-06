@@ -79,12 +79,8 @@ class FilterPipeline:
         return {
             "pipeline_steps": len(self.filters),
             "filters": self.statistics,
-            "total_rows_before": (
-                self.statistics[0]["rows_before"] if self.statistics else 0
-            ),
-            "total_rows_after": (
-                self.statistics[-1]["rows_after"] if self.statistics else 0
-            ),
+            "total_rows_before": (self.statistics[0]["rows_before"] if self.statistics else 0),
+            "total_rows_after": (self.statistics[-1]["rows_after"] if self.statistics else 0),
         }
 
 
@@ -131,8 +127,7 @@ class ConditionalFilter:
         rows_matching = condition_mask.sum()
 
         logger.info(
-            f"Conditional filter: {rows_matching} rows match condition "
-            f"({rows_matching / len(data) * 100:.2f}%)"
+            f"Conditional filter: {rows_matching} rows match condition " f"({rows_matching / len(data) * 100:.2f}%)"
         )
 
         if rows_matching == 0:
@@ -156,8 +151,7 @@ class ConditionalFilter:
         self.stats.reasons.update(self.filter_obj.stats.reasons)
 
         logger.info(
-            f"Conditional filter removed {self.stats.rows_filtered} rows "
-            f"({self.stats.filter_percentage:.2f}%)"
+            f"Conditional filter removed {self.stats.rows_filtered} rows " f"({self.stats.filter_percentage:.2f}%)"
         )
 
         return result
@@ -212,10 +206,7 @@ class ParallelFilterGroup:
         for filter_obj in self.filters:
             mask = filter_obj.get_filter_mask(data)
             masks.append(mask)
-            logger.debug(
-                f"  {filter_obj.__class__.__name__}: "
-                f"{(~mask).sum()} rows would be filtered"
-            )
+            logger.debug(f"  {filter_obj.__class__.__name__}: " f"{(~mask).sum()} rows would be filtered")
 
         # Объединить маски
         if self.logic == "AND":
@@ -231,9 +222,7 @@ class ParallelFilterGroup:
         result = data[combined_mask].reset_index(drop=True)
 
         self.stats.calculate_stats(data_before, result)
-        self.stats.reasons["parallel_filter_" + self.logic.lower()] = (
-            ~combined_mask
-        ).sum()
+        self.stats.reasons["parallel_filter_" + self.logic.lower()] = (~combined_mask).sum()
 
         logger.info(
             f"Parallel filter ({self.logic}): filtered {self.stats.rows_filtered} rows "

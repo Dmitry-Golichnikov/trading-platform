@@ -62,9 +62,7 @@ def test_module_exports(module_name: str, expected_exports: List[str]) -> None:
     module = importlib.import_module(module_name)
 
     for export_name in expected_exports:
-        assert hasattr(
-            module, export_name
-        ), f"Модуль {module_name} не содержит {export_name}"
+        assert hasattr(module, export_name), f"Модуль {module_name} не содержит {export_name}"
 
 
 def test_src_package_exists() -> None:

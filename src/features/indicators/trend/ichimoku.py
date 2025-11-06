@@ -68,9 +68,7 @@ class Ichimoku(Indicator):
 
         for name, value in [("tenkan", tenkan), ("kijun", kijun), ("senkou", senkou)]:
             if not isinstance(value, int) or value < 1:
-                raise ValueError(
-                    f"{name} должен быть положительным целым числом, получено: {value}"
-                )
+                raise ValueError(f"{name} должен быть положительным целым числом, получено: {value}")
 
     def get_required_columns(self) -> List[str]:
         """Необходимые колонки."""

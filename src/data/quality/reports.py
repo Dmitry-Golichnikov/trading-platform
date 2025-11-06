@@ -29,9 +29,7 @@ class QualityReport:
         self.metrics_calculator = DataQualityMetrics()
         self.gap_detector = GapDetector()
 
-    def generate_report(
-        self, data: pd.DataFrame, output_path: Path, format: str = "json"
-    ) -> None:
+    def generate_report(self, data: pd.DataFrame, output_path: Path, format: str = "json") -> None:
         """
         Сгенерировать отчёт о качестве.
 
@@ -147,9 +145,7 @@ class QualityReport:
         basic_stats = report_data["basic_stats"]
         metrics = report_data["quality_metrics"]
         gap_html = self._format_gap_analysis(report_data.get("gap_analysis", {}))
-        missing_html = self._format_missing_values(
-            report_data.get("missing_values", {})
-        )
+        missing_html = self._format_missing_values(report_data.get("missing_values", {}))
 
         # Базовый HTML template
         html = f"""
@@ -248,12 +244,7 @@ class QualityReport:
         if not missing_values:
             return "<h2>Missing Values</h2><p>No missing values</p>"
 
-        rows = "".join(
-            [
-                f"<tr><td>{col}</td><td>{count}</td></tr>"
-                for col, count in missing_values.items()
-            ]
-        )
+        rows = "".join([f"<tr><td>{col}</td><td>{count}</td></tr>" for col, count in missing_values.items()])
 
         return (
             "<h2>Missing Values</h2>\n"
@@ -274,9 +265,7 @@ class ComparisonReport:
         """Инициализировать генератор сравнений."""
         self.metrics_calculator = DataQualityMetrics()
 
-    def compare_datasets(
-        self, datasets: dict[str, pd.DataFrame], output_path: Path
-    ) -> None:
+    def compare_datasets(self, datasets: dict[str, pd.DataFrame], output_path: Path) -> None:
         """
         Сравнить датасеты.
 

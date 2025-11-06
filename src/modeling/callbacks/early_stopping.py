@@ -78,10 +78,7 @@ class EarlyStopping(Callback):
             self.best_value = float("-inf")
 
         if self.verbose:
-            logger.info(
-                f"EarlyStopping: отслеживается {self.monitor}, "
-                f"patience={self.patience}, mode={self.mode}"
-            )
+            logger.info(f"EarlyStopping: отслеживается {self.monitor}, " f"patience={self.patience}, mode={self.mode}")
 
     def on_epoch_end(self, trainer, epoch: int, logs: Dict[str, Any]) -> None:
         """Проверка метрики в конце эпохи."""
@@ -89,8 +86,7 @@ class EarlyStopping(Callback):
 
         if current_value is None:
             logger.warning(
-                f"EarlyStopping: метрика '{self.monitor}' не найдена в logs. "
-                f"Доступные метрики: {list(logs.keys())}"
+                f"EarlyStopping: метрика '{self.monitor}' не найдена в logs. " f"Доступные метрики: {list(logs.keys())}"
             )
             return
 
@@ -104,17 +100,12 @@ class EarlyStopping(Callback):
                 self.best_weights = self._get_model_weights(trainer)
 
             if self.verbose:
-                logger.info(
-                    f"Эпоха {epoch}: {self.monitor} улучшилась до {current_value:.6f}"
-                )
+                logger.info(f"Эпоха {epoch}: {self.monitor} улучшилась до {current_value:.6f}")
         else:
             self.wait += 1
 
             if self.verbose:
-                logger.info(
-                    f"Эпоха {epoch}: {self.monitor} не улучшилась "
-                    f"({self.wait}/{self.patience})"
-                )
+                logger.info(f"Эпоха {epoch}: {self.monitor} не улучшилась " f"({self.wait}/{self.patience})")
 
             if self.wait >= self.patience:
                 self.stopped_epoch = epoch
@@ -122,8 +113,7 @@ class EarlyStopping(Callback):
 
                 if self.verbose:
                     logger.info(
-                        f"Эпоха {epoch}: Early stopping. "
-                        f"Лучшее значение {self.monitor}: {self.best_value:.6f}"
+                        f"Эпоха {epoch}: Early stopping. " f"Лучшее значение {self.monitor}: {self.best_value:.6f}"
                     )
 
     def on_train_end(self, trainer, logs: Dict[str, Any]) -> None:

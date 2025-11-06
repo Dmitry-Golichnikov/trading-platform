@@ -101,9 +101,7 @@ def _generate_report(results: Sequence["PipelineResult"]) -> Path:
             lines.append("")
             continue
 
-        missing_years = (
-            ", ".join(map(str, result.missing_years)) if result.missing_years else "нет"
-        )
+        missing_years = ", ".join(map(str, result.missing_years)) if result.missing_years else "нет"
         lines.append(f"- Пропущенные годы: {missing_years}")
         lines.append("")
         lines.append("| Таймфрейм | Начало | Конец | Баров | Пропуски | Источник |")
@@ -213,10 +211,7 @@ def data() -> None:
 )
 @click.option(
     "--token",
-    help=(
-        "Токен доступа к Tinkoff Invest API (при отсутствии берётся из "
-        "TINKOFF_API_TOKEN/TINKOFF_INVEST_TOKEN)"
-    ),
+    help=("Токен доступа к Tinkoff Invest API (при отсутствии берётся из " "TINKOFF_API_TOKEN/TINKOFF_INVEST_TOKEN)"),
 )
 def load_data(
     tickers: tuple[str, ...],
@@ -244,8 +239,7 @@ def load_data(
             effective_file = default_tickers_file
         if effective_file is None:
             raise click.BadParameter(
-                "Не указаны тикеры. Передайте --ticker/--tickers-file или "
-                "создайте tickers_all.txt"
+                "Не указаны тикеры. Передайте --ticker/--tickers-file или " "создайте tickers_all.txt"
             )
         ticker_value = None
     elif len(tickers) == 1:
@@ -262,13 +256,9 @@ def load_data(
         raise click.BadParameter("Дата начала не может быть позже даты окончания")
 
     default_targets = ("1m", "5m", "15m", "1h", "4h", "1d")
-    target_tf = (
-        _parse_timeframes(target_timeframes) if target_timeframes else default_targets
-    )
+    target_tf = _parse_timeframes(target_timeframes) if target_timeframes else default_targets
 
-    token_value = (
-        token or os.getenv("TINKOFF_API_TOKEN") or os.getenv("TINKOFF_INVEST_TOKEN")
-    )
+    token_value = token or os.getenv("TINKOFF_API_TOKEN") or os.getenv("TINKOFF_INVEST_TOKEN")
 
     timeframe_value = cast(TimeframeLiteral, timeframe)
     source_type_value = cast(Literal["local", "api"], source_type)
@@ -297,9 +287,7 @@ def load_data(
             dynamic_ncols=True,
         )
 
-        def progress_callback(
-            ticker: str, stage: str, completed: int, total: int
-        ) -> None:
+        def progress_callback(ticker: str, stage: str, completed: int, total: int) -> None:
             total_value = total if total else 1
 
             if stage == "start":
@@ -345,15 +333,8 @@ def load_data(
         table.add_column("Missing Years")
 
         for result in results:
-            timeframes = (
-                ", ".join(sorted({metadata.timeframe for metadata in result.metadata}))
-                or "—"
-            )
-            missing = (
-                ", ".join(map(str, result.missing_years))
-                if result.missing_years
-                else "—"
-            )
+            timeframes = ", ".join(sorted({metadata.timeframe for metadata in result.metadata})) or "—"
+            missing = ", ".join(map(str, result.missing_years)) if result.missing_years else "—"
             table.add_row(result.ticker, timeframes, missing)
 
         console.print(table)
@@ -368,9 +349,7 @@ def load_data(
 @click.option("--ticker", help="Фильтр по тикеру")
 @click.option("--timeframe", help="Фильтр по таймфрейму")
 @click.option("--source", help="Фильтр по источнику")
-def list_datasets(
-    ticker: Optional[str], timeframe: Optional[str], source: Optional[str]
-) -> None:
+def list_datasets(ticker: Optional[str], timeframe: Optional[str], source: Optional[str]) -> None:
     catalog = DatasetCatalog()
     datasets = catalog.search(
         ticker=ticker,
@@ -430,9 +409,7 @@ def validate_dataset(ticker: str, timeframe: str) -> None:
     table.add_row("Warnings", str(len(schema.warnings + integrity.warnings)))
     table.add_row("Price anomalies", str(quality_price.statistics.get("anomalies", 0)))
     table.add_row("Zero volumes", str(quality_volume.statistics.get("zero_volumes", 0)))
-    table.add_row(
-        "Large spreads", str(quality_spread.statistics.get("large_spreads", 0))
-    )
+    table.add_row("Large spreads", str(quality_spread.statistics.get("large_spreads", 0)))
 
     if schema.errors or integrity.errors:
         console.print("[red]Ошибки валидации:[/red]", schema.errors + integrity.errors)
@@ -458,13 +435,9 @@ def resample_dataset(ticker: str, source_timeframe: str, target_timeframe: str) 
 
     pipeline_source: SourceLiteral = "manual"
     target_tf_literal = cast(TimeframeLiteral, target_timeframe)
-    metadata = storage.save_dataset(
-        resampled, ticker, target_tf_literal, source=pipeline_source
-    )
+    metadata = storage.save_dataset(resampled, ticker, target_tf_literal, source=pipeline_source)
     DatasetCatalog().add_dataset(metadata)
-    DataVersioning().save_version(
-        resampled, ticker, target_timeframe, description="CLI resample"
-    )
+    DataVersioning().save_version(resampled, ticker, target_timeframe, description="CLI resample")
 
     console.print(
         (
@@ -525,10 +498,7 @@ def dataset_info(ticker: str, timeframe: Optional[str]) -> None:
 @click.option(
     "--output",
     type=click.Path(path_type=Path),
-    help=(
-        "Путь к выходному файлу (если не указан, "
-        "использовать {ticker}_{timeframe}.{format})"
-    ),
+    help=("Путь к выходному файлу (если не указан, " "использовать {ticker}_{timeframe}.{format})"),
 )
 @click.option(
     "--from-date",
@@ -607,8 +577,7 @@ def export_dataset(
 
         file_size = output.stat().st_size / (1024 * 1024)  # MB
         console.print(
-            f"[green]Экспорт завершён:[/green] {output.as_posix()} "
-            f"({len(data)} bars, {file_size:.2f} MB)"
+            f"[green]Экспорт завершён:[/green] {output.as_posix()} " f"({len(data)} bars, {file_size:.2f} MB)"
         )
 
     except Exception as e:

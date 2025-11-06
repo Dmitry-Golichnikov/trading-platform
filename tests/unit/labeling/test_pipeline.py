@@ -38,9 +38,7 @@ def test_pipeline_initialization():
     labeler = HorizonLabeler(horizon=20)
     filters = [SmoothingFilter(method="median", window=3)]
 
-    pipeline = LabelingPipeline(
-        labeler=labeler, filters=filters, dataset_id="test_dataset"
-    )
+    pipeline = LabelingPipeline(labeler=labeler, filters=filters, dataset_id="test_dataset")
 
     assert pipeline.labeler == labeler
     assert len(pipeline.filters) == 1
@@ -52,9 +50,7 @@ def test_pipeline_run_basic(sample_data, tmp_path):
     """Тест базового запуска пайплайна."""
     labeler = HorizonLabeler(horizon=10, direction="long+short", threshold_pct=0.01)
 
-    pipeline = LabelingPipeline(
-        labeler=labeler, filters=[], dataset_id="test", output_dir=tmp_path
-    )
+    pipeline = LabelingPipeline(labeler=labeler, filters=[], dataset_id="test", output_dir=tmp_path)
 
     labeled_data, metadata = pipeline.run(sample_data, save_results=False)
 
@@ -70,15 +66,11 @@ def test_pipeline_run_basic(sample_data, tmp_path):
 
 def test_pipeline_with_filters(sample_data, tmp_path):
     """Тест пайплайна с фильтрами."""
-    labeler = TripleBarrierLabeler(
-        upper_barrier=0.02, lower_barrier=0.02, time_barrier=20
-    )
+    labeler = TripleBarrierLabeler(upper_barrier=0.02, lower_barrier=0.02, time_barrier=20)
 
     filters = [SmoothingFilter(method="median", window=3), SequenceFilter(min_length=2)]
 
-    pipeline = LabelingPipeline(
-        labeler=labeler, filters=filters, dataset_id="test", output_dir=tmp_path
-    )
+    pipeline = LabelingPipeline(labeler=labeler, filters=filters, dataset_id="test", output_dir=tmp_path)
 
     labeled_data, metadata = pipeline.run(sample_data, save_results=False)
 
@@ -92,9 +84,7 @@ def test_pipeline_save_results(sample_data, tmp_path):
     """Тест сохранения результатов."""
     labeler = HorizonLabeler(horizon=10)
 
-    pipeline = LabelingPipeline(
-        labeler=labeler, filters=[], dataset_id="test", output_dir=tmp_path
-    )
+    pipeline = LabelingPipeline(labeler=labeler, filters=[], dataset_id="test", output_dir=tmp_path)
 
     labeled_data, metadata = pipeline.run(sample_data, save_results=True)
 
@@ -184,13 +174,9 @@ def test_pipeline_validation_error_no_label():
 
 def test_pipeline_metadata_statistics(sample_data, tmp_path):
     """Тест статистики в метаданных."""
-    labeler = TripleBarrierLabeler(
-        upper_barrier=0.02, lower_barrier=0.02, time_barrier=20
-    )
+    labeler = TripleBarrierLabeler(upper_barrier=0.02, lower_barrier=0.02, time_barrier=20)
 
-    pipeline = LabelingPipeline(
-        labeler=labeler, filters=[], dataset_id="test", output_dir=tmp_path
-    )
+    pipeline = LabelingPipeline(labeler=labeler, filters=[], dataset_id="test", output_dir=tmp_path)
 
     labeled_data, metadata = pipeline.run(sample_data, save_results=False)
 

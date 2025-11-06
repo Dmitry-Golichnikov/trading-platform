@@ -195,9 +195,7 @@ class LossRegistry:
 
         if name_lower not in cls._losses:
             available = ", ".join(sorted(cls._losses.keys()))
-            raise ValueError(
-                f"Loss function '{name}' не найдена. " f"Доступные: {available}"
-            )
+            raise ValueError(f"Loss function '{name}' не найдена. " f"Доступные: {available}")
 
         loss_class = cls._losses[name_lower]
         return loss_class(**kwargs)
@@ -232,9 +230,7 @@ class LossRegistry:
         name_lower = name.lower()
 
         if name_lower in cls._losses:
-            logger.warning(
-                f"Loss function '{name}' уже зарегистрирована, перезаписываем"
-            )
+            logger.warning(f"Loss function '{name}' уже зарегистрирована, перезаписываем")
 
         cls._losses[name_lower] = loss_class
         cls._metadata[name_lower] = {
@@ -266,11 +262,7 @@ class LossRegistry:
             return sorted(cls._losses.keys())
 
         category_lower = category.lower()
-        return [
-            name
-            for name, meta in cls._metadata.items()
-            if meta.get("category") == category_lower
-        ]
+        return [name for name, meta in cls._metadata.items() if meta.get("category") == category_lower]
 
     @classmethod
     def get_metadata(cls, name: str) -> Dict[str, Any]:
