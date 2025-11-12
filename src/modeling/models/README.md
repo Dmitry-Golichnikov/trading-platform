@@ -14,7 +14,65 @@
 
 ## Категории моделей
 
-### 1. Tree-based модели
+### 1. Sequential модели (Neural Networks)
+
+Нейросетевые модели для временных рядов с последовательной обработкой данных.
+
+**Реализованные модели:**
+- **LSTM** - Long Short-Term Memory для долгосрочных зависимостей
+- **GRU** - Gated Recurrent Unit, быстрее LSTM
+- **Seq2Seq** - Encoder-Decoder с Attention
+- **TCN** - Temporal Convolutional Network
+- **CNN+LSTM** - Гибридная архитектура
+- **TFT** - Temporal Fusion Transformer (упрощённая версия)
+
+**Ключевые особенности:**
+- Обработка последовательностей переменной длины
+- Sequence preparation через sliding window
+- GPU/CPU support с mixed precision
+- Data augmentation для sequences
+- Attention механизмы для интерпретируемости
+
+**Пример использования:**
+```python
+from src.modeling.models.neural.sequential import LSTMModel
+
+model = LSTMModel(
+    input_size=10,
+    hidden_size=128,
+    num_layers=2,
+    seq_length=50,
+    output_size=1,
+    task="classification",
+    epochs=100,
+    device="auto"
+)
+
+model.fit(X_train, y_train, X_val, y_val)
+predictions = model.predict(X_test)
+```
+
+**Документация:** `src/modeling/models/neural/sequential/README.md`
+
+**Конфигурации:**
+- `configs/models/lstm_default.yaml`
+- `configs/models/gru_default.yaml`
+- `configs/models/tcn_default.yaml`
+- `configs/models/cnn_lstm_default.yaml`
+- `configs/models/seq2seq_default.yaml`
+- `configs/models/tft_default.yaml`
+
+**Когда использовать:**
+- ✅ Важны временные зависимости
+- ✅ Последовательности событий
+- ✅ Долгосрочная память (LSTM/GRU)
+- ✅ Нужна интерпретация через attention
+- ❌ Требуют больше данных чем tree-based
+- ❌ Медленнее в обучении
+
+---
+
+### 2. Tree-based модели
 
 Основаны на деревьях решений и gradient boosting.
 
@@ -129,7 +187,7 @@ model = ModelRegistry.create(
 
 ---
 
-### 2. Linear модели
+### 3. Linear модели
 
 Линейные модели для базовых сценариев.
 
@@ -185,9 +243,9 @@ nonzero_features = model.get_nonzero_features()
 
 ---
 
-### 3. Tabular Neural Networks
+### 4. Tabular Neural Networks
 
-Нейросетевые модели для табличных данных.
+Нейросетевые модели для табличных данных (не sequence).
 
 #### TabNet (`tabnet`)
 **Особенности:**

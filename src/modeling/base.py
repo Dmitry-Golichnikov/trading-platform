@@ -43,7 +43,7 @@ class BaseModel(ABC):
         }
         self._is_fitted = False
         self.model: Any = None
-        self._classes: np.ndarray = np.array([])
+        self._classes: Optional[np.ndarray] = None
         self._feature_names: list[str] = []
 
     @abstractmethod
@@ -212,9 +212,27 @@ class ClassifierMixin:
     @property
     def classes_(self) -> Optional[np.ndarray]:
         """Уникальные классы таргета."""
-        if hasattr(self, "_classes"):
-            return self._classes
-        return None
+        # Классы доступны только после обучения модели
+        if not getattr(self, "_is_fitted", False):
+            return None
+
+        classes = getattr(self, "_classes", None)
+        if classes is None:
+            return None
+
+        if isinstance(classes, np.ndarray):
+            if classes.size == 0:
+                return None
+            return classes
+
+        # Для других итерируемых структур (например, list)
+        try:
+            if len(classes) == 0:
+                return None
+        except TypeError:
+            pass
+
+        return classes
 
     def decision_function(self, X: pd.DataFrame) -> np.ndarray:
         """

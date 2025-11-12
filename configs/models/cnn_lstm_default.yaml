@@ -1,0 +1,33 @@
+# Конфигурация CNN+LSTM гибридной модели
+
+model_type: cnn_lstm
+task: classification
+
+architecture:
+  input_size: auto
+  hidden_size: 128
+  num_layers: 2  # LSTM layers
+  seq_length: 50
+  output_size: 1
+  cnn_channels: [32, 64, 128]  # CNN channel sizes
+  kernel_size: 3
+  dropout: 0.2
+
+training:
+  epochs: 100
+  batch_size: 128
+  learning_rate: 0.001
+  optimizer: adam
+  scheduler: onecycle
+  early_stopping: 10
+
+sequence:
+  stride: 1
+  predict_horizon: 0
+
+advanced:
+  device: auto
+  mixed_precision: true
+  gradient_clip: 1.0
+
+description: "CNN+LSTM гибрид - локальные паттерны + долгосрочные зависимости"

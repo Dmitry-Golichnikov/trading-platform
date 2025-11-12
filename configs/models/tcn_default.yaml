@@ -1,0 +1,32 @@
+# Конфигурация TCN (Temporal Convolutional Network)
+
+model_type: tcn
+task: classification
+
+architecture:
+  input_size: auto
+  hidden_size: 128
+  num_layers: 4  # Количество temporal blocks
+  seq_length: 50
+  output_size: 1
+  kernel_size: 3
+  dropout: 0.2
+
+training:
+  epochs: 100
+  batch_size: 128
+  learning_rate: 0.001
+  optimizer: adam
+  scheduler: cosine
+  early_stopping: 10
+
+sequence:
+  stride: 1
+  predict_horizon: 0
+
+advanced:
+  device: auto
+  mixed_precision: true
+  gradient_clip: 1.0
+
+description: "TCN - эффективная альтернатива RNN с dilated convolutions"

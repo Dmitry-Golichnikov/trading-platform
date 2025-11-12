@@ -60,16 +60,21 @@ class BinaryCrossEntropyLoss(ClassificationLoss):
             predictions = torch.sigmoid(predictions)
 
         # Вычисляем BCE
-        pos_weight_tensor = None
+        weight_tensor = None
         if self.pos_weight is not None:
-            pos_weight_tensor = torch.tensor(self.pos_weight, device=predictions.device)
+            pos_weight_tensor = torch.tensor(
+                self.pos_weight,
+                device=predictions.device,
+                dtype=predictions.dtype,
+            )
+            weight_tensor = torch.ones_like(predictions, dtype=predictions.dtype, device=predictions.device)
+            weight_tensor = torch.where(targets == 1, pos_weight_tensor, weight_tensor)
 
         loss = F.binary_cross_entropy(
             predictions,
             targets,
-            weight=None,
+            weight=weight_tensor,
             reduction=self.reduction,
-            pos_weight=pos_weight_tensor,
         )
 
         return loss

@@ -1,0 +1,32 @@
+# Конфигурация GRU для регрессии
+
+model_type: gru
+task: regression  # Регрессия
+
+architecture:
+  input_size: auto
+  hidden_size: 128
+  num_layers: 2
+  seq_length: 50
+  output_size: 1
+  dropout: 0.2
+  bidirectional: false
+
+training:
+  epochs: 100
+  batch_size: 128
+  learning_rate: 0.001
+  optimizer: adam
+  scheduler: plateau  # ReduceLROnPlateau хорош для регрессии
+  early_stopping: 15
+
+sequence:
+  stride: 1
+  predict_horizon: 1  # Предсказываем следующий шаг
+
+advanced:
+  device: auto
+  mixed_precision: true
+  gradient_clip: 1.0
+
+description: "GRU для регрессионных задач"

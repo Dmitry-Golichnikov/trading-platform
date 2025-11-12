@@ -1,0 +1,33 @@
+# Конфигурация LSTM модели по умолчанию
+
+model_type: lstm
+task: classification  # classification или regression
+
+architecture:
+  input_size: auto  # Определяется автоматически из данных
+  hidden_size: 128
+  num_layers: 2
+  seq_length: 50  # Длина последовательности
+  output_size: 1  # 1 для бинарной классификации
+  dropout: 0.2
+  bidirectional: false
+
+training:
+  epochs: 100
+  batch_size: 128
+  learning_rate: 0.001
+  optimizer: adam  # adam, adamw, sgd
+  scheduler: onecycle  # onecycle, cosine, plateau, null
+  early_stopping: 10  # Patience
+
+sequence:
+  stride: 1  # Шаг sliding window
+  predict_horizon: 0  # Горизонт предсказания (0 = следующий шаг)
+
+advanced:
+  device: auto  # auto, cuda, cpu
+  mixed_precision: true
+  gradient_clip: 1.0
+
+# Описание
+description: "LSTM модель для временных рядов - базовая конфигурация"
