@@ -915,6 +915,43 @@ class ModelRegistry:
         return model_class(**kwargs)
 
     @classmethod
+    def get_model(cls, name: str) -> Type[BaseModel]:
+        """
+        Получить класс модели по имени без создания экземпляра.
+
+        Args:
+            name: Имя зарегистрированной модели
+
+        Returns:
+            Класс модели
+
+        Raises:
+            ValueError: Если модель не зарегистрирована
+
+        Примеры:
+            >>> model_cls = ModelRegistry.get_model("lightgbm")
+            >>> model = model_cls(n_estimators=100)
+        """
+        cls._autodiscover_models(reason="get_model")
+        cls._ensure_model_loaded(name)
+
+        if name not in cls._models:
+            available = ", ".join(cls._models.keys())
+            raise ValueError(f"Модель '{name}' не зарегистрирована. " f"Доступные модели: {available}")
+
+        model_class = cls._models[name]
+
+        if getattr(model_class, "_is_placeholder", False):
+            resolved_class = cls._resolve_placeholder(name)
+            if resolved_class is not None:
+                model_class = resolved_class
+                cls._models[name] = resolved_class
+            else:
+                raise ImportError(f"Модель '{name}' недоступна и не имеет доступной fallback-реализации.")
+
+        return model_class
+
+    @classmethod
     def get_all(cls) -> Dict[str, Type[BaseModel]]:
         """
         Получить все зарегистрированные модели.

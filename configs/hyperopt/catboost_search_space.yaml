@@ -1,0 +1,55 @@
+# CatBoost Hyperparameter Search Space
+
+model_type: catboost
+metric_name: roc_auc
+direction: maximize
+
+optimizer_type: random
+optimizer_config:
+  n_trials: 100
+  timeout: 3600
+
+search_space:
+  # Tree depth
+  depth:
+    type: int
+    low: 4
+    high: 10
+
+  # Learning rate
+  learning_rate:
+    type: float
+    low: 0.001
+    high: 0.3
+    log: true
+
+  # L2 regularization
+  l2_leaf_reg:
+    type: float
+    low: 1.0
+    high: 10.0
+
+  # Bagging temperature for Bayesian bootstrap
+  bagging_temperature:
+    type: float
+    low: 0.0
+    high: 1.0
+
+  # Border count for numerical features
+  border_count:
+    type: int
+    low: 32
+    high: 255
+
+  # Random strength
+  random_strength:
+    type: float
+    low: 0.0
+    high: 10.0
+
+fixed_params:
+  iterations: 1000
+  random_state: 42
+  verbose: false
+  early_stopping_rounds: 50
+  eval_metric: AUC

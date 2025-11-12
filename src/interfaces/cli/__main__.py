@@ -4,6 +4,7 @@ import click
 
 from src.interfaces.cli.data_commands import cli as data_cli
 from src.interfaces.cli.feature_commands import features as features_cli
+from src.interfaces.cli.hyperopt_commands import hyperopt_group
 from src.interfaces.cli.labeling_commands import labels as labels_cli
 
 
@@ -17,6 +18,7 @@ def cli():
 cli.add_command(data_cli, name="data")
 cli.add_command(features_cli, name="features")
 cli.add_command(labels_cli, name="labels")
+cli.add_command(hyperopt_group, name="hyperopt")
 
 
 if __name__ == "__main__":  # pragma: no cover

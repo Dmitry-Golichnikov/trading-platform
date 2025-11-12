@@ -226,7 +226,7 @@ class LightGBMModel(BaseModel, ClassifierMixin, RegressorMixin):
                 predictions = np.argmax(proba, axis=1)
 
             # Маппинг обратно к оригинальным меткам классов
-            if self._classes.size > 0:
+            if self._classes is not None and self._classes.size > 0:
                 predictions = self._classes[predictions]
 
             return predictions
@@ -279,7 +279,7 @@ class LightGBMModel(BaseModel, ClassifierMixin, RegressorMixin):
             "task": self.task,
             "hyperparams": self.hyperparams,
             "metadata": self.metadata,
-            "classes": self._classes.tolist() if self._classes.size > 0 else None,
+            "classes": self._classes.tolist() if self._classes is not None and self._classes.size > 0 else None,
             "feature_names": self._feature_names,
         }
 

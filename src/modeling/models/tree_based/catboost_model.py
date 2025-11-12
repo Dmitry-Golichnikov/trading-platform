@@ -251,7 +251,7 @@ class CatBoostModel(BaseModel, ClassifierMixin, RegressorMixin):
         predictions = self.model.predict(X)
 
         # Для классификации маппим обратно к оригинальным классам
-        if self.task == "classification" and self._classes.size > 0:
+        if self.task == "classification" and self._classes is not None and self._classes.size > 0:
             if len(self._classes) == 2:
                 predictions = self._classes[predictions.astype(int).flatten()]
 
@@ -304,7 +304,7 @@ class CatBoostModel(BaseModel, ClassifierMixin, RegressorMixin):
             "task": self.task,
             "hyperparams": self.hyperparams,
             "metadata": self.metadata,
-            "classes": self._classes.tolist() if self._classes.size > 0 else None,
+            "classes": self._classes.tolist() if self._classes is not None and self._classes.size > 0 else None,
             "feature_names": self._feature_names,
             "cat_features": self.cat_features,
         }

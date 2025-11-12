@@ -1,0 +1,52 @@
+# Random Forest Hyperparameter Search Space
+
+model_type: random_forest
+metric_name: roc_auc
+direction: maximize
+
+optimizer_type: grid
+optimizer_config:
+  timeout: 1800
+
+search_space:
+  # Number of trees
+  n_estimators:
+    type: int
+    low: 50
+    high: 500
+    step: 50
+
+  # Maximum depth
+  max_depth:
+    type: int
+    low: 5
+    high: 30
+    step: 5
+
+  # Minimum samples to split
+  min_samples_split:
+    type: int
+    low: 2
+    high: 20
+    step: 2
+
+  # Minimum samples in leaf
+  min_samples_leaf:
+    type: int
+    low: 1
+    high: 10
+    step: 1
+
+  # Maximum features
+  max_features:
+    type: categorical
+    choices: ["sqrt", "log2", 0.5, 0.7, 1.0]
+
+  # Bootstrap
+  bootstrap:
+    type: categorical
+    choices: [true, false]
+
+fixed_params:
+  random_state: 42
+  n_jobs: -1

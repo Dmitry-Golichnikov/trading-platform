@@ -215,13 +215,13 @@ class XGBoostModel(BaseModel, ClassifierMixin, RegressorMixin):
             # Бинарная классификация — preds содержит вероятность положительного класса
             if preds.ndim == 1:
                 labels = (preds >= 0.5).astype(int)
-                if self._classes.size > 0:
+                if self._classes is not None and self._classes.size > 0:
                     return self._classes[labels]
                 return labels
             else:
                 # Мультиклассовая предсказания shape (n_samples, n_classes)
                 labels = np.argmax(preds, axis=1)
-                if self._classes.size > 0:
+                if self._classes is not None and self._classes.size > 0:
                     return self._classes[labels]
                 return labels
         else:
@@ -278,7 +278,7 @@ class XGBoostModel(BaseModel, ClassifierMixin, RegressorMixin):
             "task": self.task,
             "hyperparams": self.hyperparams,
             "metadata": self.metadata,
-            "classes": self._classes.tolist() if self._classes.size > 0 else None,
+            "classes": self._classes.tolist() if self._classes is not None and self._classes.size > 0 else None,
             "feature_names": self._feature_names,
         }
 

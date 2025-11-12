@@ -207,7 +207,7 @@ class RandomForestModel(BaseModel, ClassifierMixin, RegressorMixin):
             "task": self.task,
             "hyperparams": self.hyperparams,
             "metadata": self.metadata,
-            "classes": self._classes.tolist() if self._classes.size > 0 else None,
+            "classes": self._classes.tolist() if self._classes is not None and self._classes.size > 0 else None,
             "feature_names": self._feature_names,
         }
 
