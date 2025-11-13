@@ -1,0 +1,104 @@
+# Full Pipeline Configuration Example
+# Полный end-to-end пайплайн от данных до бэктеста
+
+name: full_training_backtest_pipeline
+description: End-to-end pipeline from data to backtest
+
+# Checkpoints configuration
+checkpoints:
+  enabled: true
+  dir: artifacts/checkpoints/full_pipeline
+
+# Output directory for reports
+output_dir: artifacts/reports
+
+# Enable/disable steps
+run_data_preparation: true
+run_feature_engineering: true
+run_normalization: true
+run_feature_selection: true
+run_labeling: true
+run_training: true
+run_validation: true
+run_backtest: true
+
+# Step 1: Data Preparation
+data_preparation:
+  ticker: SBER
+  timeframe: 5m
+  from_date: 2020-01-01
+  to_date: 2023-12-31
+  source_type: local  # or 'api'
+  validate_data: true
+  backfill_missing: true
+  update_latest_year: true
+
+# Step 2: Feature Engineering
+feature_engineering:
+  feature_config: configs/features/default.yaml
+  cache: true
+
+# Step 3: Normalization
+normalization:
+  method: standard  # standard, robust, minmax
+  exclude_columns:
+    - timestamp
+    - ticker
+    - target
+
+# Step 4: Feature Selection
+feature_selection:
+  method: importance  # importance, correlation, variance
+  n_features: 50
+  target_column: target
+
+# Step 5: Labeling
+labeling:
+  method: triple_barrier  # horizon, triple_barrier
+  upper_barrier: 0.02
+  lower_barrier: 0.02
+  time_barrier: 20
+  balance_method: null  # undersample, oversample, smote, null
+
+# Step 6: Training
+training:
+  model_type: lightgbm
+  model_config:
+    n_estimators: 100
+    max_depth: 5
+    learning_rate: 0.05
+    random_state: 42
+  trainer_config:
+    early_stopping_rounds: 10
+    verbose: true
+  target_column: target
+  exclude_columns:
+    - timestamp
+    - ticker
+  test_size: 0.15
+  val_size: 0.15
+  random_state: 42
+
+# Step 7: Validation
+validation:
+  validation_method: simple  # simple, walk_forward, cv
+  target_column: target
+  exclude_columns:
+    - timestamp
+    - ticker
+
+# Step 8: Backtest
+backtest:
+  strategy_type: model_based
+  strategy_config:
+    threshold: 0.5
+  initial_capital: 100000.0
+  commission: 0.001
+  slippage: 0.0005
+  generate_report: true
+
+# Reporting
+reporting:
+  formats:
+    - html
+    - json

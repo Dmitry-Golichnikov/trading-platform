@@ -1,0 +1,53 @@
+# Feature Pipeline
+# Пайплайн для генерации и обработки признаков
+
+name: feature_pipeline
+description: Feature engineering and selection
+
+checkpoints:
+  enabled: true
+  dir: artifacts/checkpoints/feature_pipeline
+
+output_dir: artifacts/reports
+
+# Включаем только шаги работы с признаками
+run_data_preparation: false
+run_feature_engineering: true
+run_normalization: true
+run_feature_selection: true
+run_labeling: true
+run_training: false
+run_validation: false
+run_backtest: false
+
+# Feature Engineering
+feature_engineering:
+  data_path: artifacts/data/SBER/5m/data.parquet
+  feature_config: configs/features/full.yaml
+  output_path: artifacts/features/features_raw.parquet
+  cache: true
+
+# Normalization
+normalization:
+  method: robust
+  exclude_columns:
+    - timestamp
+    - ticker
+    - target
+  output_path: artifacts/features/features_normalized.parquet
+  scaler_path: artifacts/models/scaler.pkl
+
+# Feature Selection
+feature_selection:
+  method: importance
+  n_features: 100
+  target_column: target
+  output_path: artifacts/features/features_selected.parquet
+
+# Labeling
+labeling:
+  method: triple_barrier
+  upper_barrier: 0.025
+  lower_barrier: 0.015
+  time_barrier: 30
+  output_path: artifacts/features/labeled_data.parquet

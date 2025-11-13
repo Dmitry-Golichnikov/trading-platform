@@ -1,0 +1,35 @@
+# Backtest Only Pipeline
+# Пайплайн только для бэктестинга (с готовой моделью)
+
+name: backtest_only_pipeline
+description: Run backtest with trained model
+
+checkpoints:
+  enabled: true
+  dir: artifacts/checkpoints/backtest_only
+
+output_dir: artifacts/reports
+
+# Отключаем все кроме бэктеста
+run_data_preparation: false
+run_feature_engineering: false
+run_normalization: false
+run_feature_selection: false
+run_labeling: false
+run_training: false
+run_validation: false
+run_backtest: true
+
+# Backtest configuration
+backtest:
+  data_path: artifacts/data/SBER/5m/data.parquet
+  model_path: artifacts/models/lightgbm_default.pkl
+  strategy_type: model_based
+  strategy_config:
+    threshold: 0.6
+    min_probability: 0.5
+  initial_capital: 100000.0
+  commission: 0.001
+  slippage: 0.0005
+  output_dir: artifacts/backtests
+  generate_report: true

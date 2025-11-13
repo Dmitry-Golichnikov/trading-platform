@@ -1,0 +1,55 @@
+# Training Only Pipeline
+# Пайплайн только для обучения модели (без подготовки данных)
+
+name: training_only_pipeline
+description: Train model on pre-prepared data
+
+checkpoints:
+  enabled: true
+  dir: artifacts/checkpoints/training_only
+
+output_dir: artifacts/reports
+
+# Отключаем все кроме обучения
+run_data_preparation: false
+run_feature_engineering: false
+run_normalization: false
+run_feature_selection: false
+run_labeling: false
+run_training: true
+run_validation: true
+run_backtest: false
+
+# Training configuration
+training:
+  data_path: artifacts/features/labeled_data.parquet
+  model_type: lightgbm
+  model_config:
+    n_estimators: 200
+    max_depth: 7
+    learning_rate: 0.03
+    num_leaves: 31
+    min_child_samples: 20
+    random_state: 42
+  trainer_config:
+    early_stopping_rounds: 20
+    verbose: true
+  target_column: target
+  exclude_columns:
+    - timestamp
+    - ticker
+  test_size: 0.15
+  val_size: 0.15
+  random_state: 42
+  model_name: lightgbm_default
+
+# Validation configuration
+validation:
+  validation_method: walk_forward
+  window_size: 1000
+  step_size: 100
+  target_column: target
+  exclude_columns:
+    - timestamp
+    - ticker
+  output_dir: artifacts/validation
