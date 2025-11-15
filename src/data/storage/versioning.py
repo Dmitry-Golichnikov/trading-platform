@@ -9,7 +9,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
+import numpy as np
 import pandas as pd
+from pandas.util import hash_pandas_object
 
 from src.common.exceptions import StorageError
 
@@ -50,8 +52,13 @@ class DataVersioning:
         cols = ["timestamp", "open", "high", "low", "close", "volume"]
         available_cols = [c for c in cols if c in data.columns]
 
-        hash_data = data[available_cols].to_json(orient="records", date_format="iso", double_precision=10)
-        return hashlib.sha256(hash_data.encode()).hexdigest()
+        subset = data[available_cols].copy()
+        subset = subset.reset_index(drop=True)
+
+        hash_series = hash_pandas_object(subset, index=False)
+        # Convert to numpy array to ensure tobytes() is available
+        hash_array = np.asarray(hash_series.values)
+        return hashlib.sha256(hash_array.tobytes()).hexdigest()
 
     def save_version(
         self,

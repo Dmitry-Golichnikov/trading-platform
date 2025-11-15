@@ -1,0 +1,47 @@
+# Эксперимент с гиперпараметрической оптимизацией
+
+experiment:
+  name: hyperopt_lightgbm
+  description: Оптимизация гиперпараметров LightGBM
+  tags:
+    task: hyperopt
+    model_type: lightgbm
+    ticker: GAZP
+    timeframe: 4h
+
+data:
+  ticker: GAZP
+  timeframe: 4h
+  train_start: "2019-01-01"
+  train_end: "2023-12-31"
+  test_start: "2024-01-01"
+  test_end: "2024-06-30"
+
+features:
+  config: configs/features/full.yaml
+
+labeling:
+  config: configs/labeling/triple_barrier_atr.yaml
+
+model:
+  type: lightgbm
+  hyperopt:
+    search_space: configs/hyperopt/lightgbm_search_space.yaml
+    n_trials: 50
+    optimization_metric: f1_score
+    optimization_direction: maximize
+    sampler: tpe  # Tree-structured Parzen Estimator
+
+training:
+  validation_split: 0.2
+  random_seed: 42
+  early_stopping_rounds: 30
+
+evaluation:
+  metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1_score
+    - roc_auc
+    - sharpe_ratio

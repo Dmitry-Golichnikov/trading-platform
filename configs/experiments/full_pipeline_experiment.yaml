@@ -1,0 +1,83 @@
+# Полный пайплайн: обучение + бэктест
+
+experiment:
+  name: full_pipeline
+  description: Полный цикл обучения и бэктестинга
+  tags:
+    pipeline: full
+    model_type: xgboost
+    ticker: LKOH
+    timeframe: 1h
+
+data:
+  ticker: LKOH
+  timeframe: 1h
+  train_start: "2019-01-01"
+  train_end: "2023-06-30"
+  val_start: "2023-07-01"
+  val_end: "2023-12-31"
+  test_start: "2024-01-01"
+  test_end: "2024-06-30"
+
+features:
+  config: configs/features/default.yaml
+  selection:
+    method: importance
+    top_k: 50
+
+labeling:
+  config: configs/labeling/long_short.yaml
+
+model:
+  type: xgboost
+  config: configs/models/xgboost_default.yaml
+
+training:
+  validation_split: 0.15
+  random_seed: 42
+  early_stopping_rounds: 50
+  use_gpu: true
+
+evaluation:
+  metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1_score
+    - roc_auc
+    - matthews_corrcoef
+
+backtest:
+  initial_capital: 100000
+  position_size: 1.0
+  commission: 0.0005  # 0.05%
+
+  entry:
+    threshold: 0.6
+
+  exit:
+    take_profit:
+      type: percentage
+      value: 0.03  # 3%
+
+    stop_loss:
+      type: percentage
+      value: 0.02  # 2%
+
+    trailing_stop:
+      enabled: true
+      type: percentage
+      activation: 0.015  # Активация после 1.5%
+      distance: 0.01  # Отступ 1%
+
+    time_stop:
+      max_bars: 48  # Максимум 48 часов (2 дня)
+
+  metrics:
+    - total_return
+    - sharpe_ratio
+    - sortino_ratio
+    - max_drawdown
+    - win_rate
+    - profit_factor
+    - avg_trade_return

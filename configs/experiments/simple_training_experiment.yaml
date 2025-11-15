@@ -1,0 +1,40 @@
+# Простой эксперимент обучения модели
+
+experiment:
+  name: simple_training
+  description: Простое обучение LightGBM на SBER
+  tags:
+    model_type: lightgbm
+    ticker: SBER
+    timeframe: 1h
+
+data:
+  ticker: SBER
+  timeframe: 1h
+  train_start: "2020-01-01"
+  train_end: "2023-12-31"
+  test_start: "2024-01-01"
+  test_end: "2024-06-30"
+
+features:
+  config: configs/features/default.yaml
+
+labeling:
+  config: configs/labeling/long_only.yaml
+
+model:
+  type: lightgbm
+  config: configs/models/lightgbm_default.yaml
+
+training:
+  validation_split: 0.15
+  random_seed: 42
+  early_stopping_rounds: 50
+
+evaluation:
+  metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1_score
+    - roc_auc

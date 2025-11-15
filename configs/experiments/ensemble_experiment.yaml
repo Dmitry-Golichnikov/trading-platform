@@ -1,0 +1,67 @@
+# Эксперимент с ансамблем моделей
+
+experiment:
+  name: ensemble_models
+  description: Ансамбль из нескольких моделей для повышения стабильности
+  tags:
+    ensemble: true
+    tickers: SBER,GAZP,LKOH
+    timeframe: 1h
+
+data:
+  tickers:
+    - SBER
+    - GAZP
+    - LKOH
+  timeframe: 1h
+  train_start: "2020-01-01"
+  train_end: "2023-12-31"
+  test_start: "2024-01-01"
+  test_end: "2024-06-30"
+
+features:
+  config: configs/features/full.yaml
+
+labeling:
+  config: configs/labeling/triple_barrier_atr.yaml
+
+models:
+  - name: lightgbm
+    type: lightgbm
+    config: configs/models/lightgbm_default.yaml
+    weight: 0.4
+
+  - name: xgboost
+    type: xgboost
+    config: configs/models/xgboost_default.yaml
+    weight: 0.3
+
+  - name: catboost
+    type: catboost
+    config: configs/models/catboost_default.yaml
+    weight: 0.3
+
+ensemble:
+  method: weighted_average  # или voting, stacking
+  voting_strategy: soft  # для voting method
+
+training:
+  validation_split: 0.15
+  random_seed: 42
+  early_stopping_rounds: 50
+  cross_validation:
+    enabled: true
+    n_folds: 5
+
+evaluation:
+  metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1_score
+    - roc_auc
+    - sharpe_ratio
+
+  calibration:
+    enabled: true
+    method: isotonic

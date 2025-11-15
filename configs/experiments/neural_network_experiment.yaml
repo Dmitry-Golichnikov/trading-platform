@@ -1,0 +1,73 @@
+# Эксперимент с нейросетевой моделью
+
+experiment:
+  name: lstm_experiment
+  description: Обучение LSTM модели на последовательных данных
+  tags:
+    model_type: lstm
+    architecture: deep
+    ticker: SBER
+    timeframe: 15m
+
+data:
+  ticker: SBER
+  timeframe: 15m
+  train_start: "2020-01-01"
+  train_end: "2023-12-31"
+  test_start: "2024-01-01"
+  test_end: "2024-06-30"
+
+  sequence_length: 60  # 15 часов истории
+
+features:
+  config: configs/features/minimal.yaml
+  normalization:
+    method: robust_scaler
+    feature_range: [-1, 1]
+
+labeling:
+  config: configs/labeling/regression_returns.yaml
+
+model:
+  type: lstm
+  config: configs/models/lstm_deep.yaml
+
+training:
+  batch_size: 64
+  epochs: 100
+  validation_split: 0.2
+  random_seed: 42
+
+  optimizer:
+    type: adam
+    learning_rate: 0.001
+    weight_decay: 0.0001
+
+  scheduler:
+    type: reduce_on_plateau
+    patience: 10
+    factor: 0.5
+    min_lr: 0.00001
+
+  early_stopping:
+    patience: 20
+    min_delta: 0.0001
+
+  callbacks:
+    - model_checkpoint
+    - tensorboard
+    - learning_rate_monitor
+
+  use_gpu: true
+
+evaluation:
+  metrics:
+    - mse
+    - mae
+    - r2_score
+    - directional_accuracy
+
+  visualization:
+    - prediction_vs_actual
+    - residual_plot
+    - learning_curves
