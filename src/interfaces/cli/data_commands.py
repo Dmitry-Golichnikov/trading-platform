@@ -135,7 +135,7 @@ def _generate_report(results: Sequence["PipelineResult"]) -> Path:
 
 @click.group(help="Команды для работы с модулем данных")
 def data() -> None:
-    """Группа CLI команд."""
+    """Команды для работы с данными."""
 
 
 @data.command("load-data", help="Загрузить данные и сохранить в хранилище")
@@ -844,9 +844,9 @@ def compare_datasets(datasets: str, output: Path) -> None:
     console.print(f"[green]Отчёт сравнения сохранён:[/green] {output.as_posix()}")
 
 
-@click.group(help="Корневая CLI-группа")
+@click.group(help="Корневая CLI-группа с данными")
 def cli() -> None:
-    """Корневой CLI, включает команды data.* как прямые подкоманды."""
+    """Корневая CLI-группа данных."""
 
 
 # Добавить группу data как подкоманду root CLI

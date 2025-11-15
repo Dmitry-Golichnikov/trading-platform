@@ -10,6 +10,7 @@ from rich.table import Table
 
 from src.data.storage.parquet_storage import ParquetStorage
 from src.features import FeatureCache, FeatureGenerator
+from src.features.config_parser import parse_feature_config
 
 console = Console()
 
@@ -275,8 +276,6 @@ def validate_config(config_path: Path):
           configs/features/default.yaml
     """
     try:
-        from src.features.config_parser import parse_feature_config
-
         console.print(f"[cyan]Валидация конфигурации {config_path}...[/cyan]")
 
         # Парсим и валидируем

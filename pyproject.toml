@@ -17,6 +17,9 @@ keywords = [
     "backtesting",
     "finance",
 ]
+
+[project.scripts]
+trading-cli = "src.interfaces.cli.__main__:cli"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
