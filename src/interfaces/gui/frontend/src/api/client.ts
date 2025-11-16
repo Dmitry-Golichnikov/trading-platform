@@ -6,7 +6,6 @@
 import axios from 'axios';
 import type {
   DatasetInfo,
-  DatasetDataResponse,
   ExperimentInfo,
   ModelInfo,
   BacktestResult,
@@ -59,7 +58,7 @@ export const datasetsAPI = {
     apiClient.get<DatasetInfo>(`/api/datasets/${datasetId}`),
 
   getData: (datasetId: string, params?: { start_date?: string; end_date?: string; limit?: number }) =>
-    apiClient.get<DatasetDataResponse>(`/api/datasets/${datasetId}/data`, { params }),
+    apiClient.get(`/api/datasets/${datasetId}/data`, { params }),
 
   getQuality: (datasetId: string) =>
     apiClient.get(`/api/datasets/${datasetId}/quality`),

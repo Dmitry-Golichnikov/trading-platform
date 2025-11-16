@@ -7,7 +7,6 @@ API endpoints for dataset operations.
 from typing import List, Optional
 
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 from src.interfaces.gui.backend.api.models import DatasetInfo, DatasetQualityReport
@@ -43,19 +42,24 @@ async def get_dataset_data(
     dataset_id: str,
     start_date: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
     end_date: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
-    limit: int = Query(1000, description="Max rows to return"),
+    limit: int = Query(-1, description="Max rows to return (-1 for all)"),
 ):
     """Get dataset data"""
     try:
         df = dataset_service.get_dataset_data(dataset_id, start_date=start_date, end_date=end_date, limit=limit)
 
-        payload = {
-            "dataset_id": dataset_id,
-            "num_rows": len(df),
-            "columns": list(df.columns),
-            "data": df.reset_index().to_dict(orient="records"),
-        }
-        return JSONResponse(content=jsonable_encoder(payload))
+        # Convert to JSON-serializable format
+        df_reset = df.reset_index()
+
+        # Convert timestamps to ISO format strings
+        if "timestamp" in df_reset.columns:
+            df_reset["timestamp"] = df_reset["timestamp"].dt.strftime("%Y-%m-%d %H:%M:%S")
+
+        data = df_reset.to_dict(orient="records")
+
+        return JSONResponse(
+            content={"dataset_id": dataset_id, "num_rows": len(data), "columns": list(df.columns), "data": data}
+        )
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:

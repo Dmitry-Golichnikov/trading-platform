@@ -314,8 +314,7 @@ class FeatureService:
                 and existing_metadata.get("dataset_hash") == dataset_hash
             )
 
-        if incremental_allowed:
-            assert existing_metadata is not None
+        if incremental_allowed and existing_metadata is not None:
             previous_df = self._load_existing_features(feature_set_id)
             last_ts_raw = existing_metadata.get("last_processed_timestamp")
             if last_ts_raw:
@@ -329,13 +328,13 @@ class FeatureService:
             # Nothing new to compute
             if progress_callback:
                 progress_callback(total_rows, total_rows, "Dataset already up to date", None)
-            if existing_metadata:
+            if existing_metadata is not None:
                 existing_metadata["updated_at"] = datetime.now().isoformat()
                 existing_metadata["status"] = "completed"
                 self._save_metadata(feature_set_id, existing_metadata)
                 feature_info = self.get_feature_set(feature_set_id)
-                if not feature_info:
-                    raise RuntimeError("Feature metadata missing after generation")
+                if feature_info is None:
+                    raise RuntimeError("Feature set metadata missing after update")
                 return feature_info
             # Should not reach here because target empty implies metadata exists
             raise ValueError("No data to process and no existing feature set found")
@@ -395,7 +394,7 @@ class FeatureService:
 
         self._write_features(feature_set_id, combined_df)
 
-        metadata = existing_metadata or {}
+        metadata = dict(existing_metadata) if existing_metadata is not None else {}
         now = datetime.now().isoformat()
         metadata.update(
             {

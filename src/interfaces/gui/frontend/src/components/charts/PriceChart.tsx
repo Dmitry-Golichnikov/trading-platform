@@ -16,37 +16,22 @@ interface PriceChartProps {
   title?: string;
   height?: number;
   showVolume?: boolean;
-  variant?: 'candles' | 'line';
 }
 
 export default function PriceChart({
   data,
   title = 'Price Chart',
   height = 500,
-  showVolume = true,
-  variant = 'candles'
+  showVolume = true
 }: PriceChartProps) {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
-  const isLineVariant = variant === 'line';
-  const showVolumeTrace = showVolume && !isLineVariant;
 
   const plotData = useMemo(() => {
     if (!data || data.length === 0) return [];
 
-    const traces: any[] = [];
-
-    if (isLineVariant) {
-      traces.push({
-        x: data.map(d => d.timestamp),
-        y: data.map(d => d.close),
-        type: 'scatter' as const,
-        mode: 'lines',
-        name: 'Close',
-        line: { color: '#42a5f5', width: 2 },
-      });
-    } else {
-      traces.push({
+    const traces: any[] = [
+      {
         x: data.map(d => d.timestamp),
         open: data.map(d => d.open),
         high: data.map(d => d.high),
@@ -57,10 +42,10 @@ export default function PriceChart({
         yaxis: 'y',
         increasing: { line: { color: '#26a69a' } },
         decreasing: { line: { color: '#ef5350' } },
-      });
-    }
+      },
+    ];
 
-    if (showVolumeTrace && data[0]?.volume !== undefined) {
+    if (showVolume && data[0]?.volume !== undefined) {
       traces.push({
         x: data.map(d => d.timestamp),
         y: data.map(d => d.volume),
@@ -74,7 +59,7 @@ export default function PriceChart({
     }
 
     return traces;
-  }, [data, isLineVariant, showVolumeTrace]);
+  }, [data, showVolume]);
 
   const layout = useMemo(() => ({
     title: title,
@@ -92,17 +77,17 @@ export default function PriceChart({
     },
     yaxis: {
       title: 'Price',
-      domain: showVolumeTrace ? [0.3, 1] : [0, 1],
+      domain: showVolume ? [0.3, 1] : [0, 1],
       gridcolor: isDark ? '#333' : '#e0e0e0',
     },
-    ...(showVolumeTrace && {
+    ...(showVolume && {
       yaxis2: {
         title: 'Volume',
         domain: [0, 0.2],
         gridcolor: isDark ? '#333' : '#e0e0e0',
       },
     }),
-  }), [title, height, isDark, showVolumeTrace]);
+  }), [title, height, isDark, showVolume]);
 
   if (!data || data.length === 0) {
     return (

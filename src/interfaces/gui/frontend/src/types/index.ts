@@ -17,13 +17,6 @@ export interface DatasetInfo {
   metadata: Record<string, any>;
 }
 
-export interface DatasetDataResponse {
-  dataset_id: string;
-  num_rows: number;
-  columns: string[];
-  data: Array<Record<string, any>>;
-}
-
 export interface ExperimentInfo {
   id: string;
   name: string;
