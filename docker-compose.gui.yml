@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Backend API
+  gui-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: trading-platform-gui-backend
+    command: python -m src.interfaces.gui.backend.main
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src
+      - ./configs:/app/configs
+      - ./artifacts:/app/artifacts
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    networks:
+      - trading-network
+    restart: unless-stopped
+
+  # Frontend
+  gui-frontend:
+    image: node:18-alpine
+    container_name: trading-platform-gui-frontend
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./src/interfaces/gui/frontend:/app
+    environment:
+      - VITE_API_URL=http://localhost:8000
+      - VITE_WS_URL=ws://localhost:8000
+    networks:
+      - trading-network
+    restart: unless-stopped
+    depends_on:
+      - gui-backend
+
+  # Nginx (for production)
+  nginx:
+    image: nginx:alpine
+    container_name: trading-platform-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./src/interfaces/gui/frontend/dist:/usr/share/nginx/html
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - trading-network
+    restart: unless-stopped
+    depends_on:
+      - gui-backend
+      - gui-frontend
+    profiles:
+      - production
+
+networks:
+  trading-network:
+    driver: bridge

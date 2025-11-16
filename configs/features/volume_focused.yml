@@ -1,0 +1,76 @@
+# Volume-Focused Indicators Configuration
+#
+# Configuration emphasizing volume-based indicators
+# for analyzing trading activity and liquidity
+
+indicators:
+  # Basic Volume Metrics
+  - name: VolumeMA
+    params:
+      period: 20
+
+  - name: VolumeChange
+    params:
+      period: 1
+
+  # Volume Indicators
+  - name: OBV
+    params: {}
+
+  - name: VWAP
+    params: {}
+
+  - name: ChaikinMoneyFlow
+    params:
+      period: 20
+
+  - name: MoneyFlowIndex
+    params:
+      period: 14
+
+  - name: AccumulationDistribution
+    params: {}
+
+  - name: ElderForceIndex
+    params:
+      period: 13
+
+  # Volume Profile
+  - name: VolumeProfile
+    params:
+      bins: 20
+
+  # Price + Volume
+  - name: MoneyVolume
+    params: {}
+
+  # Basic Price Indicators (for context)
+  - name: SMA
+    params:
+      period: 20
+
+  - name: RSI
+    params:
+      period: 14
+
+# Feature Transformations
+transformers:
+  # Volume lags
+  - type: lags
+    params:
+      lags: [1, 2, 3, 5]
+      columns: [volume, OBV, MoneyVolume]
+
+  # Volume rolling statistics
+  - type: rolling
+    params:
+      windows: [5, 10, 20]
+      functions: [mean, std, sum]
+      columns: [volume, MoneyVolume]
+
+  # Volume ratios
+  - type: ratios
+    params:
+      columns:
+        - [volume, VolumeMA_20]
+        - [MoneyVolume, MoneyVolumeMA_20]
