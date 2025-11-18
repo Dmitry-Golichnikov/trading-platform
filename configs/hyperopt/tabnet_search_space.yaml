@@ -1,0 +1,60 @@
+# TabNet Hyperparameter Search Space
+
+model_type: tabnet
+metric_name: roc_auc
+direction: maximize
+
+optimizer_type: bayesian
+optimizer_config:
+  n_trials: 50
+  timeout: 7200
+
+search_space:
+  # Width of the decision prediction layer
+  n_d:
+    type: categorical
+    choices: [8, 16, 32, 64]
+
+  # Width of the attention embedding
+  n_a:
+    type: categorical
+    choices: [8, 16, 32, 64]
+
+  # Number of steps in the architecture
+  n_steps:
+    type: int
+    low: 3
+    high: 10
+
+  # Coefficient for feature reusage
+  gamma:
+    type: float
+    low: 1.0
+    high: 2.0
+
+  # Learning rate
+  learning_rate:
+    type: float
+    low: 0.001
+    high: 0.1
+    log: true
+
+  # Lambda for sparsity regularization
+  lambda_sparse:
+    type: float
+    low: 0.0
+    high: 0.01
+
+  # Momentum
+  momentum:
+    type: float
+    low: 0.01
+    high: 0.4
+
+fixed_params:
+  n_independent: 2
+  n_shared: 2
+  seed: 42
+  verbose: 0
+  patience: 20
+  max_epochs: 100

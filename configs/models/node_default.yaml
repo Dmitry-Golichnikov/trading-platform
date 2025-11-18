@@ -1,0 +1,39 @@
+# NODE (Neural Oblivious Decision Ensembles) дефолтная конфигурация
+
+model_type: node
+task: classification  # или regression
+
+hyperparameters:
+  # Архитектура
+  num_layers: 4  # количество слоёв деревьев
+  num_trees: 2048  # количество деревьев в ансамбле
+  depth: 6  # глубина каждого дерева
+
+  # Choice и Bin functions
+  choice_function: entmax15  # entmax15 или sparsemax
+  bin_function: entmoid15  # entmoid15 или sparsemoid
+
+  # Optimizer
+  learning_rate: 1e-3
+  weight_decay: 1e-5
+
+  # Batch
+  batch_size: 256
+
+  # Обучение
+  max_epochs: 100
+  patience: 15  # early stopping patience
+
+# Устройство
+device: cpu  # cpu или cuda
+
+# Логирование
+logging:
+  verbose: 1
+
+# Примечания
+notes:
+  - "num_trees влияет на capacity модели"
+  - "depth контролирует сложность деревьев"
+  - "Увеличьте num_trees для больших датасетов"
+  - "NODE работает как ансамбль дифференцируемых деревьев"

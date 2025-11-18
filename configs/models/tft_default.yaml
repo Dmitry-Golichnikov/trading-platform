@@ -1,0 +1,32 @@
+# Конфигурация TFT (Temporal Fusion Transformer) упрощённой версии
+
+model_type: tft
+task: classification
+
+architecture:
+  input_size: auto
+  hidden_size: 128
+  num_layers: 2
+  seq_length: 50
+  output_size: 1
+  num_heads: 4  # Multi-head attention
+  dropout: 0.1
+
+training:
+  epochs: 150
+  batch_size: 64
+  learning_rate: 0.0005
+  optimizer: adamw
+  scheduler: cosine
+  early_stopping: 20
+
+sequence:
+  stride: 1
+  predict_horizon: 0
+
+advanced:
+  device: auto
+  mixed_precision: true
+  gradient_clip: 1.0
+
+description: "Simplified TFT - мощная transformer-based модель"

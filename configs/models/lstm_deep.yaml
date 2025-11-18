@@ -1,0 +1,32 @@
+# Конфигурация Deep LSTM для сложных задач
+
+model_type: lstm
+task: classification
+
+architecture:
+  input_size: auto
+  hidden_size: 256
+  num_layers: 4  # Глубокая сеть
+  seq_length: 100  # Длинная последовательность
+  output_size: 1
+  dropout: 0.3
+  bidirectional: false
+
+training:
+  epochs: 150
+  batch_size: 64
+  learning_rate: 0.0005
+  optimizer: adamw
+  scheduler: cosine
+  early_stopping: 20
+
+sequence:
+  stride: 1
+  predict_horizon: 0
+
+advanced:
+  device: auto
+  mixed_precision: true
+  gradient_clip: 0.5
+
+description: "Deep LSTM для сложных паттернов с длинными зависимостями"

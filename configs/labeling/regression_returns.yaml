@@ -1,0 +1,21 @@
+# Конфигурация разметки: Regression Targets
+# Для регрессионных моделей - предсказание будущих returns
+
+method: regression
+
+params:
+  # Тип таргета
+  target_type: future_return
+
+  # Горизонт
+  horizon: 20
+
+  # Тип цены
+  price_type: close
+
+  # Нормализация
+  normalize: true  # Z-score нормализация
+
+# Постфильтры не применяются для регрессии
+
+# Балансировка не применяется для регрессии

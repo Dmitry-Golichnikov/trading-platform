@@ -1,0 +1,6 @@
+# GPU профиль зависимостей
+-r base.txt
+
+# PyTorch устанавливается через conda
+# Команда для установки (выполните перед pip install -r requirements/gpu.txt):
+#   conda install pytorch torchvision torchaudio -c pytorch -c nvidia

@@ -1,0 +1,38 @@
+# CatBoost дефолтная конфигурация
+
+model_type: catboost
+task: classification  # или regression
+
+hyperparameters:
+  # Основные параметры
+  loss_function: Logloss  # Logloss, MultiClass, RMSE
+  eval_metric: AUC  # AUC, Accuracy, RMSE
+
+  # Параметры дерева
+  iterations: 1000
+  depth: 6
+
+  # Обучение
+  learning_rate: 0.05
+
+  # Регуляризация
+  l2_leaf_reg: 3
+  bagging_temperature: 1
+
+  # Другое
+  random_seed: 42
+  task_type: CPU  # CPU или GPU
+  verbose: false
+  allow_writing_files: false
+
+# Категориальные признаки
+categorical_features: []  # список категориальных признаков
+
+# Early stopping
+early_stopping:
+  enabled: true
+  rounds: 50
+
+# Логирование
+logging:
+  verbose: false

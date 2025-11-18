@@ -1,0 +1,43 @@
+# XGBoost дефолтная конфигурация
+
+model_type: xgboost
+task: classification  # или regression
+
+hyperparameters:
+  # Основные параметры
+  objective: binary:logistic  # binary:logistic, multi:softprob, reg:squarederror
+  eval_metric: auc  # auc, logloss, rmse
+
+  # Параметры дерева
+  max_depth: 6
+  min_child_weight: 1
+  gamma: 0
+
+  # Обучение
+  learning_rate: 0.05
+  n_estimators: 1000
+
+  # Sampling
+  subsample: 0.8
+  colsample_bytree: 0.8
+  colsample_bylevel: 1.0
+  colsample_bynode: 1.0
+
+  # Регуляризация
+  reg_alpha: 0  # L1
+  reg_lambda: 1  # L2
+
+  # Другое
+  tree_method: auto  # auto, hist, gpu_hist
+  random_state: 42
+  n_jobs: -1
+
+# Early stopping
+early_stopping:
+  enabled: true
+  rounds: 50
+  verbose: false
+
+# Логирование
+logging:
+  verbose: false

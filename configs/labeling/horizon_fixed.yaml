@@ -1,0 +1,36 @@
+# Конфигурация разметки: Fixed Horizon
+# Фиксированный горизонт для быстрой разметки
+
+method: horizon
+
+params:
+  # Фиксированный горизонт
+  horizon: 20  # 20 баров вперёд
+
+  # Направление
+  direction: long+short
+
+  # Порог для разметки
+  threshold_pct: 0.01  # 1%
+
+  # Тип цены
+  price_type: close
+
+# Постфильтры
+filters:
+  # 1. Медианное сглаживание
+  - type: smoothing
+    params:
+      method: median
+      window: 3
+
+  # 2. Минимальная длина последовательности
+  - type: sequence
+    params:
+      min_length: 2
+      neutral_label: 0
+
+# Балансировка
+balancing:
+  method: class_weights
+  strategy: balanced

@@ -1,0 +1,33 @@
+# Конфигурация Seq2Seq с Attention
+
+model_type: seq2seq_attention
+task: classification
+
+architecture:
+  input_size: auto
+  hidden_size: 128
+  num_layers: 2
+  seq_length: 50
+  output_size: 1
+  dropout: 0.2
+  attention_type: bahdanau  # bahdanau или luong
+  cell_type: lstm  # lstm или gru
+
+training:
+  epochs: 100
+  batch_size: 64
+  learning_rate: 0.001
+  optimizer: adam
+  scheduler: onecycle
+  early_stopping: 15
+
+sequence:
+  stride: 1
+  predict_horizon: 0
+
+advanced:
+  device: auto
+  mixed_precision: true
+  gradient_clip: 1.0
+
+description: "Seq2Seq с Attention mechanism для сложных паттернов"

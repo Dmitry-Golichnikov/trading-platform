@@ -1,0 +1,48 @@
+# Default Technical Indicators Configuration
+#
+# This configuration includes commonly used technical indicators
+# for price and volume analysis
+
+indicators:
+  # Trend Indicators
+  - name: SMA
+    params:
+      period: 20
+
+  - name: EMA
+    params:
+      period: 20
+
+  - name: MACD
+    params:
+      fast: 12
+      slow: 26
+      signal: 9
+
+  # Momentum Indicators
+  - name: RSI
+    params:
+      period: 14
+
+  # Volatility Indicators
+  - name: BollingerBands
+    params:
+      period: 20
+      std_dev: 2
+
+  - name: ATR
+    params:
+      period: 14
+
+# Feature Transformations
+transformers:
+  # Time-shifted features (lags)
+  - type: lags
+    params:
+      lags: [1, 2, 3, 5, 10]
+
+  # Rolling window statistics
+  - type: rolling
+    params:
+      windows: [5, 10, 20]
+      functions: [mean, std]

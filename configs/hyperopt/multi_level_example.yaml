@@ -1,0 +1,99 @@
+# Multi-level Hierarchical Optimization Example
+
+metric_name: roc_auc
+direction: maximize
+
+# Optimization levels (executed in order)
+levels:
+  # Level 1: Data preparation
+  - name: data_prep
+    optimizer_type: random
+    optimizer_config:
+      n_trials: 20
+      timeout: 600
+    search_space:
+      # Outlier filter threshold
+      outlier_threshold:
+        type: float
+        low: 2.0
+        high: 5.0
+
+      # Minimum samples for filtering
+      min_samples:
+        type: int
+        low: 100
+        high: 1000
+
+  # Level 2: Feature selection
+  - name: feature_selection
+    optimizer_type: bayesian
+    optimizer_config:
+      n_trials: 30
+      timeout: 900
+    search_space:
+      # Number of features to keep
+      n_features_to_select:
+        type: int
+        low: 10
+        high: 100
+
+      # Feature selection method
+      selection_method:
+        type: categorical
+        choices: ["mutual_info", "f_classif", "chi2"]
+
+  # Level 3: Model architecture
+  - name: model_architecture
+    optimizer_type: random
+    optimizer_config:
+      n_trials: 20
+      timeout: 600
+    search_space:
+      # Model type
+      model_type:
+        type: categorical
+        choices: ["lightgbm", "xgboost", "catboost"]
+
+  # Level 4: Model hyperparameters
+  - name: model_hyperparams
+    optimizer_type: bayesian
+    optimizer_config:
+      n_trials: 50
+      timeout: 1800
+    search_space:
+      # Learning rate
+      learning_rate:
+        type: float
+        low: 0.001
+        high: 0.3
+        log: true
+
+      # Tree depth
+      max_depth:
+        type: int
+        low: 3
+        high: 10
+
+      # Regularization
+      reg_lambda:
+        type: float
+        low: 0.0
+        high: 10.0
+
+  # Level 5: Training parameters
+  - name: training_params
+    optimizer_type: random
+    optimizer_config:
+      n_trials: 20
+      timeout: 600
+    search_space:
+      # Batch size
+      batch_size:
+        type: categorical
+        choices: [32, 64, 128, 256]
+
+      # Early stopping rounds
+      early_stopping_rounds:
+        type: int
+        low: 10
+        high: 100

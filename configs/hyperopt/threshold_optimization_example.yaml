@@ -1,0 +1,28 @@
+# Threshold Optimization Configuration
+
+# Trading parameters
+trading:
+  take_profit: 0.02  # 2%
+  stop_loss: 0.01    # 1%
+  commission: 0.001  # 0.1%
+
+# Constraints
+constraints:
+  min_trades: 50         # Minimum number of trades
+  max_drawdown: 0.15     # Maximum drawdown (15%)
+  min_sharpe: 0.5        # Minimum Sharpe ratio
+  min_win_rate: 0.45     # Minimum win rate (45%)
+  risk_penalty: 0.1      # Penalty for risk (multiplied by drawdown)
+
+# Threshold search
+threshold_search:
+  min_threshold: 0.3     # Minimum threshold to try
+  max_threshold: 0.9     # Maximum threshold to try
+  n_thresholds: 100      # Number of thresholds to evaluate
+
+# Output
+output:
+  save_plot: true
+  plot_path: "artifacts/threshold_optimization/threshold_curve.png"
+  save_results: true
+  results_path: "artifacts/threshold_optimization/results.yaml"

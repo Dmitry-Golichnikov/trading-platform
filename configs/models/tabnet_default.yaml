@@ -1,0 +1,49 @@
+# TabNet дефолтная конфигурация
+
+model_type: tabnet
+task: classification  # или regression
+
+hyperparameters:
+  # Архитектура
+  n_d: 8  # dimension of decision prediction layer
+  n_a: 8  # dimension of attention embedding
+  n_steps: 3  # number of sequential attention steps
+  gamma: 1.3  # coefficient for feature reusage in attention
+
+  # Слои
+  n_independent: 2  # number of independent GLU layers per step
+  n_shared: 2  # number of shared GLU layers
+
+  # Регуляризация
+  lambda_sparse: 1e-3  # sparsity regularization for attention
+  momentum: 0.02  # momentum for batch norm
+
+  # Optimizer
+  optimizer_fn: Adam  # имя оптимизатора
+  optimizer_params:
+    lr: 0.02
+
+  # Scheduler
+  scheduler_fn: null
+  scheduler_params: {}
+
+  # Attention
+  mask_type: sparsemax  # sparsemax или entmax
+
+  # Другое
+  seed: 42
+  verbose: 1
+
+# Устройство
+device: cpu  # cpu или cuda
+
+# Параметры обучения
+training:
+  max_epochs: 100
+  batch_size: 1024
+  virtual_batch_size: 128  # для ghost batch normalization
+  patience: 15  # early stopping patience
+
+# Логирование
+logging:
+  verbose: 1

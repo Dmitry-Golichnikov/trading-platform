@@ -1,0 +1,38 @@
+# AutoML Configuration
+
+# Model types to try (if null, tries all available)
+model_types:
+  - lightgbm
+  - xgboost
+  - catboost
+  - random_forest
+  - logistic_regression
+  - tabnet
+
+# Optimization settings
+optimization:
+  metric_name: roc_auc
+  direction: maximize
+  time_budget: 3600  # Total time budget in seconds
+  n_trials_per_model: 50  # Number of trials per model type
+
+# Feature selection
+feature_selection:
+  enabled: true
+  keep_ratio: 0.5  # Keep top 50% of features
+
+# Ensemble settings
+ensemble:
+  top_k_models: 5  # Number of top models to include in ensemble
+  method: voting  # voting, stacking, weighted
+
+# Tracking
+tracking:
+  mlflow_enabled: true
+  experiment_name: automl
+
+# Output
+output:
+  save_dir: artifacts/automl
+  save_leaderboard: true
+  save_best_model: true

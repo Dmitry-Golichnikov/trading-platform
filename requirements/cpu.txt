@@ -1,0 +1,5 @@
+# CPU профиль зависимостей
+-r base.txt
+
+torch>=2.0.0
+pytorch-lightning>=2.0.0

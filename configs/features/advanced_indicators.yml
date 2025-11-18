@@ -1,0 +1,138 @@
+# Advanced Technical Indicators Configuration
+#
+# Extended set of indicators including trend, momentum,
+# volatility, and volume-based indicators
+
+indicators:
+  # Trend Indicators
+  - name: SMA
+    params:
+      period: 10
+
+  - name: SMA
+    params:
+      period: 50
+
+  - name: SMA
+    params:
+      period: 200
+
+  - name: EMA
+    params:
+      period: 12
+
+  - name: EMA
+    params:
+      period: 26
+
+  - name: MACD
+    params:
+      fast: 12
+      slow: 26
+      signal: 9
+
+  # Momentum Indicators
+  - name: RSI
+    params:
+      period: 14
+
+  - name: RSI
+    params:
+      period: 7
+
+  - name: Stochastic
+    params:
+      k_period: 14
+      d_period: 3
+
+  - name: StochasticRSI
+    params:
+      rsi_period: 14
+      stoch_period: 14
+
+  - name: CCI
+    params:
+      period: 20
+
+  - name: WilliamsR
+    params:
+      period: 14
+
+  # Volatility Indicators
+  - name: BollingerBands
+    params:
+      period: 20
+      std_dev: 2
+
+  - name: ATR
+    params:
+      period: 14
+
+  - name: KeltnerChannels
+    params:
+      ema_period: 20
+      atr_period: 10
+      multiplier: 2
+
+  - name: DonchianChannels
+    params:
+      period: 20
+
+  # Volume Indicators
+  - name: OBV
+    params: {}
+
+  - name: VWAP
+    params: {}
+
+  - name: ChaikinMoneyFlow
+    params:
+      period: 20
+
+  - name: MoneyFlowIndex
+    params:
+      period: 14
+
+  # Advanced Indicators
+  - name: ADX
+    params:
+      period: 14
+
+  - name: IchimokuCloud
+    params:
+      tenkan: 9
+      kijun: 26
+      senkou_b: 52
+
+  - name: ParabolicSAR
+    params:
+      acceleration: 0.02
+      maximum: 0.2
+
+# Feature Transformations
+transformers:
+  # Time-shifted features
+  - type: lags
+    params:
+      lags: [1, 2, 3, 5, 10, 20]
+
+  # Rolling window statistics
+  - type: rolling
+    params:
+      windows: [5, 10, 20, 50]
+      functions: [mean, std, min, max]
+
+  # Price differences
+  - type: differences
+    params:
+      periods: [1, 5, 10]
+
+  # Price ratios
+  - type: ratios
+    params:
+      columns:
+        - [close, SMA_20]
+        - [close, SMA_50]
+        - [close, SMA_200]
+        - [high, low]
+        - [volume, VolumeMA_20]

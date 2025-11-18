@@ -1,0 +1,21 @@
+# Конфигурация разметки: MFE/MAE Regression
+# Для моделей, предсказывающих максимальные экскурсии
+
+method: regression
+
+params:
+  # Тип таргета - можно изменить на 'mae'
+  target_type: mfe  # Max Favorable Excursion
+
+  # Горизонт
+  horizon: 30
+
+  # Тип цены
+  price_type: close
+
+  # Нормализация
+  normalize: true
+
+# Постфильтры не применяются для регрессии
+
+# Балансировка не применяется для регрессии
