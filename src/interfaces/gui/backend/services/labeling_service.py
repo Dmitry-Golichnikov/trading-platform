@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 import pandas as pd
 
-from src.interfaces.gui.backend.api.models import LabelingSetInfo, LabelingMethod, TaskStatus
+from src.interfaces.gui.backend.api.models import LabelingMethod, LabelingSetInfo
 from src.interfaces.gui.backend.services.dataset_service import DatasetService
 
 
@@ -28,7 +28,9 @@ class LabelingService:
 
     def build_labeling_set_id(self, dataset_id: str, name: str) -> str:
         """Build labeling set ID from dataset ID and name"""
-        return f"{dataset_id}__{name}"
+        # Sanitize name to be filesystem-safe
+        safe_name = "".join(c if c.isalnum() or c in " -_" else "_" for c in name)
+        return f"{dataset_id}__{safe_name}"
 
     def _labeling_set_dir(self, labeling_set_id: str) -> Path:
         """Get directory for labeling set"""
@@ -72,7 +74,7 @@ class LabelingService:
         method: Optional[LabelingMethod] = None,
     ) -> List[LabelingSetInfo]:
         """List all labeling sets"""
-        labeling_sets = []
+        labeling_sets: List[LabelingSetInfo] = []
 
         if not self.labeling_dir.exists():
             return labeling_sets
@@ -101,11 +103,7 @@ class LabelingService:
                     num_samples=metadata.get("num_samples", 0),
                     class_distribution=metadata.get("class_distribution"),
                     created_at=datetime.fromisoformat(metadata.get("created_at", datetime.now().isoformat())),
-                    updated_at=(
-                        datetime.fromisoformat(metadata["updated_at"])
-                        if metadata.get("updated_at")
-                        else None
-                    ),
+                    updated_at=(datetime.fromisoformat(metadata["updated_at"]) if metadata.get("updated_at") else None),
                     status=metadata.get("status", "unknown"),
                     description=metadata.get("description"),
                     feature_set_id=metadata.get("feature_set_id"),
@@ -133,9 +131,7 @@ class LabelingService:
                 num_samples=metadata.get("num_samples", 0),
                 class_distribution=metadata.get("class_distribution"),
                 created_at=datetime.fromisoformat(metadata.get("created_at", datetime.now().isoformat())),
-                updated_at=(
-                    datetime.fromisoformat(metadata["updated_at"]) if metadata.get("updated_at") else None
-                ),
+                updated_at=(datetime.fromisoformat(metadata["updated_at"]) if metadata.get("updated_at") else None),
                 status=metadata.get("status", "unknown"),
                 description=metadata.get("description"),
                 feature_set_id=metadata.get("feature_set_id"),
@@ -147,7 +143,7 @@ class LabelingService:
     def get_labeling_data(
         self,
         labeling_set_id: str,
-        limit: int = 1000,
+        limit: Optional[int] = None,
     ) -> Dict[str, Any]:
         """Get labeling data"""
         data_file = self._data_file(labeling_set_id)
@@ -156,12 +152,22 @@ class LabelingService:
 
         try:
             df = pd.read_parquet(data_file)
-            if limit > 0:
+            if limit is not None and limit > 0:
                 df = df.head(limit)
+
+            df = df.reset_index()
+
+            # Replace non-JSON-compliant numeric values
+            df = df.replace([np.inf, -np.inf], np.nan)
+            df = df.where(pd.notnull(df), None)
+
+            # Convert timestamps to strings for JSON serialization
+            for col in df.select_dtypes(include=["datetime", "datetimetz"]).columns:
+                df[col] = df[col].astype(str)
 
             # Convert to dict
             return {
-                "data": df.reset_index().to_dict(orient="records"),
+                "data": df.to_dict(orient="records"),
                 "num_rows": len(df),
             }
         except Exception as e:
@@ -282,4 +288,3 @@ class LabelingService:
                 sanitized[column] = sanitized[column].apply(_convert_value)
 
         return sanitized
-

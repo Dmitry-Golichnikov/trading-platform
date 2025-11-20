@@ -336,7 +336,7 @@ class DatasetService:
         except Exception as exc:
             print(f"Error reading dataset file {file}: {exc}")
             try:
-                import fastparquet  # type: ignore  # noqa: F401
+                import fastparquet  # noqa: F401
             except ImportError:
                 return None
 

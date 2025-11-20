@@ -37,18 +37,29 @@ import {
   FormLabel,
   Alert,
   Collapse,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  ToggleButton,
+  ToggleButtonGroup,
+  useTheme,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import StopIcon from '@mui/icons-material/Stop';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import TableChartIcon from '@mui/icons-material/TableChart';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import Plot from 'react-plotly.js';
 import { labelingAPI, datasetsAPI, featuresAPI } from '@/api/client';
-import type { LabelingSetInfo, LabelingTaskInfo, FeatureSetInfo } from '@/types';
+import type { LabelingSetInfo, LabelingTaskInfo } from '@/types';
 import { useStore } from '@/store';
 import { labelingPresets, type LabelingPreset } from '@/configs/labelingPresets';
 
@@ -62,12 +73,12 @@ type BuilderState = {
   description: string;
   method: LabelingMethod;
   direction: Direction;
-  
+
   // Horizon params
   horizonPeriod: number;
   horizonAdaptive: boolean;
   horizonThreshold: number;
-  
+
   // Triple Barrier params
   upperBarrierType: BarrierType;
   upperBarrierValue: number;
@@ -76,43 +87,43 @@ type BuilderState = {
   timeBarrier: number;
   minReturn: number;
   asymmetricBarriers: boolean;
-  
+
   // Regression params
   regressionTarget: 'future_return' | 'mfe' | 'mae' | 'sharpe';
   regressionHorizon: number;
-  
+
   // Filters
   enableSmoothing: boolean;
   smoothingWindow: number;
   smoothingMethod: 'median' | 'mean' | 'exponential';
-  
+
   enableSequenceFilter: boolean;
   minSequenceLength: number;
-  
+
   enableMajorityVote: boolean;
   majorityWindow: number;
-  
+
   enableDangerZones: boolean;
   volatilityThreshold: number;
-  
+
   // Balancing
   balancingMethod: 'none' | 'class_weights' | 'oversampling' | 'undersampling';
-  
+
   // Commission consideration
   considerCommissions: boolean;
   commissionRate: number;
 };
 
 const defaultBuilderState: BuilderState = {
-  name: 'Long стратегия 2%/1%',
+  name: 'Long стратегия 2%-1%',
   description: '',
   method: 'triple_barrier',
   direction: 'long',
-  
+
   horizonPeriod: 20,
   horizonAdaptive: false,
   horizonThreshold: 1.0,
-  
+
   upperBarrierType: 'percentage',
   upperBarrierValue: 2.0,
   lowerBarrierType: 'percentage',
@@ -120,25 +131,25 @@ const defaultBuilderState: BuilderState = {
   timeBarrier: 20,
   minReturn: 0.0,
   asymmetricBarriers: true,
-  
+
   regressionTarget: 'future_return',
   regressionHorizon: 20,
-  
+
   enableSmoothing: true,
   smoothingWindow: 3,
   smoothingMethod: 'median',
-  
+
   enableSequenceFilter: true,
   minSequenceLength: 2,
-  
+
   enableMajorityVote: false,
   majorityWindow: 5,
-  
+
   enableDangerZones: true,
   volatilityThreshold: 3.0,
-  
+
   balancingMethod: 'class_weights',
-  
+
   considerCommissions: true,
   commissionRate: 0.05,
 };
@@ -194,7 +205,7 @@ const buildLabelingConfig = (builder: BuilderState) => {
 
   // Filters
   const filters: any[] = [];
-  
+
   if (builder.enableSmoothing) {
     filters.push({
       type: 'smoothing',
@@ -204,7 +215,7 @@ const buildLabelingConfig = (builder: BuilderState) => {
       },
     });
   }
-  
+
   if (builder.enableSequenceFilter) {
     filters.push({
       type: 'sequence',
@@ -213,7 +224,7 @@ const buildLabelingConfig = (builder: BuilderState) => {
       },
     });
   }
-  
+
   if (builder.enableMajorityVote) {
     filters.push({
       type: 'majority_vote',
@@ -222,7 +233,7 @@ const buildLabelingConfig = (builder: BuilderState) => {
       },
     });
   }
-  
+
   if (builder.enableDangerZones) {
     filters.push({
       type: 'danger_zones',
@@ -231,7 +242,7 @@ const buildLabelingConfig = (builder: BuilderState) => {
       },
     });
   }
-  
+
   if (filters.length > 0) {
     config.filters = filters;
   }
@@ -253,6 +264,8 @@ const buildLabelingConfig = (builder: BuilderState) => {
 };
 
 export default function Labeling() {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   const addNotification = useStore((state) => state.addNotification);
   const [tab, setTab] = useState<TabValue>('sets');
   const [datasetFilter, setDatasetFilter] = useState('');
@@ -265,11 +278,17 @@ export default function Labeling() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showPresets, setShowPresets] = useState(false);
 
+  // View Dialog State
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'table' | 'chart'>('table');
+  const [chartType, setChartType] = useState<'candlestick' | 'line'>('candlestick');
+  const [selectedLabelingSet, setSelectedLabelingSet] = useState<LabelingSetInfo | null>(null);
+
   const { data: datasets, isLoading: isDatasetsLoading } = useQuery('datasets', () =>
     datasetsAPI.list().then((res) => res.data)
   );
 
-  const { data: featureSets, isLoading: isFeatureSetsLoading } = useQuery('featureSets', () =>
+  const { data: featureSets } = useQuery('featureSets', () =>
     featuresAPI.list().then((res) => res.data)
   );
 
@@ -289,8 +308,212 @@ export default function Labeling() {
   const isLoading = labelingSetsQuery.isLoading || isDatasetsLoading;
   const filteredTasks = useMemo(() => tasksQuery.data ?? [], [tasksQuery.data]);
 
+  const { data: viewData, isLoading: isViewDataLoading, error: viewError } = useQuery(
+    ['labelingData', selectedLabelingSet?.id],
+    () => {
+      if (!selectedLabelingSet) return null;
+      return labelingAPI.getData(selectedLabelingSet.id).then((res) => res.data);
+    },
+    {
+      enabled: !!selectedLabelingSet && viewDialogOpen,
+      retry: 1,
+    }
+  );
+
   const datasetsAvailable = datasets?.length ?? 0;
   const canSubmit = applyToAll ? datasetsAvailable > 0 : selectedDatasets.length > 0;
+
+  const renderCellValue = (key: string, value: any, method?: string, config?: any) => {
+    if (value === null || value === undefined) {
+      return <Typography variant="caption" color="text.secondary">null</Typography>;
+    }
+
+    // Timestamp formatting
+    if (['timestamp', 'date', 'time', 'created_at', 'updated_at'].includes(key)) {
+      try {
+        return new Date(value).toLocaleString();
+      } catch (e) {
+        return String(value);
+      }
+    }
+
+    // Label handling
+    if (key === 'label') {
+      // Regression
+      if (method === 'regression') {
+        return (
+          <Chip
+            label={typeof value === 'number' ? value.toFixed(5) : String(value)}
+            size="small"
+            variant="outlined"
+            color="info"
+          />
+        );
+      }
+
+      // Classification
+      const numVal = Number(value);
+      let color: 'default' | 'success' | 'error' | 'warning' = 'default';
+      let text = String(value);
+      const direction = config?.direction || 'long+short';
+
+      if (numVal === 1) {
+        // Label 1: Upper barrier hit
+        if (direction === 'long') {
+            color = 'success';
+            text = 'LONG WIN (1)';
+        } else if (direction === 'short') {
+            color = 'error';
+            text = 'SHORT LOSS (1)';
+        } else {
+            color = 'success';
+            text = 'LONG (1)';
+        }
+      } else if (numVal === -1) {
+        // Label -1: Lower barrier hit
+        if (direction === 'long') {
+            color = 'error';
+            text = 'LONG LOSS (-1)';
+        } else if (direction === 'short') {
+            color = 'success';
+            text = 'SHORT WIN (-1)';
+        } else {
+            color = 'error';
+            text = 'SHORT (-1)';
+        }
+      } else if (numVal === 0) {
+        color = 'default';
+        text = 'HOLD (0)';
+      }
+
+      return <Chip label={text} color={color} size="small" />;
+    }
+
+    // Numeric formatting
+    if (typeof value === 'number') {
+      // Integer check
+      if (Number.isInteger(value)) return value.toLocaleString();
+      return value.toLocaleString(undefined, { maximumFractionDigits: 5 });
+    }
+
+    // Boolean
+    if (typeof value === 'boolean') {
+      return <Chip label={value ? 'TRUE' : 'FALSE'} size="small" variant="outlined" color={value ? 'success' : 'default'} />;
+    }
+
+    // Object/Array (sanitized as string from backend usually, but check just in case)
+    if (typeof value === 'object') {
+      return JSON.stringify(value);
+    }
+
+    return String(value);
+  };
+
+  const chartTraces = useMemo(() => {
+    if (!viewData || !viewData.data || viewData.data.length === 0) return [];
+
+    const data = viewData.data;
+    // Ensure required columns exist
+    const hasOHLC = data[0].open !== undefined && data[0].close !== undefined;
+
+    if (!hasOHLC) return [];
+
+    const timestamps = data.map((d: any) => d.timestamp);
+
+    const traces: any[] = [];
+
+    if (chartType === 'candlestick') {
+      traces.push({
+        x: timestamps,
+        open: data.map((d: any) => d.open),
+        high: data.map((d: any) => d.high),
+        low: data.map((d: any) => d.low),
+        close: data.map((d: any) => d.close),
+        type: 'candlestick',
+        name: 'Price',
+        increasing: { line: { color: '#26a69a' } },
+        decreasing: { line: { color: '#ef5350' } },
+      });
+    } else {
+      traces.push({
+        x: timestamps,
+        y: data.map((d: any) => d.close),
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Close Price',
+        line: { color: '#2196f3', width: 2 },
+      });
+    }
+
+    // Add markers for labels
+    if (selectedLabelingSet?.method !== 'regression') {
+        const direction = selectedLabelingSet?.config?.direction || 'long+short';
+
+        const longIndices = data.map((d: any, i: number) => Number(d.label) === 1 ? i : -1).filter((i: number) => i !== -1);
+        const shortIndices = data.map((d: any, i: number) => Number(d.label) === -1 ? i : -1).filter((i: number) => i !== -1);
+
+        // Helper to get y-coordinate based on chart type
+        const getLongY = (i: number) => chartType === 'candlestick' ? data[i].low * 0.999 : data[i].close * 0.999;
+        const getShortY = (i: number) => chartType === 'candlestick' ? data[i].high * 1.001 : data[i].close * 1.001;
+
+        // Config based on direction
+        let label1Name = 'Long';
+        let label1Color = '#00c853'; // Green
+        let labelMinus1Name = 'Short';
+        let labelMinus1Color = '#d50000'; // Red
+
+        if (direction === 'long') {
+            label1Name = 'Long Win';
+            labelMinus1Name = 'Long Loss';
+        } else if (direction === 'short') {
+            label1Name = 'Short Loss';
+            label1Color = '#d50000'; // Red (price went up, bad for short)
+            labelMinus1Name = 'Short Win';
+            labelMinus1Color = '#00c853'; // Green (price went down, good for short)
+        }
+
+        if (longIndices.length > 0) {
+            traces.push({
+                x: longIndices.map((i: number) => timestamps[i]),
+                y: longIndices.map((i: number) => getLongY(i)),
+                mode: 'markers',
+                type: 'scatter',
+                name: label1Name,
+                marker: { symbol: 'triangle-up', color: label1Color, size: 10 }
+            });
+        }
+
+        if (shortIndices.length > 0) {
+            traces.push({
+                x: shortIndices.map((i: number) => timestamps[i]),
+                y: shortIndices.map((i: number) => getShortY(i)),
+                mode: 'markers',
+                type: 'scatter',
+                name: labelMinus1Name,
+                marker: { symbol: 'triangle-down', color: labelMinus1Color, size: 10 }
+            });
+        }
+    }
+
+    return traces;
+  }, [viewData, selectedLabelingSet, chartType]);
+
+  const chartLayout = useMemo(() => ({
+      autosize: true,
+      height: 600,
+      margin: { l: 50, r: 50, t: 30, b: 50 },
+      paper_bgcolor: isDark ? '#1e1e1e' : '#fff',
+      plot_bgcolor: isDark ? '#1e1e1e' : '#fff',
+      font: { color: isDark ? '#fff' : '#000' },
+      xaxis: {
+          gridcolor: isDark ? '#333' : '#e0e0e0',
+          rangeslider: { visible: false }
+      },
+      yaxis: { gridcolor: isDark ? '#333' : '#e0e0e0' },
+      showlegend: true,
+      legend: { orientation: 'h', y: 1.02, x: 0.5, xanchor: 'center' },
+      uirevision: selectedLabelingSet?.id, // Critical for keeping zoom state on updates
+  }), [isDark, selectedLabelingSet?.id]);
 
   const loadPreset = (preset: LabelingPreset) => {
     setBuilder({
@@ -367,9 +590,19 @@ export default function Labeling() {
     }
   };
 
+  const handleViewLabelingSet = (labelingSet: LabelingSetInfo) => {
+    setSelectedLabelingSet(labelingSet);
+    setViewDialogOpen(true);
+  };
+
+  const handleCloseViewDialog = () => {
+    setViewDialogOpen(false);
+    setSelectedLabelingSet(null);
+  };
+
   const renderClassDistribution = (distribution?: Record<string, number>) => {
     if (!distribution || Object.keys(distribution).length === 0) return null;
-    
+
     return (
       <Stack direction="row" spacing={1}>
         {Object.entries(distribution).map(([label, count]) => (
@@ -459,11 +692,18 @@ export default function Labeling() {
                       <Chip size="small" label={ls.status} color={statusColor[ls.status] || 'default'} />
                     </TableCell>
                     <TableCell align="right">
-                      <Tooltip title="Удалить набор">
-                        <IconButton size="small" color="error" onClick={() => deleteLabelingSet(ls)}>
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
+                      <Stack direction="row" spacing={1} justifyContent="flex-end">
+                        <Tooltip title="Просмотреть данные">
+                          <IconButton size="small" onClick={() => handleViewLabelingSet(ls)}>
+                            <VisibilityIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Удалить набор">
+                          <IconButton size="small" color="error" onClick={() => deleteLabelingSet(ls)}>
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
                     </TableCell>
                   </TableRow>
                 ))
@@ -1123,7 +1363,139 @@ export default function Labeling() {
           </Grid>
         </Grid>
       </TabPanel>
+
+      {/* View Data Dialog */}
+      <Dialog open={viewDialogOpen} onClose={handleCloseViewDialog} maxWidth="xl" fullWidth>
+        <DialogTitle>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Box>
+                <Typography variant="h6">Просмотр разметки: {selectedLabelingSet?.name}</Typography>
+                {selectedLabelingSet && (
+                    <Typography variant="caption" color="text.secondary">
+                    Dataset: {selectedLabelingSet.dataset_id} | Samples: {selectedLabelingSet.num_samples}
+                    </Typography>
+                )}
+            </Box>
+            <Stack direction="row" spacing={2} alignItems="center">
+                <ToggleButtonGroup
+                    value={viewMode}
+                    exclusive
+                    onChange={(_, newMode) => newMode && setViewMode(newMode)}
+                    size="small"
+                >
+                    <ToggleButton value="table">
+                        <TableChartIcon sx={{ mr: 1 }} /> Таблица
+                    </ToggleButton>
+                    <ToggleButton value="chart">
+                        <ShowChartIcon sx={{ mr: 1 }} /> График
+                    </ToggleButton>
+                </ToggleButtonGroup>
+
+                {viewMode === 'chart' && (
+                  <ToggleButtonGroup
+                    value={chartType}
+                    exclusive
+                    onChange={(_, newType) => newType && setChartType(newType)}
+                    size="small"
+                    sx={{ ml: 2 }}
+                  >
+                    <Tooltip title="Свечи">
+                      <ToggleButton value="candlestick">
+                        <BarChartIcon />
+                      </ToggleButton>
+                    </Tooltip>
+                    <Tooltip title="Линия">
+                      <ToggleButton value="line">
+                        <ShowChartIcon />
+                      </ToggleButton>
+                    </Tooltip>
+                  </ToggleButtonGroup>
+                )}
+
+                <Chip
+                size="small"
+                label={selectedLabelingSet?.method}
+                color="primary"
+                variant="outlined"
+                />
+            </Stack>
+          </Box>
+        </DialogTitle>
+        <DialogContent dividers sx={{ p: viewMode === 'chart' ? 1 : 2 }}>
+          {isViewDataLoading ? (
+            <Box display="flex" justifyContent="center" p={4}>
+              <CircularProgress />
+            </Box>
+          ) : viewError ? (
+             <Alert severity="error" sx={{ mt: 2 }}>
+               Не удалось загрузить данные: {(viewError as any)?.response?.data?.detail || (viewError as any)?.message || 'Неизвестная ошибка'}
+             </Alert>
+          ) : viewData && viewData.data && viewData.data.length > 0 ? (
+            viewMode === 'table' ? (
+                <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 600 }}>
+                <Table stickyHeader size="small">
+                    <TableHead>
+                    <TableRow>
+                        {Object.keys(viewData.data[0]).map((key) => (
+                        <TableCell
+                            key={key}
+                            sx={{
+                            fontWeight: 'bold',
+                            bgcolor: 'background.paper',
+                            whiteSpace: 'nowrap'
+                            }}
+                        >
+                            {key}
+                        </TableCell>
+                        ))}
+                    </TableRow>
+                    </TableHead>
+                    <TableBody>
+                    {viewData.data.map((row: any, idx: number) => (
+                        <TableRow key={idx} hover>
+                        {Object.entries(row).map(([key, val], cellIdx) => (
+                            <TableCell key={cellIdx} sx={{ whiteSpace: 'nowrap' }}>
+                            {renderCellValue(key, val, selectedLabelingSet?.method, selectedLabelingSet?.config)}
+                            </TableCell>
+                        ))}
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+                </TableContainer>
+            ) : (
+                <Box height={600}>
+                    {chartTraces.length > 0 ? (
+                        <Plot
+                            data={chartTraces}
+                            layout={chartLayout}
+                            config={{ responsive: true, displayModeBar: true }}
+                            style={{ width: '100%', height: '100%' }}
+                        />
+                    ) : (
+                         <Box p={4} textAlign="center">
+                            <Typography color="text.secondary">
+                                Для отображения графика требуются колонки open, high, low, close.
+                            </Typography>
+                        </Box>
+                    )}
+                </Box>
+            )
+          ) : (
+            <Box p={4} textAlign="center">
+              <Typography color="text.secondary">Нет данных для отображения</Typography>
+              {selectedLabelingSet && (
+                  <Typography variant="caption" display="block" mt={1}>
+                      ID: {selectedLabelingSet.id}
+                  </Typography>
+              )}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseViewDialog}>Закрыть</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
-

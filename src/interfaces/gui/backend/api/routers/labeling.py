@@ -131,7 +131,7 @@ async def get_labeling_set(labeling_set_id: str):
 @router.get("/{labeling_set_id}/data")
 async def get_labeling_data(
     labeling_set_id: str,
-    limit: int = Query(1000, description="Max rows to return"),
+    limit: Optional[int] = Query(None, description="Max rows to return (omit for all rows)"),
 ):
     """Get labeling data"""
     try:
@@ -177,4 +177,3 @@ async def visualize_labeling(
         return {"type": chart_type, "data": {}, "message": "Chart type not implemented"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
