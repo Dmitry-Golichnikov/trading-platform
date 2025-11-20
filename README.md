@@ -144,6 +144,31 @@ python -m src.interfaces.cli models train --config configs/models/lightgbm.yaml
 python -m src.interfaces.cli backtest run --config configs/backtests/strategy1.yaml
 ```
 
+### GUI
+
+Desktop приложение на PyQt6 с полным функционалом платформы:
+
+```bash
+# Установить GUI зависимости
+pip install -e ".[gui]"
+
+# Запустить GUI
+trading-gui
+
+# Или напрямую
+python src/interfaces/gui/scripts/run_gui.py
+```
+
+**Возможности GUI:**
+- 📊 Управление данными с визуализацией графиков
+- 🔧 Конфигуратор признаков с 30+ индикаторами
+- 🎯 Разметка данных (Triple Barrier, Horizon)
+- 🤖 Real-time мониторинг обучения моделей
+- 📈 Бэктестинг с equity curves и метриками
+- 🔬 Комплексные эксперименты (batch processing)
+
+📚 **Документация GUI**: [src/interfaces/gui/desktop/README.md](src/interfaces/gui/desktop/README.md)
+
 ### Docker
 
 Проект предоставляет готовые Docker конфигурации для работы на CPU и GPU.

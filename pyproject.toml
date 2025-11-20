@@ -20,6 +20,7 @@ keywords = [
 
 [project.scripts]
 trading-cli = "src.interfaces.cli.__main__:cli"
+trading-gui = "src.interfaces.gui.desktop.main:main"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -98,6 +99,12 @@ gpu = [
 tech-analysis = [
     "TA-Lib",
     "pandas-ta @ https://github.com/Data-Analisis/Technical-Analysis-Indicators---Pandas/archive/refs/heads/master.zip",
+]
+gui = [
+    "PyQt6>=6.6.0",
+    "pyqtgraph>=0.13.3",
+    "qdarkstyle>=3.2.0",
+    "qt-material>=2.14",
 ]
 
 [project.urls]
