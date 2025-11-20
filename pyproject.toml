@@ -82,6 +82,10 @@ dependencies = [
     "types-pytz>=2025.2.0.20250809",
     "jupyter>=1.0.0",
     "ipykernel>=6.25.0",
+    "PySide6>=6.6.0",
+    "pyqtgraph>=0.13.3",
+    "qdarktheme>=2.1.0",
+    "qdarkstyle>=3.2.0",
 ]
 
 [project.optional-dependencies]

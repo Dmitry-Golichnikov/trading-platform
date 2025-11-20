@@ -144,6 +144,19 @@ python -m src.interfaces.cli models train --config configs/models/lightgbm.yaml
 python -m src.interfaces.cli backtest run --config configs/backtests/strategy1.yaml
 ```
 
+### GUI
+
+- Запуск desktop-интерфейса: `python scripts/run_gui.py`
+- Требования: установленное окружение с PySide6/pyqtgraph (см. `requirements/base.txt`)
+- Назначение вкладок:
+  - **Datasets** — каталог датасетов, импорт CSV/Parquet, предпросмотр свечей
+  - **Features** — конструктор признаков (индикаторы из `technical_spec.md#6`)
+  - **Labeling** — настройка triple barrier / horizon разметки с визуализацией
+  - **Training** — конфигуратор экспериментов обучения + realtime монитор
+  - **Backtesting** — запуск стратегий, просмотр equity/trades
+  - **Experiments** — пакетные комбинации datasets × features × моделей × стратегий
+- Архитектура и подсказки: `docs/gui/ARCHITECTURE.md`
+
 ### Docker
 
 Проект предоставляет готовые Docker конфигурации для работы на CPU и GPU.
